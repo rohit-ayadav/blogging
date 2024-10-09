@@ -3,14 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { sign } from "jsonwebtoken";
 import User from "../../../../models/users.models";
-import { getSession } from "next-auth/react";
+import { getToken } from "next-auth/jwt";
 
 connectDB();
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getSession({ req });
-    if (session) {
+    const existingToken = await getToken({ req });
+    if (existingToken) {
       return NextResponse.json({ message: "You are already signed in." }, { status: 400 });
     }
 
@@ -41,11 +41,11 @@ export async function POST(req: NextRequest) {
     if (!process.env.JWT_SECRET) {
       throw new Error("JWT_SECRET is not defined");
     }
-    const token = sign({ userId: newUser._id }, process.env.JWT_SECRET, {
+    const newToken = sign({ userId: newUser._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
-    return NextResponse.json({ message: "User created.", token }, { status: 201 });
+    return NextResponse.json({ message: "User created.", token: newToken }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ message: "Internal server error." }, { status: 500 });
   }

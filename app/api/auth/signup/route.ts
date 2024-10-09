@@ -1,54 +1,52 @@
 import { connectDB } from "@/utils/db";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { sign } from "jsonwebtoken";
 import User from "../../../../models/users.models";
-import { getSession } from "next-auth/react";
+import { getToken } from "next-auth/jwt";
 
 connectDB();
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
-    try {
-        const session = await getSession({ req });
-        if (session) {
-            return res.status(400).json({ message: "You are already signed in." });
-        }
-
-        interface UserData {
-            email: string;
-            password: string;
-        }
-
-        const { email, password } = req.body as UserData;
-
-        if (!email || !password) {
-            return res.status(400).json({ message: "Please fill in all fields." });
-        }
-
-        const user = await User.findOne({ email });
-        if (user) {
-            return res.status(400).json({
-                message: "User already exists.",
-            });
-        }
-
-        const hashedPassword = await hash(password, 12);
-
-        const newUser = new User({
-            email,
-            password: hashedPassword,
-        });
-        await newUser.save();
-
-        if (!process.env.JWT_SECRET) {
-            throw new Error("JWT_SECRET is not defined");
-        }
-        const token = sign({ userId: newUser._id }, process.env.JWT_SECRET, {
-            expiresIn: "7d",
-        });
-
-        return res.status(201).json({ message: "User created.", token });
-    } catch (error) {
-        return res.status(500).json({ message: "Internal server error." });
+export async function POST(req: NextRequest) {
+  try {
+    const existingToken = await getToken({ req });
+    if (existingToken) {
+      return NextResponse.json({ message: "You are already signed in." }, { status: 400 });
     }
+
+    interface UserData {
+      email: string;
+      password: string;
+    }
+
+    const { email, password } = await req.json() as UserData;
+
+    if (!email || !password) {
+      return NextResponse.json({ message: "Please fill in all fields." }, { status: 400 });
+    }
+
+    const user = await User.findOne({ email });
+    if (user) {
+      return NextResponse.json({ message: "User already exists." }, { status: 400 });
+    }
+
+    const hashedPassword = await hash(password, 12);
+
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+    });
+    await newUser.save();
+
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not defined");
+    }
+    const newToken = sign({ userId: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    return NextResponse.json({ message: "User created.", token: newToken }, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ message: "Internal server error." }, { status: 500 });
+  }
 }
