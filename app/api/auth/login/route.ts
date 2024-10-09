@@ -1,5 +1,5 @@
 import { connectDB } from "@/utils/db";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { sign } from "jsonwebtoken";
 import User from "../../../../models/users.models";
@@ -7,11 +7,11 @@ import { getSession } from "next-auth/react";
 
 connectDB();
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
+export async function POST(req: NextRequest) {
   try {
     const session = await getSession({ req });
     if (session) {
-      return res.status(400).json({ message: "You are already signed in." });
+      return NextResponse.json({ message: "You are already signed in." }, { status: 400 });
     }
 
     interface UserData {
@@ -19,17 +19,15 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
       password: string;
     }
 
-    const { email, password } = req.body as UserData;
+    const { email, password } = await req.json() as UserData;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Please fill in all fields." });
+      return NextResponse.json({ message: "Please fill in all fields." }, { status: 400 });
     }
 
     const user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({
-        message: "User already exists.",
-      });
+      return NextResponse.json({ message: "User already exists." }, { status: 400 });
     }
 
     const hashedPassword = await hash(password, 12);
@@ -47,8 +45,8 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
       expiresIn: "7d",
     });
 
-    return res.status(201).json({ message: "User created.", token });
+    return NextResponse.json({ message: "User created.", token }, { status: 201 });
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error." });
+    return NextResponse.json({ message: "Internal server error." }, { status: 500 });
   }
 }
