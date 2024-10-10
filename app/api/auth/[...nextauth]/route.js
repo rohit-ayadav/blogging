@@ -49,6 +49,7 @@ const handler = NextAuth({
     },
     jwt: {
         secret: process.env.JWT_SECRET,
+        maxAge: 5 * 24 * 60 * 60, // 5 days
     },
     callbacks: {
         async jwt({ token, user }) {
@@ -62,6 +63,7 @@ const handler = NextAuth({
             }
             return token;
         },
+
         async session({ session, token }) {
             if (token?.email) {
                 session.user.email = token.email;
