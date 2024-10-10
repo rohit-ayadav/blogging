@@ -75,6 +75,14 @@ export default function UserProfile() {
     };
 
     const handleSaveProfile = async () => {
+        toast.promise(saveProfile(), {
+            loading: 'Saving profile...',
+            success: 'Profile saved successfully',
+            error: 'Failed to save profile',
+        });
+    }
+
+    const saveProfile = async () => {
         if (editData) {
             const response = await fetch(`/api/user`, {
                 method: 'PUT',
@@ -147,7 +155,7 @@ export default function UserProfile() {
             success: 'Account deleted successfully',
             error: 'Failed to delete account',
         });
-        signOut();
+        await signOut();
         window.location.href = '/';
     };
 
@@ -187,7 +195,7 @@ export default function UserProfile() {
                         <CardHeader>
                             <div className="flex flex-col items-center">
                                 <Avatar className="w-32 h-32">
-                                    <AvatarImage src={userData?.image ?? ''} alt={userData?.name ?? 'User'} />
+                                    <AvatarImage src={userData?.image ?? '/default-profile.jpg'} alt={userData?.name ?? 'User'} />
                                     <AvatarFallback>{userData?.name?.charAt(0) ?? 'U'}</AvatarFallback>
                                 </Avatar>
                                 <CardTitle className="mt-4 text-2xl font-bold">{userData?.name ?? 'User'}</CardTitle>
@@ -262,6 +270,12 @@ export default function UserProfile() {
                                     <CardTitle>Your Blogs</CardTitle>
                                 </CardHeader>
                                 <CardContent>
+                                    {userBlogs.length === 0 && (
+                                        <>
+                                            <p className="text-gray-600">You have not created any blogs yet.</p>
+                                            <p className="text-gray-600"><a href="/create" className="text-blue-500">Click here</a> to create your first blog.</p>
+                                        </>
+                                    )}
                                     {userBlogs.map((blog) => (
                                         <div key={blog.id} className="mb-4 p-4 border rounded-lg">
                                             <h3 className="text-lg font-semibold">{blog.title}</h3>

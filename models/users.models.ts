@@ -60,25 +60,25 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// userSchema.pre("save", async function (next) {
-//   this.updatedAt = new Date();
+userSchema.pre("save", async function (next) {
+  this.updatedAt = new Date();
 
-//   if (this.isModified("password")) {
-//     const salt = await bcrypt.genSalt(10);
-//     if (typeof this.password === "string") {
-//       this.password = await bcrypt.hash(this.password, salt);
-//     }
-//   }
+  if (this.isModified("password")) {
+    const salt = await bcrypt.genSalt(10);
+    if (typeof this.password === "string") {
+      this.password = await bcrypt.hash(this.password, salt);
+    }
+  }
 
-//   next();
-// });
+  next();
+});
 
-// userSchema.methods.comparePassword = async function (password: string) {
-//   if (typeof this.password !== "string") {
-//     throw new Error("Password is not a string");
-//   }
-//   return await bcrypt.compare(password, this.password);
-// };
+userSchema.methods.comparePassword = async function (password: string) {
+  if (typeof this.password !== "string") {
+    throw new Error("Password is not a string");
+  }
+  return await bcrypt.compare(password, this.password);
+};
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 
