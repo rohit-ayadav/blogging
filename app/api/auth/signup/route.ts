@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       name,
       email,
       bio: bio ? bio : "No bio",
-      password: "hashedPassword",
+      password: hashedPassword,
       image,
       providers: "credentials",
       username,
