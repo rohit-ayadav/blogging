@@ -32,8 +32,13 @@ const handler = NextAuth({
                 if (!user) {
                     throw new Error('User not found');
                 }
-                
-                const isvalid = userSchema.methods.comparePassword(credentials.password, user.password);
+                // credentials.password = "$2a$10$2.o2bp8oGtosDiqEXEoT7.2BEwRtVTQYlc3NRfWcOSRZWEVE19oEm";
+                const isValid = comparePassword(credentials.password, user.password);
+                // const isValid = credentials.password == user.password;
+
+                console.log('User found:', user);
+                console.log('Comparing password:', credentials.password, user.password);
+                console.log('Password valid:', isValid);
                 if (!isValid) {
                     throw new Error('Invalid credentials');
                 }
