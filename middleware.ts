@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "./utils/db";
 import { getToken } from "next-auth/jwt";
-// import mongoose from "mongoose"; // Removed unused import
-
-await connectDB();
 
 const PUBLIC_PAGES = [
   "/",
@@ -16,16 +12,6 @@ const PUBLIC_PAGES = [
   "/contacts",
   "/services",
 ];
-// const PRIVATE_PAGES = [ // Removed unused constant
-//   "/api/",
-//   "/create",
-//   "/edit",
-//   "/profile",
-//   "/api/blog",
-//   "/api/blogpost",
-//   "/api/auth/signout",
-//   "/dashboard",
-// ];
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({
@@ -45,7 +31,6 @@ export async function middleware(request: NextRequest) {
   }
 
   if (!token) {
-    // Redirect to login page with a query parameter
     return NextResponse.redirect(
       `${request.nextUrl.origin}/login?redirected=true&message=You need to login to access this page`
     );
@@ -62,6 +47,6 @@ export const config = {
     "/api/blogpost",
     "/api/",
     "/dashboard",
-    
+
   ],
 };

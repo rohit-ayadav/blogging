@@ -199,3 +199,25 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
+export async function GET(request: NextRequest) {
+  const data = await Blog.find().sort({ createdAt: -1 });
+  if (!data) {
+    return NextResponse.json(
+      {
+        message: "No blog post found",
+        success: false,
+      },
+      { status: 404 }
+    );
+  }
+  console.log(`\n\nData: ${data}\n\n`);
+  return NextResponse.json(
+    {
+      message: "Blog posts found",
+      success: true,
+      data,
+    },
+    { status: 200 }
+  );
+}
