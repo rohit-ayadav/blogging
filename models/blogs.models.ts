@@ -24,6 +24,11 @@ const blogSchema = new mongoose.Schema(
       type: [String],
       required: true,
     },
+    createdBy:{
+      type: String,
+      required: false,
+      default: "anonymous",
+    }
   },
   { timestamps: true }
 );

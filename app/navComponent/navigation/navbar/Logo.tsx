@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Button from "../navbar/Button";
+import Button from "./Button";
 
 const Logo = () => {
     //update the size of the logo when the size of the screen changes
@@ -37,18 +37,9 @@ const Logo = () => {
     return (
         <>
             <Link href="/" style={{ display: showButton ? "none" : "block" }}>
-                {/* <Image
-                    // src="/logo.png"
-                    src="/blog.jpeg"
-                    alt="Logo"
-                    // set height and width of the logo based on the navbar size
-                    width={width < 768 ? 50 : 100}
-                    height={width < 768 ? 50 : 100}
-                    className="relative"
-                /> */}
                 <svg
-                    width={width < 768 ? 50 : 100}
-                    height={width < 768 ? 50 : 100}
+                    width={width < 768 ? 80 : 100}
+                    height={width < 768 ? 80 : 100}
                     viewBox="0 0 100 100"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +49,7 @@ const Logo = () => {
                         y="50%"
                         dominantBaseline="middle"
                         textAnchor="middle"
-                        fontSize={width < 768 ? 20 : 40}
+                        fontSize={width < 768 ? 35 : 40}
                         fill="white"
                     >
                         Blogging

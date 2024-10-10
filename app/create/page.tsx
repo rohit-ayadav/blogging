@@ -3,9 +3,11 @@ import dynamic from 'next/dynamic';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FormEvent, MouseEvent, useEffect, useState } from 'react';
-
+import { signIn, useSession, signOut } from 'next-auth/react';
+import { Session } from 'next-auth';
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false, loading: () => <p>Loading...</p> });
 import 'react-quill/dist/quill.snow.css';
+import { redirect } from 'next/dist/server/api-utils';
 
 export default function CreateBlog() {
     const [title, setTitle] = useState('');
@@ -15,6 +17,7 @@ export default function CreateBlog() {
     const [wordCount, setWordCount] = useState(0);
     const [tags, setTags] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
+    const { data: session } = useSession();
 
     const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -49,33 +52,40 @@ export default function CreateBlog() {
             title,
             // thumbnail,
             content,
-            status: isDraft ? 'draft' : 'published',
             tags,
+            status: isDraft ? 'draft' : 'published',
         };
-        const response = await fetch('/api/blog', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(blogPostData),
-        });
-        const data = await response.json();
+        try {
+            const response = await fetch('/api/blog', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(blogPostData),
+            });
+            const data = await response.json();
 
+            if (!response.ok) {
+                const errorMessage = data.message || 'Something went wrong';
+                console.error('Error creating blog post:', errorMessage);
+                toast.error(errorMessage);
+                setLoading(false);
+                return;
+            }
 
-        if (!response.ok) {
-            const errorMessage = data.message || 'Something went wrong';
-            toast.error(errorMessage);
-            setLoading(false);
+            const successMessage = data.message || 'Blog post created successfully';
+            console.log(successMessage);
+            toast.success(successMessage);
+        } catch (error) {
+            console.error('Error creating blog post:', error);
+            toast.error('Something went wrong');
             return;
         }
-        const successMessage = data.message || 'Blog post created successfully';
-        toast.success(successMessage);
-        setTitle('');
-        // setThumbnail(null);
-        setContent('');
-        setWordCount(0);
-        setTags([]);
-        setLoading(false);
+        finally {
+            setLoading(false);
+            // redirect to the dashboard
+            window.location.href = '/dashboard';
+        }
     };
 
     return (

@@ -1,6 +1,8 @@
 "use client";
 import { useState } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
+import toast from 'react-hot-toast';
+import { set } from 'mongoose';
 
 const signUp = async ({ email, password }: { email: string; password: string }) => {
     alert('Sign up is not implemented yet.');
@@ -11,6 +13,7 @@ export default function Auth() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLogin, setIsLogin] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const { data: session } = useSession();
     if (session) {
@@ -36,25 +39,28 @@ export default function Auth() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (isLogin) {
+            setError(null);
+            if (!email || !password) {
+                setError('Please input all fields');
+                return;
+            }
             const result = await signIn('credentials', {
                 redirect: false,
                 email,
                 password,
             });
-            if (result && result.ok) {
-                // router.push('/dashboard');
-                alert('Login successful');
-            } else {
-                alert('Login failed. Please check your credentials.');
+
+            if (result && result.error) {
+                setError(result.error);
+            } else if (result === null) {
+                alert('Sign in successful');
+            }
+
+            else {
+                alert('Sign in successful');
             }
         } else {
-            try {
-                await signUp({ email, password });
-                // router.push('/dashboard');
-                alert('Signup successful');
-            } catch (error) {
-                alert('Signup failed. Please try again.');
-            }
+            window.location.href = '/signup';
         }
     };
 
@@ -75,6 +81,7 @@ export default function Auth() {
                     </h2>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                    {error && <p className="text-red-500 text-sm text-center">{error}</p>}
                     <input type="hidden" name="remember" defaultValue="true" />
                     <div className="rounded-md shadow-sm -space-y-px">
                         <div>
@@ -138,15 +145,13 @@ export default function Auth() {
 
                 <div className="text-center">
                     <button
-                        onClick={() => setIsLogin(!isLogin)}
+                        onClick={() => window.location.href = '/signup'}
                         className="font-medium text-indigo-600 hover:text-indigo-500"
                     >
-                        {isLogin
-                            ? "Don't have an account? Sign up"
-                            : 'Already have an account? Sign in'}
+                        Don't have an account? Sign up
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

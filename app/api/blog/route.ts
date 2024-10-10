@@ -4,12 +4,25 @@ import { connectDB } from "../../../utils/db";
 import Joi from "joi";
 import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
+import { getSession } from "next-auth/react";
+import { Session } from "next-auth";
+import User from "@/models/users.models";
+import mongoose from "mongoose";
 
-connectDB();
+interface CustomSession extends Session {
+  user: {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  };
+}
+
+await connectDB();
 
 const blogSchema = Joi.object({
   title: Joi.string().required(),
-  // thumbnail: Joi.string().optional(),
+
   content: Joi.string().required(),
   status: Joi.string().valid("published", "draft").optional(),
   tags: Joi.array().items(Joi.string()).optional(),
@@ -17,6 +30,18 @@ const blogSchema = Joi.object({
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
+  const session = (await getSession({
+    req: { headers: Object.fromEntries(request.headers) },
+  })) as CustomSession | null;
+  if (!session) {
+    return NextResponse.json(
+      {
+        message: "You need to be logged in to create a blog post",
+        success: false,
+      },
+      { status: 401 }
+    );
+  }
 
   const { error } = blogSchema.validate(body);
   if (error) {
@@ -31,20 +56,41 @@ export async function POST(request: NextRequest) {
 
   const { title, content, status = "published", tags } = body;
 
+  if (!session.user.email) {
+    return NextResponse.json(
+      {
+        message: "You need to be logged in to create a blog post",
+        success: false,
+      },
+      { status: 401 }
+    );
+  }
+
   const { window } = new JSDOM("");
   const purify = DOMPurify(window);
   const sanitizedContent = purify.sanitize(content);
+  const sanitizedTitle = purify.sanitize(title);
+  const sanitizedTags = tags.map((tag: string) => purify.sanitize(tag));
 
-  const blogPost = new Blog({
-    title,
-    // thumbnail,
+  console.log(`\n\nEmail: ${session.user.email}\n\n`);
+  const blogPost = {
+    title: sanitizedTitle,
     content: sanitizedContent,
     status,
-    tags,
-  });
+    tags: sanitizedTags,
+    createdBy: session.user.email,
+  };
 
   try {
-    await blogPost.save();
+    await Blog.create(blogPost);
+
+    await User.findOneAndUpdate(
+      { email: session.user.email },
+      {
+        $inc: { noOfBlogs: 1 },
+      }
+    );
+
     return NextResponse.json(
       {
         message: "Blog post created successfully",
@@ -57,7 +103,95 @@ export async function POST(request: NextRequest) {
     console.error("Error saving blog post:", error);
     return NextResponse.json(
       {
-        message: "Failed to create blog post",
+        message: (error as Error).message,
+        success: false,
+        error,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const id = searchParams.get("id");
+  if (!id) {
+    return NextResponse.json(
+      {
+        message: "Blog post id is required",
+        success: false,
+      },
+      { status: 400 }
+    );
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return NextResponse.json(
+      {
+        message: "Invalid blog post id",
+        success: false,
+      },
+      { status: 400 }
+    );
+  }
+
+  const session = (await getSession({
+    req: { headers: Object.fromEntries(request.headers) },
+  })) as CustomSession | null;
+
+  if (!session) {
+    return NextResponse.json(
+      {
+        message: "You need to be logged in to delete a blog post",
+        success: false,
+      },
+      { status: 401 }
+    );
+  }
+
+  const blogPost = await Blog.findById(id);
+  if (!blogPost) {
+    return NextResponse.json(
+      {
+        message: "Blog post not found",
+        success: false,
+      },
+      { status: 404 }
+    );
+  }
+
+  if (blogPost.createdBy !== session.user.email) {
+    return NextResponse.json(
+      {
+        message: "You are not authorized to delete this blog post",
+        success: false,
+      },
+      { status: 403 }
+    );
+  }
+
+  try {
+    await Blog.findByIdAndDelete(id);
+
+    await User.findOneAndUpdate(
+      { email: session.user.email },
+      {
+        $inc: { noOfBlogs: -1 },
+      }
+    );
+
+    return NextResponse.json(
+      {
+        message: "Blog post deleted successfully",
+        success: true,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting blog post:", error);
+    return NextResponse.json(
+      {
+        message: (error as Error).message,
         success: false,
         error,
       },
