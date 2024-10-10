@@ -65,18 +65,11 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    console.log(
-      `\n\nUsername: ${username}\nPassword before hashed:${password}\n\n`
-    );
-    // const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, 12);
-    // const hashedPassword = password;
-
     const newUser = {
       name,
       email,
       bio: bio ? bio : "No bio",
-      password: hashedPassword,
+      password: password,
       image,
       providers: "credentials",
       username,
