@@ -73,12 +73,12 @@ const userSchema = new mongoose.Schema({
 //   next();
 // });
 
-userSchema.methods.comparePassword = async function (password: string) {
-  if (typeof this.password !== "string") {
-    throw new Error("Password is not a string");
-  }
-  return await bcrypt.compare(password, this.password);
-};
+// userSchema.methods.comparePassword = async function (password: string) {
+//   if (typeof this.password !== "string") {
+//     throw new Error("Password is not a string");
+//   }
+//   return await bcrypt.compare(password, this.password);
+// };
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 
