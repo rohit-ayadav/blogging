@@ -26,10 +26,23 @@ export default function Auth() {
                     </h2>
                     <button
                         onClick={() => signOut()}
-                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-4"
+                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 mt-4"
                     >
                         Sign out
                     </button>
+                    <button
+                        onClick={() => window.location.href = '/dashboard'}
+                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-4"
+                    >
+                        Go to Dashboard
+                    </button>
+                    <button
+                        onClick={() => window.location.href = '/blogs'}
+                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-4"
+                    >
+                        Go to Blogs
+                    </button>
+
                 </div>
             </div>
         );
@@ -40,29 +53,29 @@ export default function Auth() {
         e.preventDefault();
         if (isLogin) {
             setError(null);
-            if (!email || !password) {
-                setError('Please input all fields');
-                return;
-            }
-            const result = await signIn('credentials', {
+            toast.promise(signIn('credentials', {
                 redirect: false,
                 email,
                 password,
+            }), {
+                loading: 'Signing in...',
+                success: (data) => {
+                    if ((data ?? {}).error === undefined) {
+                        window.location.href = '/dashboard';
+                        return 'Sign in successful';
+                    }
+                    window.location.href = '/dashboard';
+                    return data?.error || 'Sign in Successful';
+                },
+                error: (error) => {
+                    return error.error || 'Sign in failed';
+                },
             });
-
-            if (result && result.error) {
-                setError(result.error);
-            } else if (result === null) {
-                alert('Sign in successful');
-            }
-
-            else {
-                alert('Sign in successful');
-            }
-        } else {
+        }
+        else {
             window.location.href = '/signup';
         }
-    };
+    }
 
     const handleGoogleLogin = async () => {
         signIn('google', { callbackUrl: '/dashboard' });

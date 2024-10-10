@@ -42,9 +42,7 @@ const SignupPage = () => {
         }
     };
 
-    const handleSubmit = async (e: { preventDefault: () => void; }) => {
-        e.preventDefault();
-
+    const createUser = async () => {
         try {
             const response = await fetch('/api/auth/signup', {
                 method: 'POST',
@@ -53,21 +51,28 @@ const SignupPage = () => {
 
             const data = await response.json();
             if (!response.ok) {
-                toast.error(data.message || 'Something went wrong');
                 setError(data.message || 'Something went wrong');
                 return;
             }
-            toast.success(data.message);
-
         } catch (error) {
             console.error('Error creating user:', error);
-            toast.error(error instanceof Error ? error.message : 'Failed to create user');
         }
 
         console.log('Form submitted:', formData);
         setError('');
     };
 
+    const handleSubmit = async (e: { preventDefault: () => void; }) => {
+        e.preventDefault();
+        toast.promise(createUser(), {
+            loading: 'Creating user...',
+            success: 'User created successfully',
+            error: 'Failed to create user',
+        });
+
+        window.location.href = '/login';
+        
+    };
     return (
         <div className="min-h-screen bg-gradient-to-b from-purple-600 to-indigo-700 flex flex-col justify-center items-center p-4">
             <div className="w-full max-w-md">
