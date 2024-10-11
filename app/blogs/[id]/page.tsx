@@ -207,8 +207,7 @@ const IndividualBlogPost = () => {
                     </Card>
 
                     <div className="prose lg:prose-xl mb-8 max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
-
-
+                   
                     <div className="flex flex-col md:flex-row justify-between items-center m-8 mt-10">
                         <div className="flex items-center space-x-2">
                             <div className="flex items-center space-x-2">
@@ -221,8 +220,8 @@ const IndividualBlogPost = () => {
                                 </Button>
                             </div>
                         </div>
-                      
-                      <br />
+
+                        <br />
                         <div className="flex items-center space-x-2">
 
                             <span>Share:</span>

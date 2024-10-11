@@ -89,7 +89,7 @@ const BlogCollection = () => {
     }
 
     if (posts.length === 0) {
-        return <div className="flex justify-center items-center h-screen">Loading...</div>;
+        return <div className="flex justify-center items-center h-screen">No Blogs found</div>;
     }
 
     return (
