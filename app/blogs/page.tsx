@@ -32,6 +32,9 @@ const BlogCollection = () => {
         const fetchData = async () => {
             try {
                 const response = await fetch('/api/blog');
+                if (!response.ok) {
+                    throw new Error(`${response.status} - ${response.statusText}`);
+                }
                 const data = await response.json();
                 toast.success(data.message);
                 setPosts(data.data);
@@ -41,6 +44,9 @@ const BlogCollection = () => {
                 const uniqueEmails = [...new Set(userEmails)];
                 const userDetails = await Promise.all(uniqueEmails.map(async (email) => {
                     const userResponse = await fetch(`/api/user?email=${email}`);
+                    if (!userResponse.ok) {
+                        throw new Error(`${userResponse.status} - ${userResponse.statusText}`);
+                    }
                     const userData = await userResponse.json();
                     return { email, ...userData.user };
                 }));
@@ -50,9 +56,9 @@ const BlogCollection = () => {
                     return acc;
                 }, {});
                 setUsers(userMap);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching blog data:', error);
-                toast.error('Failed to fetch blog data');
+                toast.error(`${error.message}`);
             }
         };
         fetchData();
@@ -104,18 +110,18 @@ const BlogCollection = () => {
                                     <div className="flex items-center space-x-2">
                                         <Avatar>
                                             {user?.profilePic ? (
-                                                <img src={user.profilePic} alt={user.name} className="h-8 w-8 rounded-full" />
+                                                <img src={user.profilePic} alt={user?.name || 'User'} className="h-8 w-8 rounded-full" />
                                             ) : (
-                                                <AvatarFallback>{user?.name[0]}</AvatarFallback>
+                                                <AvatarFallback>{user?.name ? user.name[0] : 'U'}</AvatarFallback>
                                             )}
                                         </Avatar>
-                                        <span className="text-sm font-medium">{user?.name}</span>
+                                        <span className="text-sm font-medium">{user?.name || 'Unknown User'}</span>
                                     </div>
                                     {/* No. of view with eye icon*/}
                                     < Button variant="outline" size="sm" >
                                         <span className="text-sm font-medium">Views</span>
                                     </Button>
-                                    
+
                                     <Link href={`/blogs/${post._id}`}>
                                         <Button variant="outline" size="sm">
                                             Read More <ArrowRight className="ml-2 h-4 w-4" />

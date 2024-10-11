@@ -24,11 +24,15 @@ const blogSchema = new mongoose.Schema(
       type: [String],
       required: true,
     },
-    createdBy:{
+    createdBy: {
       type: String,
       required: false,
       default: "anonymous",
-    }
+    },
+    likes: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

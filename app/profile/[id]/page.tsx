@@ -1,0 +1,212 @@
+"use client";
+import React, { useState, useEffect } from 'react';
+import { Moon, Sun, Mail, Globe, ArrowLeft, Facebook, Twitter, Eye } from 'lucide-react';
+import { SiLinkedin } from 'react-icons/si';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { toast } from 'react-hot-toast';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Head from 'next/head';
+
+interface Author {
+    _id: string;
+    name: string;
+    email: string;
+    image: string;
+    bio: string;
+    website?: string;
+    socialLinks?: {
+        facebook?: string;
+        twitter?: string;
+        linkedin?: string;
+    };
+}
+
+interface Post {
+    _id: string;
+    title: string;
+    createdAt: string;
+    tags: string[];
+    content: string;
+}
+
+const AuthorPage = () => {
+    const [darkMode, setDarkMode] = useState(false);
+    const [author, setAuthor] = useState<Author | null>(null);
+    const [authorPosts, setAuthorPosts] = useState<Post[]>([]);
+    const [error, setError] = useState<string | null>(null);
+
+    const { id } = useParams();
+    const router = useRouter();
+
+    useEffect(() => {
+        const fetchAuthorAndPosts = async () => {
+            if (id) {
+                try {
+                    setError('');
+                    const authorResponse = await fetch(`/api/user/${id}`);
+                    if (!authorResponse.ok) {
+                        throw new Error(`${authorResponse.status} - ${authorResponse.statusText}`);
+                    }
+                    const authorData = await authorResponse.json();
+                    setAuthor(authorData.user);
+
+                    const postsResponse = await fetch(`/api/blog?author=${authorData.user.email}`);
+                    if (!postsResponse.ok) {
+                        throw new Error(`${postsResponse.status} - ${postsResponse.statusText}`);
+                    }
+                    const postsData = await postsResponse.json();
+                    setAuthorPosts(postsData.data);
+                } catch (error: any) {
+                    console.error('Error fetching data:', error);
+                    toast.error(`Failed to fetch data: ${error.message}`);
+                    setError(`Failed to fetch data: ${error.message}`);
+                }
+            }
+        };
+        fetchAuthorAndPosts();
+    }, [id]);
+
+    const toggleDarkMode = () => setDarkMode(!darkMode);
+    if (error) {
+        return <>
+            <div className="flex flex-col justify-center items-center h-screen">{error}
+                <p className='text-black dark:text-white'>Please try again later</p>
+                <button onClick={() => window.location.reload()} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Refresh</button>
+            </div>
+        </>
+
+    }
+    if (!author) {
+        return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    }
+
+    return (
+        <>
+            <Head>
+                <title>{author.name} | Author Page</title>
+                <meta name="description" content={`Author page for ${author.name}`} />
+                <meta property="og:title" content={`${author.name} | Author Page`} />
+                <meta property="og:description" content={`Author page for ${author.name}`} />
+                <meta property="og:image" content={author.image || '/default-author-image.jpg'} />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta name="twitter:card" content="summary_large_image" />
+            </Head>
+            <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
+                <div className="container mx-auto px-4 py-8">
+                    <div className="flex justify-between items-center mb-8">
+                        <div className="flex items-center space-x-4">
+                            <Button onClick={() => router.push('/blog')} variant="outline" size="icon">
+                                <ArrowLeft className="h-5 w-5" />
+                            </Button>
+                            <div>
+                                <Link href="/blog" className="text-sm text-gray-500 hover:underline">Blog/</Link>
+                                <Link href={`/author/${author._id}`} className="text-sm text-gray-500 hover:underline"> {author.name}</Link>
+                            </div>
+                        </div>
+                        <Button onClick={toggleDarkMode} variant="outline" size="icon">
+                            {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                        </Button>
+                    </div>
+
+                    <Card className="mb-8">
+                        <CardContent className="pt-6">
+                            <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                                <Avatar className="w-24 h-24">
+                                    <AvatarImage src={author.image} alt={author.name} />
+                                    <AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div className="text-center md:text-left">
+                                    <h1 className="text-3xl font-bold mb-2">{author.name}</h1>
+                                    <p className="text-gray-600 dark:text-gray-400 mb-4">{author.bio}</p>
+                                    <div className="flex flex-wrap justify-center md:justify-start space-x-2">
+                                        <Button variant="outline" size="sm">
+                                            <Mail className="h-4 w-4 mr-2" />
+                                            {author.email}
+                                        </Button>
+                                        {author.website && (
+                                            <Button variant="outline" size="sm" onClick={() => window.open(author.website, '_blank')}>
+                                                <Globe className="h-4 w-4 mr-2" />
+                                                Website
+                                            </Button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            {author.socialLinks && (
+                                <div className="flex justify-center md:justify-start space-x-2 mt-4">
+                                    {author.socialLinks.facebook && (
+                                        <Button onClick={() => window.open(author.socialLinks?.facebook, '_blank')} variant="outline" size="icon">
+                                            <Facebook className="h-4 w-4" />
+                                        </Button>
+                                    )}
+                                    {author.socialLinks.twitter && (
+                                        <Button onClick={() => window.open(author.socialLinks?.twitter, '_blank')} variant="outline" size="icon">
+                                            <Twitter className="h-4 w-4" />
+                                        </Button>
+                                    )}
+                                    {author.socialLinks.linkedin && (
+                                        <Button onClick={() => window.open(author.socialLinks?.linkedin, '_blank')} variant="outline" size="icon">
+                                            <SiLinkedin size={16} />
+                                        </Button>
+                                    )}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card className="mb-8">
+                        <CardHeader>
+                            <CardTitle>Posts by {author.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {authorPosts.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {authorPosts.map((post) => (
+                                        <Link href={`/blog/${post._id}`} key={post._id}>
+                                            <div className="border p-4 rounded-lg hover:shadow-md transition-shadow">
+                                                <h3 className="font-semibold">{post.title}</h3>
+                                                <div className="flex items-center space-x-2 mt-2 mb-4">
+                                                    <p className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
+                                                    <Eye className="h-4 w-4 mr-2" />
+                                                    <span className="text-sm font-medium">Views</span>
+                                                </div>
+                                                <p className="line-clamp-3">{post.content.replace(/<[^>]+>/g, '')}</p>
+
+                                                <div className="mt-2">
+                                                    {post.tags.slice(0, 3).map((tag, index) => (
+                                                        <span key={index} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p>No posts found for this author.</p>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Alert className="mb-8">
+                        <AlertTitle>Stay updated!</AlertTitle>
+                        <AlertDescription>
+                            <div className="mt-2 flex space-x-2">
+                                <Input type="email" placeholder="Enter your email" />
+                                <Button>Subscribe</Button>
+                            </div>
+                        </AlertDescription>
+                    </Alert>
+                </div>
+            </div>
+        </>
+    );
+};
+
+export default AuthorPage;
