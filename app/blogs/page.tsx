@@ -1,131 +1,129 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { Moon, Sun, ThumbsUp, Clock, Calendar } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import React, { useState, useEffect } from 'react';
+import { Moon, Sun, Calendar, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
-import toast from 'react-hot-toast';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { toast } from 'react-hot-toast';
+import Link from 'next/link';
 
-interface Post {
+interface BlogPostType {
     _id: string;
     title: string;
-    content: string;
-    status: string;
-    tags: string[];
-    createdBy: string;
     createdAt: string;
-    updatedAt: string;
-    readingTime: number;
-    date: string;
-    categories: string[];
-    author: {
-        avatar: string;
-        name: string;
-        bio: string;
-    };
+    tags?: string[];
+    content: string;
+    createdBy: string;
+    image?: string;
 }
-const BlogPost = () => {
-    const [post, setPost] = useState<Post | undefined>(undefined);
+
+interface UserType {
+    email: string;
+    name: string;
+    profilePic: string;
+}
+
+const BlogCollection = () => {
+    const [darkMode, setDarkMode] = useState(false);
+    const [posts, setPosts] = useState<BlogPostType[]>([]);
+    const [users, setUsers] = useState<{ [key: string]: UserType }>({});
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await fetch('/api/blog');
-            const data = await response.json();
-            toast.success(data.message);
-            setPost(data.blog);
-            console.log(data);
+            try {
+                const response = await fetch('/api/blog');
+                const data = await response.json();
+                toast.success(data.message);
+                setPosts(data.data);
+
+                // Fetch user details
+                const userEmails = data.data.map((post: BlogPostType) => post.createdBy);
+                const uniqueEmails = [...new Set(userEmails)];
+                const userDetails = await Promise.all(uniqueEmails.map(async (email) => {
+                    const userResponse = await fetch(`/api/user?email=${email}`);
+                    const userData = await userResponse.json();
+                    return { email, ...userData.user };
+                }));
+
+                const userMap = userDetails.reduce((acc, user) => {
+                    acc[user.email] = user;
+                    return acc;
+                }, {});
+                setUsers(userMap);
+            } catch (error) {
+                console.error('Error fetching blog data:', error);
+                toast.error('Failed to fetch blog data');
+            }
         };
         fetchData();
     }, []);
-    const [darkMode, setDarkMode] = useState(false);
-    const [likes, setLikes] = useState(0);
+
     const toggleDarkMode = () => {
         setDarkMode(!darkMode);
     };
-    const handleLike = () => {
-        setLikes(likes + 1);
-    };
-    
-    return (
-        <>
-            <div className={`container mx-auto p-4 ${darkMode ? 'dark bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
-                <div className="flex justify-between items-center mb-4">
-                    <Button onClick={toggleDarkMode} variant="outline">
-                        {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                    </Button>
-                </div>
-                {post && post.categories && (
-                    <>
-                        <Clock className="h-4 w-4" />
-                        <span>{post.readingTime} min read</span>
-                        <Calendar className="h-4 w-4 ml-2" />
-                        <span>Published on {post.date}</span>
-                    </>
-                )}
-            </div>
 
-            <div className="flex space-x-2 mb-4">
-                {post && post.categories && post.categories.map((category, index) => (
-                    <span key={index} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
-                        {category}
-                    </span>
-                ))}
-            </div>
-            <div className="flex justify-between items-center mb-8">
-                <div className="flex items-center space-x-2">
-                    <Button onClick={handleLike} variant="outline">
-                        <ThumbsUp className="h-4 w-4 mr-2" />
-                        Like ({likes})
+    if (posts.length === 0) {
+        return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    }
+
+    return (
+        <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
+            <div className="container mx-auto px-4 py-8">
+                <div className="flex justify-between items-center mb-8">
+                    <h1 className="text-4xl font-bold">Blog Posts</h1>
+                    <Button onClick={toggleDarkMode} variant="outline" size="icon">
+                        {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                     </Button>
-                    <Button variant="outline" />
-                    {post && post.tags && post.tags.map((tag, index) => (
-                        <span key={index} className="text-sm text-gray-500">#{tag}</span>
-                    ))}
                 </div>
-                <div className="flex items-center space-x-2">
-                    {post && post.tags && post.tags.map((tag, index) => (
-                        <span key={index} className="text-sm text-gray-500">#{tag}</span>
-                    ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {posts.map((post) => {
+                        const user = users[post.createdBy];
+                        return (
+                            <Card key={post._id} className={`overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                                {post.image && (
+                                    <img src={post.image} alt={post.title} className="w-full h-48 object-cover" />
+                                )}
+                                <CardHeader>
+                                    <CardTitle className="font-bold">{post.title}</CardTitle>
+                                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                                        <Calendar className="h-4 w-4" />
+                                        <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex flex-wrap gap-2 mb-4">
+                                        {post.tags && post.tags.slice(0, 3).map((tag, index) => (
+                                            <span key={index} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <p className="line-clamp-3">{post.content.replace(/<[^>]+>/g, '')}</p>
+                                </CardContent>
+                                <CardFooter className="flex justify-between items-center">
+                                    <div className="flex items-center space-x-2">
+                                        <Avatar>
+                                            {user?.profilePic ? (
+                                                <img src={user.profilePic} alt={user.name} className="h-8 w-8 rounded-full" />
+                                            ) : (
+                                                <AvatarFallback>{user?.name[0]}</AvatarFallback>
+                                            )}
+                                        </Avatar>
+                                        <span className="text-sm font-medium">{user?.name}</span>
+                                    </div>
+                                    <Link href={`/blogs/${post._id}`}>
+                                        <Button variant="outline" size="sm">
+                                            Read More <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Button>
+                                    </Link>
+                                </CardFooter>
+                            </Card>
+                        );
+                    })}
                 </div>
-                <div className="flex items-center space-x-2">
-                    {post && post.tags && post.tags.map((tag, index) => (
-                        <span key={index} className="text-sm text-gray-500">#{tag}</span>
-                    ))}
-                </div>
-                {post && post.author && (
-                    <div className="flex items-center space-x-4">
-                        <Avatar>
-                            <AvatarImage src={post.author.avatar} alt={post.author.name} />
-                            <AvatarFallback>{post.author.name[0]}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <h3 className="font-semibold">{post.author.name}</h3>
-                            <p className="text-sm text-gray-500">{post.author.bio}</p>
-                        </div>
-                    </div>
-                )}
             </div>
-            {post && (
-                <Card className="p-4 mb-8">
-                    <div dangerouslySetInnerHTML={{ __html: post.content }} />
-                </Card>
-            )}
-            <Alert>
-                <AlertTitle>Stay updated!</AlertTitle>
-                <AlertDescription>
-                    <div className="mt-2 flex space-x-2">
-                        <Input type="email" placeholder="Enter your email" />
-                        <Button>Subscribe</Button>
-                    </div>
-                </AlertDescription>
-            </Alert>
-            <div className="mt-8">
-                <h3 className="text-xl font-semibold mb-4">Comments</h3>
-                {/* Add your comment system here */}
-            </div>
-        </>
+        </div>
     );
-}
-export default BlogPost;
+};
+
+export default BlogCollection;

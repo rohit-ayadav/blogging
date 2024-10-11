@@ -176,7 +176,7 @@ export default function CreateBlog() {
                 <div className="flex justify-between mt-20">
                     <button
                         type="button"
-                        onClick={(e) => handleSubmit(e, true)}
+                        onClick={async (e) => await handleSubmit(e, true)}
                         className="px-4 py-2 bg-yellow-500 text-white rounded cursor-pointer"
                     >
                         Save Draft

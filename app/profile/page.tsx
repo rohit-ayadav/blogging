@@ -184,7 +184,7 @@ export default function UserProfile() {
     };
 
     const handleViewBlog = (blogId: string) => {
-        console.log("Viewing blog:", blogId);
+        window.location.href = `/blogs/${blogId}`;
     };
 
     return (
@@ -222,6 +222,9 @@ export default function UserProfile() {
                         <CardFooter>
                             <Button className="w-full" onClick={() => setEditMode(true)}>Edit Profile</Button>
                         </CardFooter>
+                        {/* <CardFooter>
+                            <Button variant="destructive" className="w-full" onClick={() => signOut()}>Log Out</Button>
+                        </CardFooter> */}
                     </Card>
                 </div>
                 <div className="md:col-span-2">
@@ -441,7 +444,26 @@ export default function UserProfile() {
                                                 </DialogContent>
                                             </Dialog>
                                         </div>
-
+                                        {/* Log out Button above Delete Account Button */}
+                                        <div className="pt-4">
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="destructive" className="w-full">Log Out</Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            You will be logged out of your account.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => signOut()}>Log Out</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </div>
                                         <div className="pt-4">
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>

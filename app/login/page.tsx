@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
-import { set } from 'mongoose';
 
 const signUp = async ({ email, password }: { email: string; password: string }) => {
     alert('Sign up is not implemented yet.');
@@ -42,18 +41,16 @@ export default function Auth() {
                     >
                         Go to Blogs
                     </button>
-
                 </div>
             </div>
         );
     }
 
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (isLogin) {
             setError(null);
-            toast.promise(signIn('credentials', {
+            await toast.promise(signIn('credentials', {
                 redirect: false,
                 email,
                 password,
@@ -71,18 +68,17 @@ export default function Auth() {
                     return error.error || 'Sign in failed';
                 },
             });
-        }
-        else {
+        } else {
             window.location.href = '/signup';
         }
     }
 
     const handleGoogleLogin = async () => {
-        signIn('google', { callbackUrl: '/dashboard' });
-
+        await signIn('google', { callbackUrl: '/dashboard' });
     };
+
     const handleGithubLogin = async () => {
-        signIn('github', { callbackUrl: '/dashboard' });
+        await signIn('github', { callbackUrl: '/dashboard' });
     };
 
     return (
@@ -121,7 +117,6 @@ export default function Auth() {
                                 name="password"
                                 type="password"
                                 autoComplete="current-password"
-
                                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                 placeholder="Password"
                                 value={password}
@@ -153,7 +148,6 @@ export default function Auth() {
                     >
                         Sign in with Github
                     </button>
-
                 </div>
 
                 <div className="text-center">
@@ -165,6 +159,6 @@ export default function Auth() {
                     </button>
                 </div>
             </div>
-        </div >
+        </div>
     );
 }

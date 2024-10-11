@@ -64,15 +64,15 @@ const SignupPage = () => {
 
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
-        toast.promise(createUser(), {
+        await toast.promise(createUser(), {
             loading: 'Creating user...',
             success: 'User created successfully',
             error: 'Failed to create user',
         });
 
         window.location.href = '/login';
-        
     };
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-purple-600 to-indigo-700 flex flex-col justify-center items-center p-4">
             <div className="w-full max-w-md">
