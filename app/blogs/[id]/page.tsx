@@ -24,7 +24,7 @@ interface Post {
 
 interface Author {
     name: string;
-    profilePic: string;
+    image: string;
     bio?: string;
     _id: string; // Make _id a required field
 }
@@ -144,8 +144,8 @@ const IndividualBlogPost = () => {
                     <Card className="p-6 mb-8">
                         <div className="flex items-center space-x-4">
                             <Avatar>
-                                {author?.profilePic ? (
-                                    <AvatarImage src={author.profilePic} alt={author.name} />
+                                {author?.image ? (
+                                    <AvatarImage src={author.image} alt={author.name} />
                                 ) : (
                                     <AvatarImage src="/default-profile.jpg" alt={author?.name || 'Default Name'} />
                                 )}
