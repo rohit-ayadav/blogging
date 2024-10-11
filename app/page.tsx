@@ -29,7 +29,7 @@ const HomePage: React.FC = () => {
   const [likes, setLikes] = useState<number>(0);
   const [views, setViews] = useState<number>(0);
   const [users, setUsers] = useState<{ [key: string]: UserType }>({});
-  const [posts, setPosts] = useState<{ title: string; excerpt: string }[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,7 +94,8 @@ const HomePage: React.FC = () => {
                   <CardTitle>{blog.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 mb-4">{blog.excerpt}</p>
+                  
+                <p className="line-clamp-3">{blog.content.replace(/<[^>]+>/g, '')}</p>
                   <Button variant="outline" onClick={() => window.location.href = `/blogs/${index}`}
                   >Read More</Button>
                 </CardContent>

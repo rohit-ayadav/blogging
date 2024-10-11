@@ -155,9 +155,9 @@ export default function CreateBlog() {
                     <input
                         type="text"
                         id="tags"
-                        placeholder="Enter tags separated by commas"
+                        placeholder="Enter tags separated by commas or hashes"
                         className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
-                        onChange={(e) => setTags(e.target.value.split(',').map(tag => tag.trim()))}
+                        onChange={(e) => setTags(e.target.value.split(/[,#]/).map(tag => tag.trim()))}
                     />
                 </div>
                 {tags.length > 0 && (
