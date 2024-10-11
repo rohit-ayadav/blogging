@@ -111,6 +111,11 @@ const BlogCollection = () => {
                                         </Avatar>
                                         <span className="text-sm font-medium">{user?.name}</span>
                                     </div>
+                                    {/* No. of view with eye icon*/}
+                                    < Button variant="outline" size="sm" >
+                                        <span className="text-sm font-medium">Views</span>
+                                    </Button>
+                                    
                                     <Link href={`/blogs/${post._id}`}>
                                         <Button variant="outline" size="sm">
                                             Read More <ArrowRight className="ml-2 h-4 w-4" />

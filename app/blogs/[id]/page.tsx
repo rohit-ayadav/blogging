@@ -1,11 +1,10 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { Moon, Sun, ThumbsUp, Share2, Clock, Calendar } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { toast } from 'react-hot-toast';
 import { useParams } from 'next/navigation';
@@ -19,10 +18,17 @@ interface Post {
     createdBy: string;
 }
 
+interface Author {
+    name: string;
+    profilePic: string;
+    bio?: string;
+}
+
 const IndividualBlogPost = () => {
     const [darkMode, setDarkMode] = useState(false);
     const [likes, setLikes] = useState(0);
     const [post, setPost] = useState<Post | null>(null);
+    const [author, setAuthor] = useState<Author | null>(null);
 
     const { id } = useParams();
 
@@ -36,9 +42,17 @@ const IndividualBlogPost = () => {
                     }
                     const data = await response.json();
                     setPost(data.data);
+
+                    // Fetch author details
+                    const authorResponse = await fetch(`/api/user?email=${data.data.createdBy}`);
+                    if (!authorResponse.ok) {
+                        throw new Error(`${authorResponse.status} - ${authorResponse.statusText}`);
+                    }
+                    const authorData = await authorResponse.json();
+                    setAuthor(authorData.data);
                 } catch (error: any) {
-                    console.error('Error fetching blog post:', error);
-                    toast.error(`Failed to fetch blog post: ${error.message}`);
+                    console.error('Error fetching blog post or author details:', error);
+                    toast.error(`Failed to fetch data: ${error.message}`);
                 }
             }
         };
@@ -78,8 +92,28 @@ const IndividualBlogPost = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                         <Clock className="h-4 w-4" />
-                        <span>Reading time placeholder</span>
+                        <span>Reading time : 5 mins</span>
                     </div>
+                    <div className="flex items-center space-x-2">
+                        <ThumbsUp className="h-4 w-4" />
+                        <span>{likes} Likes</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Share2 className="h-4 w-4" />
+                        <span>Share</span>
+                    </div>
+                    {author && (
+                        <div className="flex items-center space-x-2">
+                            <Avatar className="h-8 w-8">
+                                {author.profilePic ? (
+                                    <AvatarImage src={author.profilePic} alt={author.name} />
+                                ) : (
+                                    <AvatarFallback>{author.name[0]}</AvatarFallback>
+                                )}
+                            </Avatar>
+                            <span>{author.name}</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="prose lg:prose-xl mb-8 max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
@@ -107,11 +141,16 @@ const IndividualBlogPost = () => {
                 <Card className="p-6 mb-8">
                     <div className="flex items-center space-x-4">
                         <Avatar>
-                            <AvatarFallback>{post.createdBy[0]}</AvatarFallback>
+                            {author?.profilePic ? (
+                                <AvatarImage src={author.profilePic} alt={author.name} />
+                            ) : (
+                                <AvatarImage src = {"/default-profile.jpg"} alt={author?.name || 'Default Name'} />
+                            )}
                         </Avatar>
                         <div>
-                            <h3 className="font-semibold">{post.createdBy}</h3>
-                            <p className="text-sm text-gray-500">Author bio placeholder</p>
+                            <h3 className="font-semibold">{author?.name || 'Author Name'
+                            }</h3>
+                            <p className="text-sm text-gray-500">{author?.bio || 'Author bio placeholder'}</p>
                         </div>
                     </div>
                 </Card>
