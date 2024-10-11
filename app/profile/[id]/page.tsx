@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun, Mail, Globe, ArrowLeft, Facebook, Twitter, Eye } from 'lucide-react';
+import { Moon, Sun, Mail, Globe, ArrowLeft, Facebook, Twitter, Eye, ThumbsUp } from 'lucide-react';
 import { SiLinkedin } from 'react-icons/si';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { toast } from 'react-hot-toast';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Head from 'next/head';
+import { Thumb } from '@radix-ui/react-switch';
 
 interface Author {
     _id: string;
@@ -32,6 +33,8 @@ interface Post {
     createdAt: string;
     tags: string[];
     content: string;
+    likes: number;
+    views: number;
 }
 
 const AuthorPage = () => {
@@ -39,6 +42,8 @@ const AuthorPage = () => {
     const [author, setAuthor] = useState<Author | null>(null);
     const [authorPosts, setAuthorPosts] = useState<Post[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [likes, setLikes] = useState<number>(0);
+    const [views, setViews] = useState<number>(0);
 
     const { id } = useParams();
     const router = useRouter();
@@ -61,6 +66,8 @@ const AuthorPage = () => {
                     }
                     const postsData = await postsResponse.json();
                     setAuthorPosts(postsData.data);
+                    setLikes(postsData.data.likes);
+                    setViews(postsData.data.views);
                 } catch (error: any) {
                     console.error('Error fetching data:', error);
                     toast.error(`Failed to fetch data: ${error.message}`);
@@ -100,12 +107,12 @@ const AuthorPage = () => {
                 <div className="container mx-auto px-4 py-8">
                     <div className="flex justify-between items-center mb-8">
                         <div className="flex items-center space-x-4">
-                            <Button onClick={() => router.push('/blog')} variant="outline" size="icon">
+                            <Button onClick={() => router.push('/blogs')} variant="outline" size="icon">
                                 <ArrowLeft className="h-5 w-5" />
                             </Button>
                             <div>
-                                <Link href="/blog" className="text-sm text-gray-500 hover:underline">Blog/</Link>
-                                <Link href={`/author/${author._id}`} className="text-sm text-gray-500 hover:underline"> {author.name}</Link>
+                                <Link href="/blogs" className="text-sm text-gray-500 hover:underline">Author/</Link>
+                                <Link href={`/profile/${author._id}`} className="text-sm text-gray-500 hover:underline"> {author.name}</Link>
                             </div>
                         </div>
                         <Button onClick={toggleDarkMode} variant="outline" size="icon">
@@ -122,7 +129,7 @@ const AuthorPage = () => {
                                 </Avatar>
                                 <div className="text-center md:text-left">
                                     <h1 className="text-3xl font-bold mb-2">{author.name}</h1>
-                                    <p className="text-gray-600 dark:text-gray-400 mb-4">{author.bio}</p>
+                                    <p className="text-gray-600 dark:text-gray-400 mb-4">{author.bio ? author.bio : 'No bio found'}</p>
                                     <div className="flex flex-wrap justify-center md:justify-start space-x-2">
                                         <Button variant="outline" size="sm">
                                             <Mail className="h-4 w-4 mr-2" />
@@ -167,13 +174,22 @@ const AuthorPage = () => {
                             {authorPosts.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {authorPosts.map((post) => (
-                                        <Link href={`/blog/${post._id}`} key={post._id}>
+                                        <Link href={`/blogs/${post._id}`} key={post._id}>
                                             <div className="border p-4 rounded-lg hover:shadow-md transition-shadow">
                                                 <h3 className="font-semibold">{post.title}</h3>
                                                 <div className="flex items-center space-x-2 mt-2 mb-4">
                                                     <p className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
-                                                    <Eye className="h-4 w-4 mr-2" />
-                                                    <span className="text-sm font-medium">Views</span>
+
+                                                    <div className="flex items-center space-x-2">
+                                                        <Eye className="h-4 w-4" />
+                                                        <span>{post.views ? post.views : 0}</span>
+                                                    </div>
+                                                    <div className="flex items-center space-x-2">
+                                                        {/* <Button variant="outline" size="icon"> */}
+                                                        <ThumbsUp className="h-4 w-4" />
+                                                        {/* </Button> */}
+                                                        <span>{post.likes ? post.likes : 0}</span>
+                                                    </div>
                                                 </div>
                                                 <p className="line-clamp-3">{post.content.replace(/<[^>]+>/g, '')}</p>
 

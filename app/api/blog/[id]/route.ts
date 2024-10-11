@@ -19,10 +19,8 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
-    const blogs = await Blog.find({createdBy: authorId});
+    const blogs = await Blog.find({ createdBy: authorId });
     return NextResponse.json({ data: blogs, success: true });
-    
-
   }
   const blog = await Blog.findById(id);
   if (!blog) {
@@ -34,5 +32,14 @@ export async function GET(request: NextRequest) {
       { status: 404 }
     );
   }
+
+  blog.views = (blog.views || 0) + 1;
+  await blog.save();
+  if (!blog.views) {
+    blog.views = 0;
+  }
+  blog.views += 1;
+  await blog.save();
+
   return NextResponse.json({ data: blog, success: true });
 }

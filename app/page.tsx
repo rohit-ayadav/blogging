@@ -1,38 +1,81 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { PenTool, Book, Users } from 'lucide-react';
+import { set } from 'mongoose';
 
-const HomePage = () => {
-  const featuredBlogs = [
-    { title: "10 Must-Know JavaScript Tips", excerpt: "Boost your JavaScript skills with these essential tips..." },
-    { title: "Getting Started with Next.js", excerpt: "Learn how to build modern web apps with Next.js..." },
-    { title: "Mastering CSS Grid", excerpt: "Unlock the power of CSS Grid for responsive layouts..." },
-  ];
+interface Post {
+  _id: string;
+  title: string;
+  image?: string;
+  createdAt: string;
+  content: string;
+  tags: string[];
+  createdBy: string;
+  likes: number;
+  bio?: string;
+}
+
+interface UserType {
+  email: string;
+  // Add other user properties here
+}
+
+const HomePage: React.FC = () => {
+  const [errorState, setErrorState] = useState(false);
+  // const [posts, setPosts] = useState<Post[]>([]);
+  const [likes, setLikes] = useState<number>(0);
+  const [views, setViews] = useState<number>(0);
+  const [users, setUsers] = useState<{ [key: string]: UserType }>({});
+  const [posts, setPosts] = useState<{ title: string; excerpt: string }[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setErrorState(false);
+        const response = await fetch('/api/blog');
+        if (!response.ok) {
+          throw new Error(`${response.status} - ${response.statusText}`);
+        }
+        const data = await response.json();
+        setPosts(data.data);
+        setLikes(data.likes);
+        setViews(data.views);
+        setPosts(data.data.slice(0, 3));
+
+        // Fetch user details
+        const userEmails = data.data.map((post: Post) => post.createdBy);
+        const uniqueEmails = [...new Set(userEmails)];
+        const userDetails = await Promise.all(uniqueEmails.map(async (email) => {
+          const userResponse = await fetch(`/api/user?email=${email}`);
+          if (!userResponse.ok) {
+            throw new Error(`${userResponse.status} - ${userResponse.statusText}`);
+          }
+          const userData = await userResponse.json();
+          return userData.data;
+        }));
+        const userMap: { [key: string]: UserType } = {};
+        userDetails.forEach((user: UserType) => {
+          userMap[user.email] = user;
+        });
+        setUsers(userMap);
+      } catch (error) {
+        setErrorState(true);
+        toast.error('Failed to fetch data');
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Navigation */}
-      {/* <nav className="bg-white shadow-md">
-        <div className="container mx-auto px-6 py-3 flex justify-between items-center">
-          <div className="text-xl font-bold text-gray-800">DevBlogger</div>
-          <div className="space-x-4">
-            <Button variant="ghost">Home</Button>
-            <Button variant="ghost">Blogs</Button>
-            <Button variant="ghost">About</Button>
-            <Button variant="outline">Sign In</Button>
-            <Button>Create Account</Button>
-          </div>
-        </div>
-      </nav> */}
-
-      {/* Hero Section */}
       <section className="bg-blue-600 text-white py-20">
         <div className="container mx-auto px-6 text-center">
-          <h1 className="text-4xl font-bold mb-4">Empowering Developers and Job Seekers with the Latest Resources and Opportunities</h1>
-          <p className="text-xl mb-8">Join our community of passionate developers and take your career to the next level.</p>
-          <div className="space-x-4">
+          <h1 className="text-4xl font-bold mb-4 md:text-5xl">Empowering Developers and Job Seekers with the Latest Resources and Opportunities</h1>
+          <p className="text-xl mb-8 md:text-2xl">Join our community of passionate developers and take your career to the next level.</p>
+          <div className="space-y-4 md:space-y-0 md:space-x-4 flex flex-col md:flex-row justify-center">
             <Button size="lg" variant="secondary" onClick={() => window.location.href = 'https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t'}
             >Join the Community</Button>
             <Button size="lg" variant="secondary" onClick={() => window.location.href = '/blogs'}
@@ -41,19 +84,18 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Featured Blogs */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold mb-8 text-center">Featured Blogs</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredBlogs.map((blog, index) => (
+            {posts.map((blog, index) => (
               <Card key={index}>
                 <CardHeader>
                   <CardTitle>{blog.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-600 mb-4">{blog.excerpt}</p>
-                  <Button variant="outline" onClick={() => window.location.href = '`/blogs/${index}`'}
+                  <Button variant="outline" onClick={() => window.location.href = `/blogs/${index}`}
                   >Read More</Button>
                 </CardContent>
               </Card>
@@ -95,8 +137,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
-    
     </div>
   );
 };

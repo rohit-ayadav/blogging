@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
   const sanitizedTitle = purify.sanitize(title);
   const sanitizedTags = tags.map((tag: string) => purify.sanitize(tag));
 
-  console.log(`\n\nEmail: ${session.user.email}\n\n`);
+  // console.log(`\n\nEmail: ${session.user.email}\n\n`);
   const blogPost = {
     title: sanitizedTitle,
     content: sanitizedContent,
@@ -211,7 +211,7 @@ export async function GET(request: NextRequest) {
       { status: 404 }
     );
   }
-  console.log(`\n\nData: ${data}\n\n`);
+  // console.log(`\n\nData: ${data}\n\n`);
   return NextResponse.json(
     {
       message: "Blog posts found",

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun, ThumbsUp, Share2, Clock, Calendar, ArrowLeft } from 'lucide-react';
-import { SiLinkedin } from 'react-icons/si';
+import { Moon, Sun, ThumbsUp, Clock, Calendar, ArrowLeft, ThumbsUp as ThumbsUpFilled, Eye } from 'lucide-react';
+import { SiFacebook, SiLinkedin, SiWhatsapp, SiX } from 'react-icons/si';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { toast } from 'react-hot-toast';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Head from 'next/head';
+import { set } from 'mongoose';
 
 interface Post {
     _id: string;
@@ -20,22 +21,28 @@ interface Post {
     content: string;
     tags: string[];
     createdBy: string;
+    likes: number;
+    bio?: string;
 }
 
 interface Author {
     name: string;
     image: string;
     bio?: string;
-    _id: string; // Make _id a required field
+    _id: string;
+    likes: number;
+    views: number;
 }
 
 const IndividualBlogPost = () => {
     const [darkMode, setDarkMode] = useState(false);
     const [likes, setLikes] = useState(0);
     const [post, setPost] = useState<Post | null>(null);
+    const [liked, setLiked] = useState(false);
     const [author, setAuthor] = useState<Author | null>(null);
     const [authorPosts, setAuthorPosts] = useState<Post[]>([]);
     const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
+    const [views, setViews] = useState(0);
 
     const { id } = useParams();
     const router = useRouter();
@@ -50,6 +57,8 @@ const IndividualBlogPost = () => {
                     }
                     const data = await response.json();
                     setPost(data.data);
+                    setLiked(data.data.likes > 0);
+                    setViews(data.data.views);
 
                     const authorResponse = await fetch(`/api/user?email=${data.data.createdBy}`);
                     if (!authorResponse.ok) {
@@ -57,6 +66,7 @@ const IndividualBlogPost = () => {
                     }
                     const authorData = await authorResponse.json();
                     setAuthor(authorData.user);
+                    setLikes(data.data.likes);
 
                     // Fetch author's other posts
                     const authorPostsResponse = await fetch(`/api/blog?author=${data.data.createdBy}&limit=3`);
@@ -84,7 +94,38 @@ const IndividualBlogPost = () => {
     }, [id]);
 
     const toggleDarkMode = () => setDarkMode(!darkMode);
-    const handleLike = () => setLikes(likes + 1);
+    const handleLike = async () => {
+        if (!liked) {
+            try {
+                const response = await fetch(`/api/blog/${id}/like`, {
+                    method: 'POST',
+                });
+                if (!response.ok) {
+                    throw new Error(`${response.status} - ${response.statusText}`);
+                }
+                setLikes(likes + 1);
+                setLiked(true);
+            } catch (error: any) {
+                console.error('Error liking post:', error);
+                toast.error(`Failed to like post: ${error.message}`);
+            }
+        }
+        else {
+            try {
+                const response = await fetch(`/api/blog/${id}/dislike`, {
+                    method: 'POST',
+                });
+                if (!response.ok) {
+                    throw new Error(`${response.status} - ${response.statusText}`);
+                }
+                setLikes(likes - 1);
+                setLiked(false);
+            } catch (error: any) {
+                console.error('Error liking post:', error);
+                toast.error(`Failed to like post: ${error.message}`);
+            }
+        }
+    };
 
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
@@ -107,7 +148,7 @@ const IndividualBlogPost = () => {
                 <div className="container mx-auto px-4 py-8">
                     <div className="flex justify-between items-center mb-8">
                         <div className="flex items-center space-x-4">
-                            <Button onClick={() => router.push('/blog')} variant="outline" size="icon">
+                            <Button onClick={() => router.push('/blogs')} variant="outline" size="icon">
                                 <ArrowLeft className="h-5 w-5" />
                             </Button>
                             <div>
@@ -139,6 +180,11 @@ const IndividualBlogPost = () => {
                             <ThumbsUp className="h-4 w-4" />
                             <span>{likes} Likes</span>
                         </div>
+
+                        <div className='flex items-center space-x-2'>
+                            <Eye className="h-4 w-4" />
+                            <span>{views || 0} Views</span>
+                        </div>
                     </div>
 
                     <Card className="p-6 mb-8">
@@ -149,6 +195,7 @@ const IndividualBlogPost = () => {
                                 ) : (
                                     <AvatarImage src="/default-profile.jpg" alt={author?.name || 'Default Name'} />
                                 )}
+                                {liked ? <ThumbsUpFilled className="h-4 w-4 mr-2" /> : <ThumbsUp className="h-4 w-4 mr-2" />}
                             </Avatar>
                             <div>
                                 <Link href={`/profile/${author?._id}`} className="font-semibold hover:underline">
@@ -161,19 +208,32 @@ const IndividualBlogPost = () => {
 
                     <div className="prose lg:prose-xl mb-8 max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
 
-                    <div className="flex justify-between items-center mb-8">
+
+                    <div className="flex flex-col md:flex-row justify-between items-center m-8 mt-10">
                         <div className="flex items-center space-x-2">
-                            <Button onClick={handleLike} variant="outline">
-                                <ThumbsUp className="h-4 w-4 mr-2" />
-                                Like ({likes})
-                            </Button>
+                            <div className="flex items-center space-x-2">
+                                <Button variant={liked ? 'default' : 'outline'} onClick={handleLike}>
+                                    <ThumbsUp className="h-4 w-4 mr-2" />
+                                    Like({likes})
+                                </Button>
+                                <Button variant="outline">
+                                    views {views ? views : 0}
+                                </Button>
+                            </div>
                         </div>
+                      
+                      <br />
                         <div className="flex items-center space-x-2">
+
+                            <span>Share:</span>
+                            <Button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("Check out this amazing post: " + post.title + " " + shareUrl)}`, '_blank')} variant="outline">
+                                <SiWhatsapp className="h-4 w-4" />
+                            </Button>
                             <Button onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank')} variant="outline">
-                                <Share2 className="h-4 w-4" />
+                                <SiFacebook className="h-4 w-4" />
                             </Button>
                             <Button onClick={() => window.open(`https://twitter.com/intent/tweet?url=${shareUrl}&text=${encodeURIComponent(post.title)}`, '_blank')} variant="outline">
-                                <Share2 className="h-4 w-4" />
+                                <SiX className="h-4 w-4" />
                             </Button>
                             <Button onClick={() => window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${encodeURIComponent(post.title)}`, '_blank')} variant="outline">
                                 <SiLinkedin size={16} />
@@ -186,6 +246,7 @@ const IndividualBlogPost = () => {
                             <span key={index} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
                                 {tag}
                             </span>
+
                         ))}
                     </div>
 
@@ -197,9 +258,11 @@ const IndividualBlogPost = () => {
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     {relatedPosts.slice(0, 3).map((post) => (
-                                        <Link href={`/blog/${post._id}`} key={post._id}>
+                                        <Link href={`/blogs/${post._id}`} key={post._id}>
                                             <div className="border p-4 rounded-lg hover:shadow-md transition-shadow">
                                                 <h3 className="font-semibold">{post.title}</h3>
+                                                {/* // post preview */}
+                                                <p className="line-clamp-3">{post.content.replace(/<[^>]+>/g, '')}</p>
                                                 <p className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
                                             </div>
                                         </Link>
@@ -234,9 +297,11 @@ const IndividualBlogPost = () => {
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     {authorPosts.slice(0, 3).map((post) => (
-                                        <Link href={`/blog/${post._id}`} key={post._id}>
+                                        <Link href={`/blogs/${post._id}`} key={post._id}>
                                             <div className="border p-4 rounded-lg hover:shadow-md transition-shadow">
                                                 <h3 className="font-semibold">{post.title}</h3>
+                                                {/* // post preview */}
+                                                <p className="line-clamp-3">{post.content.replace(/<[^>]+>/g, '')}</p>
                                                 <p className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
                                             </div>
                                         </Link>

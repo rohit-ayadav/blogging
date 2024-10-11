@@ -1,11 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun, Calendar, ArrowRight } from 'lucide-react';
+import { Moon, Sun, Calendar, ArrowRight, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
+import { set } from 'mongoose';
 
 interface BlogPostType {
     _id: string;
@@ -15,6 +16,9 @@ interface BlogPostType {
     content: string;
     createdBy: string;
     image?: string;
+    views?: number;
+    likes?: number;
+    bio?: string;
 }
 
 interface UserType {
@@ -27,17 +31,23 @@ const BlogCollection = () => {
     const [darkMode, setDarkMode] = useState(false);
     const [posts, setPosts] = useState<BlogPostType[]>([]);
     const [users, setUsers] = useState<{ [key: string]: UserType }>({});
+    const [errorState, setErrorState] = useState(false);
+    const [likes, setLikes] = useState(0);
+    const [views, setViews] = useState(0);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setErrorState(false);
                 const response = await fetch('/api/blog');
                 if (!response.ok) {
                     throw new Error(`${response.status} - ${response.statusText}`);
                 }
                 const data = await response.json();
-                toast.success(data.message);
+                // toast.success(data.message);
                 setPosts(data.data);
+                setLikes(data.data.likes);
+                setViews(data.data.views);
 
                 // Fetch user details
                 const userEmails = data.data.map((post: BlogPostType) => post.createdBy);
@@ -58,7 +68,8 @@ const BlogCollection = () => {
                 setUsers(userMap);
             } catch (error: any) {
                 console.error('Error fetching blog data:', error);
-                toast.error(`${error.message}`);
+                toast.error(error.message);
+                setErrorState(true);
             }
         };
         fetchData();
@@ -67,6 +78,15 @@ const BlogCollection = () => {
     const toggleDarkMode = () => {
         setDarkMode(!darkMode);
     };
+
+    if (errorState) {
+        return <>
+            <div className="flex justify-center items-center h-screen">Failed to load data</div>;
+            <p className="text-center text-red-500">
+                Please check your internet connection and try again.
+            </p>
+        </>;
+    }
 
     if (posts.length === 0) {
         return <div className="flex justify-center items-center h-screen">Loading...</div>;
@@ -118,10 +138,12 @@ const BlogCollection = () => {
                                         <span className="text-sm font-medium">{user?.name || 'Unknown User'}</span>
                                     </div>
                                     {/* No. of view with eye icon*/}
-                                    < Button variant="outline" size="sm" >
-                                        <span className="text-sm font-medium">Views</span>
-                                    </Button>
+                                    <div className="flex items-center space-x-2">
 
+                                        <Eye className="h-4 w-4" />
+                                        <span className="text-sm font-medium">{post.views ? post.views : 0}</span>
+
+                                    </div>
                                     <Link href={`/blogs/${post._id}`}>
                                         <Button variant="outline" size="sm">
                                             Read More <ArrowRight className="ml-2 h-4 w-4" />
