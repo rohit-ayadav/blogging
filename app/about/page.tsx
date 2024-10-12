@@ -1,8 +1,10 @@
+"use client";
 import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Book, Users, Award, Newspaper } from 'lucide-react';
+import CountUp from 'react-countup';
 
 const AboutPage = () => {
   const blogStats = [
@@ -67,11 +69,13 @@ const AboutPage = () => {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {blogStats.map((stat, index) => (
-              <div key={index} className="text-center">
+                <div key={index} className="text-center">
                 <div className="mb-2 flex justify-center">{stat.icon}</div>
-                <div className="text-2xl font-bold">{stat.value}</div>
+                <div className="text-2xl font-bold">
+                  <CountUp end={parseInt(stat.value.replace(/\D/g, ''))} duration={3} />
+                </div>
                 <div className="text-sm text-gray-500">{stat.label}</div>
-              </div>
+                </div>
             ))}
           </div>
         </CardContent>
