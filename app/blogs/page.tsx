@@ -96,7 +96,9 @@ const BlogCollection = () => {
     }
 
     if (posts.length === 0) {
-        return <div className="flex justify-center items-center h-screen">No Blogs found</div>;
+        return <div className="flex justify-center items-center h-screen">
+            Loading... <div className="animate-spin h-5 w-5 ml-2 border-t-2 border-b-2 border-gray-900 dark:border-white"></div>
+        </div>;
     }
 
     return (
@@ -108,7 +110,7 @@ const BlogCollection = () => {
                         {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                     </Button>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {posts.map((post) => {
                         const user = users[post.createdBy];
