@@ -96,6 +96,7 @@ const IndividualBlogPost = () => {
     const toggleDarkMode = () => setDarkMode(!darkMode);
     const handleLike = async () => {
         if (!liked) {
+            setLikes(likes + 1);
             try {
                 const response = await fetch(`/api/blog/${id}/like`, {
                     method: 'POST',
@@ -111,6 +112,7 @@ const IndividualBlogPost = () => {
             }
         }
         else {
+            setLikes(likes - 1);
             try {
                 const response = await fetch(`/api/blog/${id}/dislike`, {
                     method: 'POST',
@@ -118,7 +120,7 @@ const IndividualBlogPost = () => {
                 if (!response.ok) {
                     throw new Error(`${response.status} - ${response.statusText}`);
                 }
-                setLikes(likes - 1);
+                // setLikes(likes - 1);
                 setLiked(false);
             } catch (error: any) {
                 console.error('Error liking post:', error);
