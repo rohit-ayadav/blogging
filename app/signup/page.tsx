@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Camera } from 'lucide-react';
 import { Github } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import toast from 'react-hot-toast';
 import { signIn } from 'next-auth/react';
+import { set } from 'mongoose';
 
 const SignupPage = () => {
     const [formData, setFormData] = useState<{
@@ -27,6 +29,8 @@ const SignupPage = () => {
         profilePic: null,
     });
     const [error, setError] = useState('');
+    const [usernameError, setUsernameError] = useState('');
+    const [usernameAvailable, setUsernameAvailable] = useState(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -83,35 +87,8 @@ const SignupPage = () => {
                 <div className="bg-white shadow-2xl rounded-lg p-8">
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         <div className="flex flex-col items-center">
-                            <Label htmlFor="profilePic" className="text-sm font-medium text-gray-700">
-                                Profile Picture
-                            </Label>
-                            <div className="mt-2 relative">
-                                {formData.profilePic ? (
-                                    <img
-                                        src={URL.createObjectURL(formData.profilePic)}
-                                        alt="Profile"
-                                        className="h-24 w-24 rounded-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="h-24 w-24 rounded-full bg-gray-200 flex items-center justify-center">
-                                        <Camera className="h-12 w-12 text-gray-400" />
-                                    </div>
-                                )}
-                                <label
-                                    htmlFor="file-upload"
-                                    className="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md cursor-pointer"
-                                >
-                                    <Camera className="h-5 w-5 text-gray-600" />
-                                    <input
-                                        id="file-upload"
-                                        name="file-upload"
-                                        type="file"
-                                        className="sr-only"
-                                        onChange={handleFileChange}
-                                    />
-                                </label>
-                            </div>
+                            {/* did not take input show avatar only */}
+                            <Image src="/default-profile.jpg" alt="Profile Picture" width={100} height={100} className="rounded-full" />
                         </div>
 
                         <div>
@@ -141,10 +118,39 @@ const SignupPage = () => {
                                 autoComplete="username"
                                 required
                                 value={formData.username}
-                                onChange={handleInputChange}
+                                onChange={async (e) => {
+                                    handleInputChange(e);
+                                    const username = e.target.value;
+                                    if (username) {
+                                        try {
+                                            const response = await fetch(`/api/check-username?username=${username}`);
+                                            const data = await response.json();
+                                            if (data.available) {
+                                                setUsernameError('');
+                                                setUsernameAvailable(true);
+                                            } else {
+                                                setUsernameError('Username is already taken');
+                                                setUsernameAvailable(false);
+                                            }
+                                        } catch (error) {
+                                            console.error('Error checking username:', error);
+                                            setUsernameError('Error checking username');
+                                            setUsernameAvailable(false);
+                                        }
+                                    } else {
+                                        setUsernameError('');
+                                    }
+                                }}
                                 className="mt-1"
                             />
+                            {usernameError && (
+                                <p className="text-red-500 text-sm mt-1">{usernameError}</p>
+                            )}
+                            {usernameAvailable && (
+                                <p className="text-green-500 text-sm mt-1">Username is available</p>
+                            )}
                         </div>
+
 
                         <div>
                             <Label htmlFor="email" className="text-sm font-medium text-gray-700">

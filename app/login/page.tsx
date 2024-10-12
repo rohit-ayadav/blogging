@@ -57,15 +57,14 @@ export default function Auth() {
             }), {
                 loading: 'Signing in...',
                 success: (data) => {
-                    if ((data ?? {}).error === undefined) {
-                        window.location.href = '/dashboard';
+                    if (data?.ok) {
+                        window.location.href = '/profile';
                         return 'Sign in successful';
                     }
-                    window.location.href = '/dashboard';
-                    return data?.error || 'Sign in Successful';
+                    throw new Error(data?.error || 'Sign in failed');
                 },
                 error: (error) => {
-                    return error.error || 'Sign in failed';
+                    return error.message || 'Sign in failed';
                 },
             });
         } else {
@@ -74,11 +73,11 @@ export default function Auth() {
     }
 
     const handleGoogleLogin = async () => {
-        await signIn('google', { callbackUrl: '/dashboard' });
+        await signIn('google', { callbackUrl: '/profile' });
     };
 
     const handleGithubLogin = async () => {
-        await signIn('github', { callbackUrl: '/dashboard' });
+        await signIn('github', { callbackUrl: '/profile' });
     };
 
     return (

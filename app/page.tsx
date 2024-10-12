@@ -1,10 +1,12 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { PenTool, Book, Users } from 'lucide-react';
-import { set } from 'mongoose';
+import { PenTool, Book, Users, ChevronRight } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import Head from 'next/head';
 
 interface Post {
   _id: string;
@@ -20,32 +22,54 @@ interface Post {
 
 interface UserType {
   email: string;
-  // Add other user properties here
+  name: string;
+  bio: string;
+  image: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+  _id: string;
+}
+
+interface Total {
+  blogs: number;
+  likes: number;
+  views: number;
+  users: number;
 }
 
 const HomePage: React.FC = () => {
-  const [errorState, setErrorState] = useState(false);
-  // const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [likes, setLikes] = useState<number>(0);
   const [views, setViews] = useState<number>(0);
   const [users, setUsers] = useState<{ [key: string]: UserType }>({});
   const [posts, setPosts] = useState<Post[]>([]);
+  const [total, setTotal] = useState<Total | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const response = await fetch('/api/stats');
+      const data = await response.json();
+      // toast.success(data.message);
+      setTotal(data.total);
+    };
+    fetchStats();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
+      setError(null);
       try {
-        setErrorState(false);
         const response = await fetch('/api/blog');
         if (!response.ok) {
           throw new Error(`${response.status} - ${response.statusText}`);
         }
         const data = await response.json();
-        setPosts(data.data);
+        setPosts(data.data.slice(0, 3));
         setLikes(data.likes);
         setViews(data.views);
-        setPosts(data.data.slice(0, 3));
-
-        // Fetch user details
+        setLoading(false);
         const userEmails = data.data.map((post: Post) => post.createdBy);
         const uniqueEmails = [...new Set(userEmails)];
         const userDetails = await Promise.all(uniqueEmails.map(async (email) => {
@@ -62,83 +86,151 @@ const HomePage: React.FC = () => {
         });
         setUsers(userMap);
       } catch (error) {
-        setErrorState(true);
-        toast.error('Failed to fetch data');
+        console.error(error);
       }
     };
     fetchData();
   }, []);
 
+  const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description: string; action: string; onClick: () => void }> = ({ icon, title, description, action, onClick }) => (
+    <Card className="text-center h-full flex flex-col justify-between transition-all duration-300 hover:shadow-lg">
+      <CardContent className="pt-6">
+        <div className="text-blue-600 mb-4">{icon}</div>
+        <CardTitle className="text-2xl font-semibold mb-2">{title}</CardTitle>
+        <p className="mb-4">{description}</p>
+      </CardContent>
+      <CardContent className="pt-0">
+        <Button onClick={onClick} className="w-full">
+          {action} <ChevronRight className="ml-2 h-4 w-4" />
+        </Button>
+      </CardContent>
+    </Card>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      <section className="bg-blue-600 text-white py-20">
-        <div className="container mx-auto px-6 text-center">
-          <h1 className="text-4xl font-bold mb-4 md:text-5xl">Empowering Developers and Job Seekers with the Latest Resources and Opportunities</h1>
-          <p className="text-xl mb-8 md:text-2xl">Join our community of passionate developers and take your career to the next level.</p>
-          <div className="space-y-4 md:space-y-0 md:space-x-4 flex flex-col md:flex-row justify-center">
-            <Button size="lg" variant="secondary" onClick={() => window.location.href = 'https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t'}
-            >Join the Community</Button>
-            <Button size="lg" variant="secondary" onClick={() => window.location.href = '/blogs'}
-            >Explore Blogs</Button>
+    <>
+      <Head>
+        <title>Developer Blog Platform - Empower Your Career</title>
+        <meta name="description" content="Join our community of passionate developers, share knowledge, and take your career to the next level." />
+        <meta name="keywords" content="developer, blog, career, community, programming" />
+      </Head>
+      <div className="min-h-screen bg-gray-50">
+        <ToastContainer />
+        <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
+          <div className="container mx-auto px-6 text-center">
+            <h1 className="text-4xl font-bold mb-4 md:text-5xl lg:text-6xl">Empower Your Developer Journey</h1>
+            <p className="text-xl mb-8 md:text-2xl max-w-3xl mx-auto">Join our thriving community of passionate developers. Share knowledge, learn from peers, and accelerate your career growth.</p>
+            <div className="space-y-4 md:space-y-0 md:space-x-4 flex flex-col md:flex-row justify-center">
+              <Button size="lg" variant="secondary" onClick={() => window.location.href = 'https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t'}>
+                Join the Community
+              </Button>
+              <Button size="lg" variant="secondary" onClick={() => window.location.href = '/blogs'}>
+                Explore Blogs
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold mb-8 text-center">Featured Blogs</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {posts.map((blog, index) => (
-              <Card key={index}>
-                <CardHeader>
-                  <CardTitle>{blog.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  
-                <p className="line-clamp-3">{blog.content.replace(/<[^>]+>/g, '')}</p>
-                  <Button variant="outline" onClick={() => window.location.href = `/blogs/${index}`}
-                  >Read More</Button>
-                </CardContent>
-              </Card>
-            ))}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-6">
+            <h2 className="text-3xl font-bold mb-8 text-center">Featured Blogs</h2>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {[...Array(3)].map((_, index) => (
+                  <Card key={index}>
+                    <CardHeader>
+                      <Skeleton className="h-6 w-3/4" />
+                    </CardHeader>
+                    <CardContent>
+                      <Skeleton className="h-4 w-full mb-2" />
+                      <Skeleton className="h-4 w-5/6 mb-2" />
+                      <Skeleton className="h-4 w-4/6" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : error ? (
+              <div className="text-center text-red-600">{error}</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {posts.map((blog, index) => (
+                  <Card key={index} className="flex flex-col h-full transition-all duration-300 hover:shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="line-clamp-2">{blog.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                      <p className="line-clamp-3 mb-4">{blog.content.replace(/<[^>]+>/g, '')}</p>
+                      <Button variant="outline" onClick={() => window.location.href = `/blogs/${blog._id}`}>
+                        Read More <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+            <div className="text-center mt-12">
+              <Button size="lg" onClick={() => window.location.href = '/blogs'}>
+                View All Blogs
+              </Button>
+            </div>
           </div>
-          <div className="text-center mt-12">
-            <Button size="lg" onClick={() => window.location.href = '/blogs'}
-            >View All Blogs</Button>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* About Us */}
-      <section className="py-16 bg-gray-100">
-        <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold mb-8 text-center">About Us</h2>
-          <p className="text-xl text-center mb-12">We're a community-driven platform dedicated to helping developers grow and succeed in their careers.</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div>
-              <PenTool size={48} className="mx-auto mb-4 text-blue-600" />
-              <h3 className="text-2xl font-semibold mb-2">Write Your Own Blogs</h3>
-              <p>Share your knowledge and experiences with the community.</p>
-              <Button className="mt-4" onClick={() => window.location.href = '/create'}>Start Writing</Button>
-            </div>
-            <div>
-              <Book size={48} className="mx-auto mb-4 text-blue-600" />
-              <h3 className="text-2xl font-semibold mb-2">Learn from Others</h3>
-              <p>Explore a wide range of topics written by expert developers.</p>
-              <Button className="mt-4" onClick={() => window.location.href = '/blogs'}
-              >Discover Blogs</Button>
-            </div>
-            <div>
-              <Users size={48} className="mx-auto mb-4 text-blue-600" />
-              <h3 className="text-2xl font-semibold mb-2">Connect with Peers</h3>
-              <p>Network with like-minded professionals and grow together.</p>
-              <Button className="mt-4" onClick={() => window.location.href = 'https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t'}
-              >Join Community</Button>
+        <section className="py-16 bg-gray-100">
+          <div className="container mx-auto px-6">
+            <h2 className="text-3xl font-bold mb-8 text-center">About Us</h2>
+            <p className="text-xl text-center mb-12 max-w-3xl mx-auto">We're a community-driven platform dedicated to helping developers grow and succeed in their careers. Join us to share knowledge, learn from others, and connect with like-minded professionals.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <FeatureCard
+                icon={<PenTool size={48} className="text-blue-600 mx-auto" />}
+                title="Write Your Own Blogs"
+                description="Share your knowledge and experiences with the community. Establish yourself as an expert in your field."
+                action="Start Writing"
+                onClick={() => window.location.href = '/create'}
+              />
+              <FeatureCard
+                icon={<Book size={48} className="mx-auto" />}
+                title="Learn from Others"
+                description="Explore a wide range of topics written by expert developers. Stay updated with the latest trends and technologies."
+                action="Discover Blogs"
+                onClick={() => window.location.href = '/blogs'}
+              />
+              <FeatureCard
+                icon={<Users size={48} className="mx-auto" />}
+                title="Connect with Peers"
+                description="Network with like-minded professionals and grow together. Collaborate on projects and share opportunities."
+                action="Join Community"
+                onClick={() => window.location.href = 'https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t'}
+              />
             </div>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-6 text-center">
+            <h2 className="text-3xl font-bold mb-8">Our Impact</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div>
+                <p className="text-4xl font-bold text-blue-600">{total?.blogs ?? 0}</p>
+                <p className="text-xl">Blogs Published</p>
+              </div>
+              <div>
+                <p className="text-4xl font-bold text-blue-600">{total?.likes ?? 0}</p>
+                <p className="text-xl">Total Likes</p>
+              </div>
+              <div>
+                <p className="text-4xl font-bold text-blue-600">{total?.views ?? 0}</p>
+                <p className="text-xl">Total Views</p>
+              </div>
+              <div>
+                <p className="text-4xl font-bold text-blue-600">{total?.users ?? 0}</p>
+                <p className="text-xl">Active Users</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </>
   );
 };
 

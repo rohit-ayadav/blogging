@@ -126,7 +126,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                         ) : (
                             <div className="text-center py-4">
                                 <p className="mb-4">Please log in to leave a comment.</p>
-                                <Button onClick={() => signIn()}>Login</Button>
+                                <Button onClick={() => window.open('/login')}>Login</Button>
                             </div>
                         )}
                     </div>

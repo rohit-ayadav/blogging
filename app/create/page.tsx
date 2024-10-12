@@ -6,6 +6,7 @@ import { FormEvent, MouseEvent, useState } from 'react';
 import { useSession } from 'next-auth/react';
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false, loading: () => <p>Loading...</p> });
 import 'react-quill/dist/quill.snow.css';
+import { sanitize } from 'dompurify';
 
 export default function CreateBlog() {
     const [title, setTitle] = useState('');
@@ -31,6 +32,19 @@ export default function CreateBlog() {
     const countWords = (text: string) => {
         return text.trim().split(/\s+/).filter(word => word.length > 0).length;
     };
+    const checkTitle = (title: string) => {
+
+        if (title.length > 250) {
+            throw new Error('Title should not exceed 250 characters');
+        }
+        return sanitize(title);
+    }
+    const checkTags = (tag: string) => {
+        if (tag.length > 50) {
+            throw new Error('Tag should not exceed 50 characters');
+        }
+        return sanitize(tag);
+    }
 
     const createBlogPost = async (isDraft: boolean) => {
         if (!title) {
@@ -40,11 +54,12 @@ export default function CreateBlog() {
         if (!content) {
             throw new Error('Content is required');
         }
-
+        const checkedTitle = checkTitle(title);
+        const checkedTags = tags.map(tag => checkTags(tag));
         const blogPostData = {
-            title,
+            title: checkedTitle,
             content,
-            tags,
+            tags: checkedTags,
             status: isDraft ? 'draft' : 'published',
         };
 
@@ -65,7 +80,7 @@ export default function CreateBlog() {
             console.log(data);
             setBlogId(data.blogPostId);
             toast.success(`${blogId}`);
-            toast.info(`Blog post created successfully. Redirecting to the blog post page...`);
+            // toast.info(`Blog post created successfully. Redirecting to the blog post page...`);
             const successMessage = data.message || 'Blog post created successfully';
             console.log(successMessage);
             return successMessage;
@@ -88,7 +103,7 @@ export default function CreateBlog() {
                     },
                 },
             });
-            // Redirect to the blog post page
+
             window.location.href = `/blogs/${blogId}`;
             console.log(message);
         } catch (error) {
@@ -120,6 +135,9 @@ export default function CreateBlog() {
                         className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
                     />
                 </div>
+                {title.length > 200 && (
+                    <p className="text-red-500 text-sm">Count Character: {title.length}/250</p>
+                )}
 
                 <div className="mb-5">
                     <label htmlFor="thumbnail" className="text-lg font-bold">Thumbnail Image:</label>
