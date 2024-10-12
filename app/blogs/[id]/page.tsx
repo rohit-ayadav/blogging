@@ -12,6 +12,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Head from 'next/head';
 import { set } from 'mongoose';
+import NewsLetter from '@/app/component/newsletter';
 
 interface Post {
     _id: string;
@@ -207,7 +208,7 @@ const IndividualBlogPost = () => {
                     </Card>
 
                     <div className="prose lg:prose-xl mb-8 max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
-                   
+
                     <div className="flex flex-col md:flex-row justify-between items-center m-8 mt-10">
                         <div className="flex items-center space-x-2">
                             <div className="flex items-center space-x-2">
@@ -270,17 +271,7 @@ const IndividualBlogPost = () => {
                             </CardContent>
                         </Card>
                     )}
-
-                    <Alert className="mb-8">
-                        <AlertTitle>Stay updated!</AlertTitle>
-                        <AlertDescription>
-                            <div className="mt-2 flex space-x-2">
-                                <Input type="email" placeholder="Enter your email" />
-                                <Button>Subscribe</Button>
-                            </div>
-                        </AlertDescription>
-                    </Alert>
-
+                    <NewsLetter />
                     <div className="mt-8">
                         <h3 className="text-2xl font-semibold mb-4">Comments</h3>
                         <div className="flex items-center space-x-2">

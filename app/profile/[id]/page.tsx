@@ -12,6 +12,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Head from 'next/head';
 import { Thumb } from '@radix-ui/react-switch';
+import NewsLetter from '../../component/newsletter';
 
 interface Author {
     _id: string;
@@ -210,15 +211,7 @@ const AuthorPage = () => {
                         </CardContent>
                     </Card>
 
-                    <Alert className="mb-8">
-                        <AlertTitle>Stay updated!</AlertTitle>
-                        <AlertDescription>
-                            <div className="mt-2 flex space-x-2">
-                                <Input type="email" placeholder="Enter your email" />
-                                <Button>Subscribe</Button>
-                            </div>
-                        </AlertDescription>
-                    </Alert>
+                    <NewsLetter />
                 </div>
             </div>
         </>

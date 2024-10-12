@@ -72,18 +72,22 @@ export async function POST(request: NextRequest) {
   const sanitizedTitle = purify.sanitize(title);
   const sanitizedTags = tags.map((tag: string) => purify.sanitize(tag));
 
-  // console.log(`\n\nEmail: ${session.user.email}\n\n`);
+  
   const blogPost = {
     title: sanitizedTitle,
     content: sanitizedContent,
     status,
     tags: sanitizedTags,
     createdBy: session.user.email,
+    likes: 0,
+    views: 0,
   };
 
   try {
-    await Blog.create(blogPost);
-
+    const newBlogPost = new Blog(blogPost);
+    await newBlogPost.save();
+    const blogPostId = newBlogPost._id;
+    console.log(`\n\nBlog post id: ${blogPostId}\n\n`);
     await User.findOneAndUpdate(
       { email: session.user.email },
       {
@@ -96,6 +100,7 @@ export async function POST(request: NextRequest) {
         message: "Blog post created successfully",
         success: true,
         data: blogPost,
+        blogPostId,
       },
       { status: 201 }
     );

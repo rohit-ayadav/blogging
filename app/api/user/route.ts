@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   const body = await request.json();
-  const { email, name, image } = body;
+  const { email, name, image, bio, username } = body;
   if (!email) {
     return NextResponse.json(
       {
@@ -55,10 +55,21 @@ export async function PUT(request: NextRequest) {
       { status: 400 }
     );
   }
+  
+  const existingUser = await User.findOne({ username });
+  if (existingUser.username !== username) {
+    return NextResponse.json(
+      {
+        message: "Username already exists",
+        success: false,
+      },
+      { status: 400 }
+    );
+  }
   try {
     const user = await User.findOneAndUpdate(
       { email },
-      { name, image },
+      { name, image, bio, username },
       { new: true }
     );
     if (!user) {

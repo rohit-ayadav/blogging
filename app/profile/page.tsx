@@ -84,6 +84,7 @@ export default function UserProfile() {
 
     const saveProfile = async () => {
         if (editData) {
+            console.log("Saving profile:", editData);
             const response = await fetch(`/api/user`, {
                 method: 'PUT',
                 headers: {
@@ -255,7 +256,7 @@ export default function UserProfile() {
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium">Bio</label>
-                                            <Textarea name="bio" value={editData?.bio ?? 'No Bio Available'} readOnly={!editMode} onChange={handleEditChange} />
+                                            <Textarea name="bio" value={editData?.bio ?? ''} readOnly={!editMode} onChange={handleEditChange} />
                                         </div>
                                     </div>
                                     {editMode && (

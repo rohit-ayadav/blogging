@@ -2,26 +2,23 @@
 import dynamic from 'next/dynamic';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FormEvent, MouseEvent, useEffect, useState } from 'react';
-import { signIn, useSession, signOut } from 'next-auth/react';
-import { Session } from 'next-auth';
+import { FormEvent, MouseEvent, useState } from 'react';
+import { useSession } from 'next-auth/react';
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false, loading: () => <p>Loading...</p> });
 import 'react-quill/dist/quill.snow.css';
-import { redirect } from 'next/dist/server/api-utils';
 
 export default function CreateBlog() {
     const [title, setTitle] = useState('');
-    // const [thumbnail, setThumbnail] = useState<File | null>(null);
     const [thumbnail, setThumbnail] = useState<string | null>(null);
     const [content, setContent] = useState('');
     const [wordCount, setWordCount] = useState(0);
     const [tags, setTags] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const { data: session } = useSession();
+    const [blogId, setBlogId] = useState('');
 
     const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            // setThumbnail(e.target.files[0]);
             setThumbnail("Thumbnail Image");
         }
     };
@@ -35,26 +32,22 @@ export default function CreateBlog() {
         return text.trim().split(/\s+/).filter(word => word.length > 0).length;
     };
 
-    const handleSubmit = async (e: MouseEvent<HTMLButtonElement> | FormEvent<HTMLFormElement>, isDraft: boolean) => {
-        e.preventDefault();
-
+    const createBlogPost = async (isDraft: boolean) => {
         if (!title) {
-            toast.error('Title is required');
-            return;
+            throw new Error('Title is required');
         }
 
         if (!content) {
-            toast.error('Content is required');
-            return;
+            throw new Error('Content is required');
         }
-        setLoading(true);
+
         const blogPostData = {
             title,
-            // thumbnail,
             content,
             tags,
             status: isDraft ? 'draft' : 'published',
         };
+
         try {
             const response = await fetch('/api/blog', {
                 method: 'POST',
@@ -63,28 +56,43 @@ export default function CreateBlog() {
                 },
                 body: JSON.stringify(blogPostData),
             });
+
             const data = await response.json();
 
             if (!response.ok) {
-                const errorMessage = data.message || 'Something went wrong';
-                console.error('Error creating blog post:', errorMessage);
-                toast.error(errorMessage);
-                setLoading(false);
-                return;
+                throw new Error(data.message || 'Something went wrong');
             }
-
+            console.log(data);
+            setBlogId(data.blogPostId);
+            toast.success(`${blogId}`);
+            toast.info(`Blog post created successfully. Redirecting to the blog post page...`);
             const successMessage = data.message || 'Blog post created successfully';
             console.log(successMessage);
-            toast.success(successMessage);
-        } catch (error) {
-            console.error('Error creating blog post:', error);
-            toast.error('Something went wrong');
-            return;
-        }
-        finally {
+            return successMessage;
+        } catch (error: any) {
+            throw new Error(error.message);
+        } finally {
             setLoading(false);
-            // redirect to the dashboard
-            window.location.href = '/dashboard';
+        }
+    };
+
+    const handleSubmit = async (e: MouseEvent<HTMLButtonElement> | FormEvent<HTMLFormElement>, isDraft: boolean) => {
+        e.preventDefault();
+        try {
+            const message = await toast.promise(createBlogPost(isDraft), {
+                pending: 'Creating Blog Post...',
+                success: 'Blog post created successfully',
+                error: {
+                    render({ data }) {
+                        return <div>{(data as Error).message}</div>;
+                    },
+                },
+            });
+            // Redirect to the blog post page
+            window.location.href = `/blogs/${blogId}`;
+            console.log(message);
+        } catch (error) {
+            console.error('Submission Error:', error);
         }
     };
 
