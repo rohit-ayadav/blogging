@@ -1,17 +1,15 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun, Mail, Globe, ArrowLeft, Facebook, Twitter, Eye, ThumbsUp } from 'lucide-react';
+import { Moon, Sun, Mail, Globe, ArrowLeft, Eye, ThumbsUp, Facebook, Twitter } from 'lucide-react';
 import { SiLinkedin } from 'react-icons/si';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
 import { toast } from 'react-hot-toast';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Head from 'next/head';
-import { Thumb } from '@radix-ui/react-switch';
 import NewsLetter from '../../component/newsletter';
 
 interface Author {
@@ -43,8 +41,6 @@ const AuthorPage = () => {
     const [author, setAuthor] = useState<Author | null>(null);
     const [authorPosts, setAuthorPosts] = useState<Post[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const [likes, setLikes] = useState<number>(0);
-    const [views, setViews] = useState<number>(0);
 
     const { id } = useParams();
     const router = useRouter();
@@ -66,9 +62,8 @@ const AuthorPage = () => {
                         throw new Error(`${postsResponse.status} - ${postsResponse.statusText}`);
                     }
                     const postsData = await postsResponse.json();
-                    setAuthorPosts(postsData.data);
-                    setLikes(postsData.data.likes);
-                    setViews(postsData.data.views);
+                    setAuthorPosts(postsData.blogs);
+                    console.log(postsData.blogs.reverse());
                 } catch (error: any) {
                     console.error('Error fetching data:', error);
                     toast.error(`Failed to fetch data: ${error.message}`);
@@ -80,15 +75,7 @@ const AuthorPage = () => {
     }, [id]);
 
     const toggleDarkMode = () => setDarkMode(!darkMode);
-    if (error) {
-        return <>
-            <div className="flex flex-col justify-center items-center h-screen">{error}
-                <p className='text-black dark:text-white'>Please try again later</p>
-                <button onClick={() => window.location.reload()} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Refresh</button>
-            </div>
-        </>
 
-    }
     if (!author) {
         return <div className="flex justify-center items-center h-screen">Loading...</div>;
     }
@@ -172,7 +159,7 @@ const AuthorPage = () => {
                             <CardTitle>Posts by {author.name}</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            {authorPosts.length > 0 ? (
+                            {authorPosts && authorPosts.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {authorPosts.map((post) => (
                                         <Link href={`/blogs/${post._id}`} key={post._id}>
@@ -186,9 +173,7 @@ const AuthorPage = () => {
                                                         <span>{post.views ? post.views : 0}</span>
                                                     </div>
                                                     <div className="flex items-center space-x-2">
-                                                        {/* <Button variant="outline" size="icon"> */}
                                                         <ThumbsUp className="h-4 w-4" />
-                                                        {/* </Button> */}
                                                         <span>{post.likes ? post.likes : 0}</span>
                                                     </div>
                                                 </div>
