@@ -61,7 +61,7 @@ const AuthorPage = () => {
                     const authorData = await authorResponse.json();
                     setAuthor(authorData.user);
 
-                    const postsResponse = await fetch(`/api/blog?author=${authorData.user.email}`);
+                    const postsResponse = await fetch(`/api/blogpost?email=${authorData.user.email}`);
                     if (!postsResponse.ok) {
                         throw new Error(`${postsResponse.status} - ${postsResponse.statusText}`);
                     }

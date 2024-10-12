@@ -14,7 +14,7 @@ interface CustomSession {
 
 connectDB();
 
-export async function GET(request: NextRequest, response: NextResponse) {
+export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const id = searchParams.get("email");
   if (!id) {

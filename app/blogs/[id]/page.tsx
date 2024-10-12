@@ -6,12 +6,12 @@ import { SiFacebook, SiLinkedin, SiWhatsapp, SiX } from 'react-icons/si';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
 import { toast } from 'react-hot-toast';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Head from 'next/head';
 import NewsLetter from '@/app/component/newsletter';
+import CommentSection from '../../component/commentsection';
 
 interface Post {
     _id: string;
@@ -69,12 +69,14 @@ const IndividualBlogPost = () => {
                     setLikes(data.data.likes);
 
                     // Fetch author's other posts
-                    const authorPostsResponse = await fetch(`/api/blog?author=${data.data.createdBy}&limit=3`);
+                    const authorPostsResponse = await fetch(`/api/blogpost?email=${data.data.createdBy}`);
                     if (!authorPostsResponse.ok) {
                         throw new Error(`${authorPostsResponse.status} - ${authorPostsResponse.statusText}`);
                     }
                     const authorPostsData = await authorPostsResponse.json();
-                    setAuthorPosts(authorPostsData.data.filter((p: Post) => p._id !== id));
+                    setAuthorPosts(authorPostsData.blogs.filter((p: Post) => p._id !== id));
+                    // console.log(authorPostsData.blogs);
+                    // setAuthorPosts(authorPostsData.blogs);
 
                     // Fetch related posts (based on tags)
                     const relatedPostsResponse = await fetch(`/api/blog?tags=${data.data.tags.join(',')}&limit=3`);
@@ -280,13 +282,20 @@ const IndividualBlogPost = () => {
                         </Card>
                     )}
                     <NewsLetter />
-                    <div className="mt-8">
-                        <h3 className="text-2xl font-semibold mb-4">Comments</h3>
-                        <div className="flex items-center space-x-2">
-                            <Input type="text" placeholder="Write a comment..." />
-                            <Button>Post</Button>
-                        </div>
-                    </div>
+                   <CommentSection postId={Array.isArray(id) ? id[0] : id} />
+
+                    {authorPosts.length === 0 && (
+                        <Card className="mb-8 mt-6">
+                            <CardHeader>
+                                <CardTitle>More from {author?.name}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <p className="text-sm text-gray-500">No more posts from this author</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
                     {authorPosts.length > 0 && (
                         <Card className="mb-8 mt-6">
                             <CardHeader>

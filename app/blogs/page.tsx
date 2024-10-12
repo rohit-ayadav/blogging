@@ -25,6 +25,13 @@ interface UserType {
     email: string;
     name: string;
     image: string;
+    bio: string;
+    follower: number;
+    following: number;
+    noOfBlogs: number;
+    createdAt: string;
+    updatedAt: string;
+    theme: string;
 }
 
 const BlogCollection = () => {
