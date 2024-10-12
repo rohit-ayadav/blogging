@@ -24,7 +24,7 @@ interface BlogPostType {
 interface UserType {
     email: string;
     name: string;
-    profilePic: string;
+    image: string;
 }
 
 const BlogCollection = () => {
@@ -101,6 +101,7 @@ const BlogCollection = () => {
                         {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                     </Button>
                 </div>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {posts.map((post) => {
                         const user = users[post.createdBy];
@@ -129,8 +130,8 @@ const BlogCollection = () => {
                                 <CardFooter className="flex justify-between items-center">
                                     <div className="flex items-center space-x-2">
                                         <Avatar>
-                                            {user?.profilePic ? (
-                                                <img src={user.profilePic} alt={user?.name || 'User'} className="h-8 w-8 rounded-full" />
+                                            {user?.image ? (
+                                                <img src={user.image} alt={user?.name || 'User'} className="h-8 w-8 rounded-full" />
                                             ) : (
                                                 <AvatarFallback>{user?.name ? user.name[0] : 'U'}</AvatarFallback>
                                             )}

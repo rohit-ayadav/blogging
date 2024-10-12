@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Moon, Sun, ThumbsUp, Clock, Calendar, ArrowLeft, ThumbsUp as ThumbsUpFilled, Eye } from 'lucide-react';
 import { SiFacebook, SiLinkedin, SiWhatsapp, SiX } from 'react-icons/si';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+// Removed unused imports
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
@@ -11,7 +11,6 @@ import { toast } from 'react-hot-toast';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Head from 'next/head';
-import { set } from 'mongoose';
 import NewsLetter from '@/app/component/newsletter';
 
 interface Post {
@@ -207,7 +206,14 @@ const IndividualBlogPost = () => {
                         </div>
                     </Card>
 
-                    <div className="prose lg:prose-xl mb-8 max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
+                    {/* <div className="prose lg:prose-xl mb-8 max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} /> */}
+                    <div
+                        className={`prose lg:prose-xl mb-8 max-w-none ${darkMode
+                            ? 'dark bg-gray-800 text-gray-200 prose-dark'
+                            : 'bg-gray-100 text-gray-900'
+                            }`}
+                        dangerouslySetInnerHTML={{ __html: post.content }}
+                    />
 
                     <div className="flex flex-col md:flex-row justify-between items-center m-8 mt-10">
                         <div className="flex items-center space-x-2">
