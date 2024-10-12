@@ -101,9 +101,44 @@ export default function UserProfile() {
             }
         }
     };
-
     const changePassword = (oldPassword: string, newPassword: string) => {
-        console.log("Changing password:", oldPassword, newPassword);
+        try {
+            toast.promise(changePasswordRequest(oldPassword, newPassword), {
+                loading: 'Changing password...',
+                success: 'Password changed successfully',
+                error: (error: any) => <div>{error.message}</div>,
+            });
+        } catch (error: any) {
+            toast.error(error.message);
+        }
+    }
+
+    const changePasswordRequest = async (oldPassword: string, newPassword: string) => {
+        if(!session?.user?.email) {
+            throw new Error('Login again to change password');
+        }
+        if(!oldPassword || !newPassword) {
+            throw new Error('Please enter old and new password');
+        }
+        
+        const response = await fetch(`/api/user/password`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ oldPassword, newPassword, email: session?.user?.email }),
+        });
+        let data;
+        try {
+            data = await response.json();
+        } catch (error) {
+            throw new Error('Failed to parse JSON response');
+        }
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to change password');
+        } else {
+            return data.message;
+        }
     };
 
     const manageLinkedAccounts = (action: string, accountType: string) => {
