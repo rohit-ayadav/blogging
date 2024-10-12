@@ -42,7 +42,7 @@ const AboutPage = () => {
           <CardContent>
             <div className="flex items-center mb-4">
               <Avatar className="h-20 w-20 mr-4">
-                <AvatarImage src="/api/placeholder/100/100" alt="Rohit Kumar Yadav" />
+                <AvatarImage src="/founder.jpg" alt="Rohit Kumar Yadav" />
                 <AvatarFallback>RY</AvatarFallback>
               </Avatar>
               <div>
@@ -51,7 +51,7 @@ const AboutPage = () => {
               </div>
             </div>
             <p>
-              Rohit Kumar yadav is a veteran journalist with over 15 years of experience in digital media. He founded 
+              Rohit Kumar Yadav is a veteran journalist with over 15 years of experience in digital media. He founded 
               this blog with the vision of creating a platform that bridges the gap between complex industry 
               topics and everyday readers. His work has been recognized with numerous awards, and he's a 
               frequent speaker at industry conferences.
