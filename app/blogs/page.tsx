@@ -17,7 +17,7 @@ interface BlogPostType {
     tags?: string[];
     content: string;
     createdBy: string;
-    image?: string;
+    thumbnail?: string;
     views?: number;
     likes?: number;
     bio?: string;
@@ -229,8 +229,8 @@ const BlogCollection = () => {
                             const user = users[post.createdBy];
                             return (
                                 <Card key={post._id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                                    {post.image && (
-                                        <img src={post.image} alt={post.title} className="w-full h-48 object-cover" />
+                                    {post.thumbnail && (
+                                        <img src={post.thumbnail} alt={post.title} className="w-full h-48 object-cover" />
                                     )}
                                     <CardHeader>
                                         <CardTitle className="font-bold line-clamp-2">{post.title}</CardTitle>

@@ -16,7 +16,7 @@ import { HeartFilledIcon } from '@radix-ui/react-icons';
 interface Post {
     _id: string;
     title: string;
-    image?: string;
+    thumbnail?: string;
     createdAt: string;
     content: string;
     tags: string[];
@@ -150,7 +150,7 @@ const IndividualBlogPost = () => {
                 <meta name="description" content={post.content.slice(0, 160)} />
                 <meta property="og:title" content={post.title} />
                 <meta property="og:description" content={post.content.slice(0, 160)} />
-                <meta property="og:image" content={post.image || '/default-og-image.jpg'} />
+                <meta property="og:image" content={post.thumbnail || '/default-og-image.jpg'} />
                 <meta property="og:url" content={shareUrl} />
                 <meta name="twitter:card" content="summary_large_image" />
             </Head>
@@ -173,8 +173,8 @@ const IndividualBlogPost = () => {
                         <h1 className="text-4xl font-bold">{post.title}</h1>
                     </div>
 
-                    {post.image && (
-                        <img src={post.image} alt={post.title} className="w-full max-h-96 object-cover mb-8 rounded-lg" />
+                    {post.thumbnail && (
+                        <img src={post.thumbnail} alt={post.title} className="w-full max-h-96 object-cover mb-8 rounded-lg" />
                     )}
 
                     <div className="flex flex-wrap items-center space-x-4 mb-8">

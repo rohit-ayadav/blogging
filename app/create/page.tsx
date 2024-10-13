@@ -18,11 +18,11 @@ export default function CreateBlog() {
     const { data: session } = useSession();
     const [blogId, setBlogId] = useState('');
 
-    const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setThumbnail("Thumbnail Image");
-        }
-    };
+    // const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     if (e.target.files && e.target.files.length > 0) {
+    //         setThumbnail("Thumbnail Image");
+    //     }
+    // };
 
     const handleContentChange = (value: string) => {
         setContent(value);
@@ -59,6 +59,7 @@ export default function CreateBlog() {
         const blogPostData = {
             title: checkedTitle,
             content,
+            thumbnail: thumbnail || null,
             tags: checkedTags,
             status: isDraft ? 'draft' : 'published',
         };
@@ -139,7 +140,7 @@ export default function CreateBlog() {
                     <p className="text-red-500 text-sm">Count Character: {title.length}/250</p>
                 )}
 
-                <div className="mb-5">
+                {/* <div className="mb-5">
                     <label htmlFor="thumbnail" className="text-lg font-bold">Thumbnail Image:</label>
                     <input
                         type="file"
@@ -148,6 +149,19 @@ export default function CreateBlog() {
                         onChange={handleThumbnailChange}
                         className="mt-1 p-1 text-lg"
                     />
+                </div> */}
+                {/* Taking Thumbnail as a image link for easier implementation */}
+                <div className="mb-5">
+                    <label htmlFor="thumbnail" className="text-lg font-bold">Thumbnail Image:</label>
+                    <input
+                        type="text"
+                        id="thumbnail"
+                        placeholder="Enter the thumbnail image link"
+                        className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
+                        onChange={(e) => setThumbnail(e.target.value)}
+                    />
+                    <p className="text-sm text-gray-500">You can use any image link from the web</p>
+                    <p className="text-sm text-gray-500">Optional: You can also add image in the content below</p>
                 </div>
 
                 <div className="mb-5">
@@ -181,10 +195,17 @@ export default function CreateBlog() {
                     <input
                         type="text"
                         id="tags"
-                        placeholder="Enter tags separated by commas or hashes"
+                        placeholder="Enter tags separated by commas and hashes"
                         className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
-                        onChange={(e) => setTags(e.target.value.split(/[,#]/).map(tag => tag.trim()))}
+                        onChange={(e) => setTags(
+                            e.target.value
+                                .split(/[,#\n]/)
+                                .map(tag => tag.trim())
+                                .filter(tag => tag)
+                        )}
+
                     />
+
                 </div>
                 {tags.length > 0 && (
                     <div className="mb-5">

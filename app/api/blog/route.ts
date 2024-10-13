@@ -22,10 +22,10 @@ await connectDB();
 
 const blogSchema = Joi.object({
   title: Joi.string().required(),
-
   content: Joi.string().required(),
   status: Joi.string().valid("published", "draft").optional(),
   tags: Joi.array().items(Joi.string()).optional(),
+  thumbnail: Joi.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { title, content, status = "published", tags } = body;
+  const { title, content, status = "published", tags,thumbnail } = body;
 
   if (!session.user.email) {
     return NextResponse.json(
@@ -72,11 +72,11 @@ export async function POST(request: NextRequest) {
   const sanitizedTitle = purify.sanitize(title);
   const sanitizedTags = tags.map((tag: string) => purify.sanitize(tag));
 
-  
   const blogPost = {
     title: sanitizedTitle,
     content: sanitizedContent,
     status,
+    thumbnail,
     tags: sanitizedTags,
     createdBy: session.user.email,
     likes: 0,
@@ -204,6 +204,7 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
 
 export async function GET(request: NextRequest) {
   const data = await Blog.find().sort({ createdAt: -1 });
