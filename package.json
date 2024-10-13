@@ -45,7 +45,6 @@
     "next-auth": "^4.24.8",
     "next-cloudinary": "^6.14.1",
     "quill": "^2.0.2",
-    "quill-emoji": "^0.2.0",
     "quill-image-resize-module": "^3.0.0",
     "quill-markdown": "^1.5.0",
     "quill-table": "^1.0.0",

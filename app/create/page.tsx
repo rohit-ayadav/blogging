@@ -81,7 +81,7 @@ export default function CreateBlog() {
             }
             console.log(data);
             setBlogId(data.blogPostId);
-            toast.success(`${blogId}`);
+            // toast.success(`${blogId}`);
             const successMessage = data.message || 'Blog post created successfully';
             console.log(successMessage);
             return successMessage;
@@ -188,7 +188,7 @@ export default function CreateBlog() {
                         onChange={handleContentChange}
                         modules={modules}
                         formats={formats}
-                        className="h-72 bg-white"
+                        className='bg-white p-5 mt-1 rounded border border-gray-300'
                     />
                     <p className="mt-2 mr-6 text-right text-gray-600">Words: {wordCount} | Characters: {charCount}</p>
                 </div>
