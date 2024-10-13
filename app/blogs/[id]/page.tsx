@@ -229,10 +229,11 @@ const IndividualBlogPost = () => {
                             <div className="flex items-center space-x-2">
                                 <Button variant="outline" onClick={handleLike}>
                                     {liked ? <HeartFilledIcon color='red' className="h-4 w-4 mr-2" /> : <Heart className="h-4 w-4 mr-2" />}
-                                    Like({likes})
+                                    Like ({likes})
                                 </Button>
                                 <Button variant="outline">
-                                    views {views ? views : 0}
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    View ({views ? views : 0})
                                 </Button>
                             </div>
                         </div>
