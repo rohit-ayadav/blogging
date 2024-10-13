@@ -13,9 +13,11 @@ import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader,
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function UserProfile() {
     const { data: session } = useSession();
+    const router = useRouter();
     interface UserData {
         name: string;
         username: string;
@@ -194,9 +196,8 @@ export default function UserProfile() {
         await signOut();
         window.location.href = '/';
     };
-
     const handleEditBlog = (blogId: string) => {
-        console.log("Editing blog:", blogId);
+        router.push(`/edit/${blogId}`);
     };
 
     const handleDeleteBlog = async (blogId: string) => {

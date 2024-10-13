@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast, Toaster } from 'react-hot-toast';
 import Link from 'next/link';
+import CountUp from 'react-countup';
 
 interface BlogPostType {
     _id: string;
@@ -170,13 +171,16 @@ const BlogCollection = () => {
                     </div>
                 </div>
 
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
                     <Card>
                         <CardHeader>
                             <CardTitle>Total Posts</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-3xl font-bold">{posts.length}</p>
+                            <p className="text-3xl font-bold">
+                                <CountUp end={posts.length} duration={2} />
+                            </p>
                         </CardContent>
                     </Card>
                     <Card>
@@ -184,7 +188,9 @@ const BlogCollection = () => {
                             <CardTitle>Total Views</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-3xl font-bold">{totalViews}</p>
+                            <p className="text-3xl font-bold">
+                                <CountUp end={totalViews} duration={2} />
+                            </p>
                         </CardContent>
                     </Card>
                     <Card>
@@ -192,7 +198,9 @@ const BlogCollection = () => {
                             <CardTitle>Total Likes</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-3xl font-bold">{totalLikes}</p>
+                            <p className="text-3xl font-bold">
+                                <CountUp end={totalLikes} duration={2} />
+                            </p>
                         </CardContent>
                     </Card>
                     <Card>
@@ -200,7 +208,9 @@ const BlogCollection = () => {
                             <CardTitle>Active Users</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-3xl font-bold">{Object.keys(users).length}</p>
+                            <p className="text-3xl font-bold">
+                                <CountUp end={Object.keys(users).length} duration={2} />
+                            </p>
                         </CardContent>
                     </Card>
                 </div>

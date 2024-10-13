@@ -12,15 +12,18 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.JWT_SECRET });
   console.log("token", token);
 
-if (!token) {
+  if (!token) {
     const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("message", "You must be logged in to access this page.");
+    loginUrl.searchParams.set(
+      "message",
+      "You must be logged in to access this page."
+    );
     return NextResponse.redirect(loginUrl);
-}
+  }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/create", "/profile", "/dashboard"],
+  matcher: ["/create", "/profile", "/dashboard", "/api/blog/[id]", "/edit"],
 };
