@@ -4,6 +4,9 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FormEvent, MouseEvent, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { Save } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false, loading: () => <p>Loading...</p> });
 import 'react-quill/dist/quill.snow.css';
 import { sanitize } from 'dompurify';
@@ -13,32 +16,30 @@ export default function CreateBlog() {
     const [thumbnail, setThumbnail] = useState<string | null>(null);
     const [content, setContent] = useState('');
     const [wordCount, setWordCount] = useState(0);
+    const [charCount, setCharCount] = useState(0);
     const [tags, setTags] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const { data: session } = useSession();
     const [blogId, setBlogId] = useState('');
-
-    // const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     if (e.target.files && e.target.files.length > 0) {
-    //         setThumbnail("Thumbnail Image");
-    //     }
-    // };
+    const [saveStatus, setSaveStatus] = useState('');
 
     const handleContentChange = (value: string) => {
         setContent(value);
         setWordCount(countWords(value));
+        setCharCount(value.length);
     };
 
     const countWords = (text: string) => {
         return text.trim().split(/\s+/).filter(word => word.length > 0).length;
     };
-    const checkTitle = (title: string) => {
 
+    const checkTitle = (title: string) => {
         if (title.length > 250) {
             throw new Error('Title should not exceed 250 characters');
         }
         return sanitize(title);
     }
+
     const checkTags = (tag: string) => {
         if (tag.length > 50) {
             throw new Error('Tag should not exceed 50 characters');
@@ -81,7 +82,6 @@ export default function CreateBlog() {
             console.log(data);
             setBlogId(data.blogPostId);
             toast.success(`${blogId}`);
-            // toast.info(`Blog post created successfully. Redirecting to the blog post page...`);
             const successMessage = data.message || 'Blog post created successfully';
             console.log(successMessage);
             return successMessage;
@@ -112,6 +112,33 @@ export default function CreateBlog() {
         }
     };
 
+    const handleSave = () => {
+        toast.promise(createBlogPost(true), {
+            pending: 'Saving Draft...',
+            success: 'Draft saved successfully',
+            error: 'Failed to save draft',
+        });
+    };
+
+    const modules = {
+        toolbar: {
+            container: '#toolbar',
+        },
+        history: {
+            delay: 2000,
+            maxStack: 500,
+            userOnly: true
+        },
+    };
+
+    const formats = [
+        'header', 'font', 'size',
+        'bold', 'italic', 'underline', 'strike', 'blockquote',
+        'list', 'bullet', 'indent',
+        'link', 'image', 'video',
+        'color', 'background', 'align', 'script', 'code-block'
+    ];
+
     return (
         <div className="max-w-2xl mx-auto p-5">
             <ToastContainer />
@@ -140,17 +167,6 @@ export default function CreateBlog() {
                     <p className="text-red-500 text-sm">Count Character: {title.length}/250</p>
                 )}
 
-                {/* <div className="mb-5">
-                    <label htmlFor="thumbnail" className="text-lg font-bold">Thumbnail Image:</label>
-                    <input
-                        type="file"
-                        id="thumbnail"
-                        accept="image/*"
-                        onChange={handleThumbnailChange}
-                        className="mt-1 p-1 text-lg"
-                    />
-                </div> */}
-                {/* Taking Thumbnail as a image link for easier implementation */}
                 <div className="mb-5">
                     <label htmlFor="thumbnail" className="text-lg font-bold">Thumbnail Image:</label>
                     <input
@@ -166,28 +182,15 @@ export default function CreateBlog() {
 
                 <div className="mb-5">
                     <label className="text-lg font-bold">Content:</label>
+                    <CustomToolbar />
                     <ReactQuill
                         value={content}
                         onChange={handleContentChange}
-                        className="h-72"
-                        modules={{
-                            toolbar: [
-                                [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
-                                [{ size: [] }],
-                                ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-                                [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-                                ['link', 'image', 'video'],
-                                ['clean']
-                            ],
-                        }}
-                        formats={[
-                            'header', 'font', 'size',
-                            'bold', 'italic', 'underline', 'strike', 'blockquote',
-                            'list', 'bullet', 'indent',
-                            'link', 'image', 'video'
-                        ]}
+                        modules={modules}
+                        formats={formats}
+                        className="h-72 bg-white"
                     />
-                    <p className="mt-2 mr-6 text-right text-gray-600">Word Count: {wordCount}</p>
+                    <p className="mt-2 mr-6 text-right text-gray-600">Words: {wordCount} | Characters: {charCount}</p>
                 </div>
 
                 <div className="mb-5">
@@ -203,9 +206,7 @@ export default function CreateBlog() {
                                 .map(tag => tag.trim())
                                 .filter(tag => tag)
                         )}
-
                     />
-
                 </div>
                 {tags.length > 0 && (
                     <div className="mb-5">
@@ -221,13 +222,14 @@ export default function CreateBlog() {
                 )}
 
                 <div className="flex justify-between mt-20">
-                    <button
+                    <Button
                         type="button"
-                        onClick={async (e) => await handleSubmit(e, true)}
-                        className="px-4 py-2 bg-yellow-500 text-white rounded cursor-pointer"
+                        onClick={handleSave}
+                        className="flex items-center space-x-2 bg-yellow-500 text-white rounded cursor-pointer"
                     >
-                        Save Draft
-                    </button>
+                        <Save size={16} />
+                        <span>Save Draft</span>
+                    </Button>
                     <button
                         type="submit"
                         className="px-4 py-2 bg-green-500 text-white rounded cursor-pointer"
@@ -236,7 +238,62 @@ export default function CreateBlog() {
                     </button>
                 </div>
             </form>
-
+            {saveStatus && (
+                <Alert>
+                    <AlertDescription>{saveStatus}</AlertDescription>
+                </Alert>
+            )}
         </div>
     );
 }
+
+const CustomToolbar = () => (
+    <div id="toolbar">
+        <select className="ql-header" defaultValue={""} onChange={e => e.persist()}>
+            <option value="1">Heading 1</option>
+            <option value="2">Heading 2</option>
+            <option value="3">Heading 3</option>
+            <option value="4">Heading 4</option>
+            <option value="5">Heading 5</option>
+            <option value="6">Heading 6</option>
+            <option value="">Normal</option>
+        </select>
+        <select className="ql-font" defaultValue="sans-serif">
+            <option value="sans-serif">Sans Serif</option>
+            <option value="serif">Serif</option>
+            <option value="monospace">Monospace</option>
+
+        </select>
+        <select className="ql-size" defaultValue="medium">
+            <option value="small">Small</option>
+            <option value="medium">Medium</option>
+            <option value="large">Large</option>
+            <option value="huge">Huge</option>
+
+        </select>
+        <button className="ql-bold" />
+        <button className="ql-italic" />
+        <button className="ql-underline" />
+        <button className="ql-strike" />
+        <select className="ql-color" />
+        <select className="ql-background" />
+        <button className="ql-link" />
+        <button className="ql-image" />
+        <button className="ql-video" />
+        <button className="ql-formula" />
+        <button className="ql-code-block" />
+        <button className="ql-blockquote" />
+        <button className="ql-list" value="ordered" />
+        <button className="ql-list" value="bullet" />
+        <button className="ql-indent" value="-1" />
+        <button className="ql-indent" value="+1" />
+        <select className="ql-align" />
+        <button className="ql-script" value="sub" />
+        <button className="ql-script" value="super" />
+        <button className="ql-clean" />
+        <button className="ql-undo" />
+        <button className="ql-redo" />
+        <button className="ql-history" />
+        <button className="ql-remove" />
+    </div>
+);
