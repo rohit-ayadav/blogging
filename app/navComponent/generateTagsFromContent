@@ -1,0 +1,7 @@
+import nlp from 'compromise';
+function generateTagsFromContent(content) {
+  const doc = nlp(content);
+  const tags = doc.topics().out('array');
+  return tags;
+}
+export default generateTagsFromContent;

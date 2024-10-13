@@ -2,7 +2,7 @@
 import dynamic from 'next/dynamic';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FormEvent, MouseEvent, useState } from 'react';
+import { FormEvent, MouseEvent, useState, useEffect, SetStateAction } from 'react';
 import { useSession } from 'next-auth/react';
 import { Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false, loading: () => <p>Loading...</p> });
 import 'react-quill/dist/quill.snow.css';
 import { sanitize } from 'dompurify';
+import generateTagsFromContent from '../navComponent/generateTagsFromContent'
 
 export default function CreateBlog() {
     const [title, setTitle] = useState('');
@@ -23,10 +24,13 @@ export default function CreateBlog() {
     const [blogId, setBlogId] = useState('');
     const [saveStatus, setSaveStatus] = useState('');
 
+    useEffect(() => {
+        const newTags = generateTagsFromContent(content) as string[];
+        setTags(newTags);
+    }, [content]);
+
     const handleContentChange = (value: string) => {
         setContent(value);
-        setWordCount(countWords(value));
-        setCharCount(value.length);
     };
 
     const countWords = (text: string) => {
@@ -64,6 +68,7 @@ export default function CreateBlog() {
             tags: checkedTags,
             status: isDraft ? 'draft' : 'published',
         };
+        console.log(blogPostData);
 
         try {
             const response = await fetch('/api/blog', {
@@ -179,6 +184,14 @@ export default function CreateBlog() {
                     <p className="text-sm text-gray-500">You can use any image link from the web</p>
                     <p className="text-sm text-gray-500">Optional: You can also add image in the content below</p>
                 </div>
+                {/* Preview of Image */}
+                {thumbnail && (
+                    <div className="mb-5">
+                        <p className="text-lg font-bold">Thumbnail Preview:</p>
+                        <img src={thumbnail} alt="Thumbnail" className="w-full h-48 object-cover rounded" />
+                    </div>
+                )}
+                
 
                 <div className="mb-5">
                     <label className="text-lg font-bold">Content:</label>
@@ -198,6 +211,7 @@ export default function CreateBlog() {
                     <input
                         type="text"
                         id="tags"
+                        // value={tags.join(', ')}
                         placeholder="Enter tags separated by commas and hashes"
                         className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
                         onChange={(e) => setTags(
@@ -211,11 +225,21 @@ export default function CreateBlog() {
                 {tags.length > 0 && (
                     <div className="mb-5">
                         <label className="text-lg font-bold">Tags Preview:</label>
+                        <p className="text-sm text-gray-500">Note: Some tags may be AI-generated based on the content.</p>
                         <div className="flex flex-wrap gap-2 mt-1">
                             {tags.map((tag, index) => (
-                                <span key={index} className="px-3 py-1 bg-gray-200 rounded-full text-sm">
-                                    {tag}
-                                </span>
+                                <div key={index} className="flex items-center space-x-2">
+                                    <span className="px-3 py-1 bg-gray-200 rounded-full text-sm">
+                                        {tag}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        className="text-red-500 hover:text-red-700"
+                                        onClick={() => setTags(tags.filter((_, i) => i !== index))}
+                                    >
+                                        &times;
+                                    </button>
+                                </div>
                             ))}
                         </div>
                     </div>

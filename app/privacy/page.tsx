@@ -42,7 +42,7 @@ const PrivacyPolicy = () => {
         },
         {
             title: "10. Contact Us",
-            content: "If you have any questions about this Privacy Policy, please contact us at [Your Contact Information]."
+            content: "If you have any questions about this Privacy Policy, please contact us at 6392177974."
         }
     ];
 

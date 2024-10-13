@@ -42,7 +42,7 @@ const TermsOfService = () => {
         // },
         {
             title: "10. Contact Information",
-            content: "If you have any questions about these Terms, please contact us at [Your Contact Information]."
+            content: "If you have any questions about these Terms, please contact us at 6392177974."
         }
     ];
 
