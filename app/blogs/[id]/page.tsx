@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun, ThumbsUp, Clock, Calendar, ArrowLeft, ThumbsUp as ThumbsUpFilled, Eye } from 'lucide-react';
+import { Moon, Sun, Clock, Calendar, ArrowLeft, ThumbsUp as ThumbsUpFilled, Eye, Heart } from 'lucide-react';
 import { SiFacebook, SiLinkedin, SiWhatsapp, SiX } from 'react-icons/si';
-// Removed unused imports
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
@@ -12,6 +11,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import NewsLetter from '@/app/component/newsletter';
 import CommentSection from '../../component/commentsection';
+import { HeartFilledIcon } from '@radix-ui/react-icons';
 
 interface Post {
     _id: string;
@@ -99,6 +99,7 @@ const IndividualBlogPost = () => {
     const handleLike = async () => {
         if (!liked) {
             setLikes(likes + 1);
+            setLiked(true);
             try {
                 const response = await fetch(`/api/blog/${id}/like`, {
                     method: 'POST',
@@ -106,15 +107,18 @@ const IndividualBlogPost = () => {
                 if (!response.ok) {
                     throw new Error(`${response.status} - ${response.statusText}`);
                 }
-                setLikes(likes + 1);
-                setLiked(true);
+                // setLikes(likes + 1);
+                // setLiked(true);
             } catch (error: any) {
                 console.error('Error liking post:', error);
                 toast.error(`Failed to like post: ${error.message}`);
+                setLikes(likes - 1);
+                setLiked(false);
             }
         }
         else {
             setLikes(likes - 1);
+            setLiked(false);
             try {
                 const response = await fetch(`/api/blog/${id}/dislike`, {
                     method: 'POST',
@@ -123,10 +127,12 @@ const IndividualBlogPost = () => {
                     throw new Error(`${response.status} - ${response.statusText}`);
                 }
                 // setLikes(likes - 1);
-                setLiked(false);
+                // setLiked(false);
             } catch (error: any) {
-                console.error('Error liking post:', error);
-                toast.error(`Failed to like post: ${error.message}`);
+                console.error('Error disliking post:', error);
+                toast.error(`Failed to disliking post: ${error.message}`);
+                setLikes(likes + 1);
+                setLiked(true);
             }
         }
     };
@@ -181,7 +187,7 @@ const IndividualBlogPost = () => {
                             <span>Reading time: {Math.ceil(post.content.split(' ').length / 200)} mins</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <ThumbsUp className="h-4 w-4" />
+                            <HeartFilledIcon className="h-4 w-4" />
                             <span>{likes} Likes</span>
                         </div>
 
@@ -199,7 +205,6 @@ const IndividualBlogPost = () => {
                                 ) : (
                                     <AvatarImage src="/default-profile.jpg" alt={author?.name || 'Default Name'} />
                                 )}
-                                {liked ? <ThumbsUpFilled className="h-4 w-4 mr-2" /> : <ThumbsUp className="h-4 w-4 mr-2" />}
                             </Avatar>
                             <div>
                                 <Link href={`/profile/${author?._id}`} className="font-semibold hover:underline">
@@ -222,8 +227,8 @@ const IndividualBlogPost = () => {
                     <div className="flex flex-col md:flex-row justify-between items-center m-8 mt-10">
                         <div className="flex items-center space-x-2">
                             <div className="flex items-center space-x-2">
-                                <Button variant={liked ? 'default' : 'outline'} onClick={handleLike}>
-                                    <ThumbsUp className="h-4 w-4 mr-2" />
+                                <Button variant="outline" onClick={handleLike}>
+                                    {liked ? <HeartFilledIcon color='red' className="h-4 w-4 mr-2" /> : <Heart className="h-4 w-4 mr-2" />}
                                     Like({likes})
                                 </Button>
                                 <Button variant="outline">
@@ -282,7 +287,7 @@ const IndividualBlogPost = () => {
                         </Card>
                     )}
                     <NewsLetter />
-                   <CommentSection postId={Array.isArray(id) ? id[0] : id} />
+                    <CommentSection postId={Array.isArray(id) ? id[0] : id} />
 
                     {authorPosts.length === 0 && (
                         <Card className="mb-8 mt-6">
