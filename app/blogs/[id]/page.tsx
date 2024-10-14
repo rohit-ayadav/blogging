@@ -12,6 +12,9 @@ import Head from 'next/head';
 import NewsLetter from '@/app/component/newsletter';
 import CommentSection from '../../component/commentsection';
 import { HeartFilledIcon } from '@radix-ui/react-icons';
+import { generateMetadata } from '../../../metadata';
+
+
 
 interface Post {
     _id: string;
@@ -94,6 +97,15 @@ const IndividualBlogPost = () => {
         };
         fetchPostAndRelatedData();
     }, [id]);
+
+    const meta = generateMetadata({
+        title: post?.title || 'Blog post not found',
+        description: post?.content || 'The blog post you are looking for does not exist.',
+        url: `https://blogging-one-omega.vercel.app/blogs/${id}`,
+        image: post?.thumbnail || '/default-thumbnail.png',
+    });
+    console.log(meta);
+
 
     const toggleDarkMode = () => setDarkMode(!darkMode);
     const handleLike = async () => {
