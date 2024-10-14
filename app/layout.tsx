@@ -1,3 +1,5 @@
+
+
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -17,10 +19,18 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-export const metadata: Metadata = {
-  title: "Blogger App",
-  description: "A simple blogging app built with Next.js and Prisma ORM which allows users to create, read, update and delete blog posts.",
-};
+// export const metadata: Metadata = {
+//   title: "Blogger App",
+//   description: "A simple blogging app built with Next.js and Prisma ORM which allows users to create, read, update and delete blog posts.",
+// };
+
+// export async function generateMetadata({ title, description }: Metadata) {
+//   return {
+//     title: title,
+//     description: description,
+//   };
+// }
+
 
 export default function RootLayout({
   children,
@@ -29,7 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
+      {/* <head>
         <meta charSet="utf-8" />
         <meta
           name="viewport"
@@ -40,7 +50,7 @@ export default function RootLayout({
         <meta property="og:image" content="/blog.jpeg" />
         <meta property="og:url" content="https://blogging-one-omega.vercel.app/" />
         <meta name="twitter:card" content="summary_large_image" />
-      </head>
+      </head> */}
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       > <Toaster
