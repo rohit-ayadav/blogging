@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun, Clock, Calendar, ArrowLeft, Eye, Heart } from 'lucide-react';
+import { Moon, Sun, Clock, Calendar, ArrowLeft, ThumbsUp as ThumbsUpFilled, Eye, Heart } from 'lucide-react';
 import { SiFacebook, SiLinkedin, SiWhatsapp, SiX } from 'react-icons/si';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'react-hot-toast';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-// import Head from 'next/head';
+import Head from 'next/head';
 import NewsLetter from '@/app/component/newsletter';
 import CommentSection from '../../component/commentsection';
 import { HeartFilledIcon } from '@radix-ui/react-icons';
@@ -34,15 +34,10 @@ interface Author {
     views: number;
 }
 
-interface IndividualBlogPostProps {
-    post: Post;
-    shareUrl: string;
-}
-
-const IndividualBlogPost: React.FC<IndividualBlogPostProps> = ({ post: initialPost, shareUrl }) => {
+const IndividualBlogPost = () => {
     const [darkMode, setDarkMode] = useState(false);
-    const [likes, setLikes] = useState(initialPost?.likes);
-    const [post, setPost] = useState<Post | null>(initialPost);
+    const [likes, setLikes] = useState(0);
+    const [post, setPost] = useState<Post | null>(null);
     const [liked, setLiked] = useState(false);
     const [author, setAuthor] = useState<Author | null>(null);
     const [authorPosts, setAuthorPosts] = useState<Post[]>([]);
@@ -139,203 +134,14 @@ const IndividualBlogPost: React.FC<IndividualBlogPostProps> = ({ post: initialPo
                 setLikes(likes + 1);
                 setLiked(true);
             }
-            }
-        };
-    
-        return (
-            <>
-                {post ? (
-                    <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
-                        <div className="container mx-auto px-4 py-8">
-                            <div className="flex justify-between items-center mb-8">
-                                <div className="flex items-center space-x-4">
-                                    <Button onClick={() => router.push('/blogs')} variant="outline" size="icon">
-                                        <ArrowLeft className="h-5 w-5" />
-                                    </Button>
-                                    <div>
-                                        <Link href="/blogs" className="text-sm text-gray-500 hover:underline">Blog/</Link><Link href={`/blogs/${post._id}`} className="text-sm text-gray-500 hover:underline"> {post.title}</Link>
-                                    </div>
-                                </div>
-                                <Button onClick={toggleDarkMode} variant="outline" size="icon">
-                                    {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                                </Button>
-                            </div>
-                            <div className="mb-8">
-                                <h1 className="text-4xl font-bold">{post.title}</h1>
-                            </div>
-    
-                            {post.thumbnail && (
-                                <img src={post.thumbnail} alt={post.title} className="w-full max-h-96 object-cover mb-8 rounded-lg" />
-                            )}
-    
-                            <div className="flex flex-wrap items-center space-x-4 mb-8">
-                                <div className="flex items-center space-x-2">
-                                    <Calendar className="h-4 w-4" />
-                                    <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <Clock className="h-4 w-4" />
-                                    <span>Reading time: {Math.ceil(post.content.split(' ').length / 200)} mins</span>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <HeartFilledIcon className="h-4 w-4" />
-                                    <span>{likes} Likes</span>
-                                </div>
-    
-                                <div className='flex items-center space-x-2'>
-                                    <Eye className="h-4 w-4" />
-                                    <span>{views || 0} Views</span>
-                                </div>
-                            </div>
-    
-                            <Card className="p-6 mb-8">
-                                <div className="flex items-center space-x-4">
-                                    <Avatar>
-                                        {author?.image ? (
-                                            <AvatarImage src={author.image} alt={author.name} />
-                                        ) : (
-                                            <AvatarImage src="/default-profile.jpg" alt={author?.name || 'Default Name'} />
-                                        )}
-                                    </Avatar>
-                                    <div>
-                                        <Link href={`/profile/${author?._id}`} className="font-semibold hover:underline">
-                                            {author?.name || 'Author Name'}
-                                        </Link>
-                                        <p className="text-sm text-gray-500">{author?.bio || 'Author bio placeholder'}</p>
-                                    </div>
-                                </div>
-                            </Card>
-    
-                            <div
-                                className={`prose lg:prose-xl mb-8 max-w-none ${darkMode
-                                    ? 'dark bg-gray-800 text-gray-200 prose-dark'
-                                    : 'bg-gray-100 text-gray-900'
-                                    }`}
-                                dangerouslySetInnerHTML={{ __html: post.content }}
-                            />
-    
-                            <div className="flex flex-col md:flex-row justify-between items-center m-8 mt-10">
-                                <div className="flex items-center space-x-2">
-                                    <div className="flex items-center space-x-2">
-                                        <Button variant="outline" onClick={handleLike}>
-                                            {liked ? <HeartFilledIcon color='red' className="h-4 w-4 mr-2" /> : <Heart className="h-4 w-4 mr-2" />}
-                                            Like ({likes})
-                                        </Button>
-                                        <Button variant="outline">
-                                            <Eye className="h-4 w-4 mr-2" />
-                                            View ({views ? views : 0})
-                                        </Button>
-                                    </div>
-                                </div>
-    
-                                <br />
-                                <div className="flex items-center space-x-2">
-    
-                                    <span>Share:</span>
-                                    <Button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("Check out this amazing post: " + post.title + " " + shareUrl)}`, '_blank')} variant="outline">
-                                        <SiWhatsapp className="h-4 w-4" />
-                                    </Button>
-                                    <Button onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank')} variant="outline">
-                                        <SiFacebook className="h-4 w-4" />
-                                    </Button>
-                                    <Button onClick={() => window.open(`https://twitter.com/intent/tweet?url=${shareUrl}&text=${encodeURIComponent(post.title)}`, '_blank')} variant="outline">
-                                        <SiX className="h-4 w-4" />
-                                    </Button>
-                                    <Button onClick={() => window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${encodeURIComponent(post.title)}`, '_blank')} variant="outline">
-                                        <SiLinkedin size={16} />
-                                    </Button>
-                                </div>
-                            </div>
-    
-                            <div className="flex flex-wrap gap-2 mb-8">
-                                {post.tags && post.tags.map((tag, index) => (
-                                    <span key={index} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
-                                        {tag}
-                                    </span>
-    
-                                ))}
-                            </div>
-    
-                            {relatedPosts.length > 0 && (
-                                <Card className="mb-8">
-                                    <CardHeader>
-                                        <CardTitle>Related Posts</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            {relatedPosts.slice(0, 3).map((post) => (
-                                                <Link href={`/blogs/${post._id}`} key={post._id}>
-                                                    <div className="border p-4 rounded-lg hover:shadow-md transition-shadow">
-                                                        <h3 className="font-semibold">{post.title}</h3>
-                                                        <p className="line-clamp-3">{post.content.replace(/<[^>]+>/g, '')}</p>
-                                                        <p className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
-                                                    </div>
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            )}
-                            <NewsLetter />
-                            <CommentSection postId={Array.isArray(id) ? id[0] : id as string} />
-    
-                            {authorPosts.length === 0 && (
-                                <Card className="mb-8 mt-6">
-                                    <CardHeader>
-                                        <CardTitle>More from {author?.name}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <p className="text-sm text-gray-500">No more posts from this author</p>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            )}
-                            {authorPosts.length > 0 && (
-                                <Card className="mb-8 mt-6">
-                                    <CardHeader>
-                                        <CardTitle>More from {author?.name}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            {authorPosts.slice(0, 3).map((post) => (
-                                                <Link href={`/blogs/${post._id}`} key={post._id}>
-                                                    <div className="border p-4 rounded-lg hover:shadow-md transition-shadow">
-                                                        <h3 className="font-semibold">{post.title}</h3>
-                                                        <p className="line-clamp-3">{post.content.replace(/<[^>]+>/g, '')}</p>
-                                                        <p className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
-                                                    </div>
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            )}
-                        </div>
-                    </div>
-                ) : (
-                    <div className="flex justify-center items-center h-screen">Loading...</div>
-                )}
-            </>
-        );
+        }
     };
 
-
-export { IndividualBlogPost };
-
-// Server component or page
-import Head from 'next/head';
-import IndividualBlogPostComponent from '@/app/blogs/[id]/page';
-
-import { GetServerSideProps } from 'next';
-
-interface BlogPageProps {
-    post: Post;
-    shareUrl: string;
-}
-
-const BlogPage: React.FC<BlogPageProps> = ({ post }) => {
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+    if (!post) {
+        return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    }
 
     return (
         <>
@@ -348,9 +154,179 @@ const BlogPage: React.FC<BlogPageProps> = ({ post }) => {
                 <meta property="og:url" content={shareUrl} />
                 <meta name="twitter:card" content="summary_large_image" />
             </Head>
-            <IndividualBlogPostComponent post={post} shareUrl={shareUrl} />
+            <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
+                <div className="container mx-auto px-4 py-8">
+                    <div className="flex justify-between items-center mb-8">
+                        <div className="flex items-center space-x-4">
+                            <Button onClick={() => router.push('/blogs')} variant="outline" size="icon">
+                                <ArrowLeft className="h-5 w-5" />
+                            </Button>
+                            <div>
+                                <Link href="/blogs" className="text-sm text-gray-500 hover:underline">Blog/</Link><Link href={`/blogs/${post._id}`} className="text-sm text-gray-500 hover:underline"> {post.title}</Link>
+                            </div>
+                        </div>
+                        <Button onClick={toggleDarkMode} variant="outline" size="icon">
+                            {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                        </Button>
+                    </div>
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold">{post.title}</h1>
+                    </div>
+
+                    {post.thumbnail && (
+                        <img src={post.thumbnail} alt={post.title} className="w-full max-h-96 object-cover mb-8 rounded-lg" />
+                    )}
+
+                    <div className="flex flex-wrap items-center space-x-4 mb-8">
+                        <div className="flex items-center space-x-2">
+                            <Calendar className="h-4 w-4" />
+                            <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Clock className="h-4 w-4" />
+                            <span>Reading time: {Math.ceil(post.content.split(' ').length / 200)} mins</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <HeartFilledIcon className="h-4 w-4" />
+                            <span>{likes} Likes</span>
+                        </div>
+
+                        <div className='flex items-center space-x-2'>
+                            <Eye className="h-4 w-4" />
+                            <span>{views || 0} Views</span>
+                        </div>
+                    </div>
+
+                    <Card className="p-6 mb-8">
+                        <div className="flex items-center space-x-4">
+                            <Avatar>
+                                {author?.image ? (
+                                    <AvatarImage src={author.image} alt={author.name} />
+                                ) : (
+                                    <AvatarImage src="/default-profile.jpg" alt={author?.name || 'Default Name'} />
+                                )}
+                            </Avatar>
+                            <div>
+                                <Link href={`/profile/${author?._id}`} className="font-semibold hover:underline">
+                                    {author?.name || 'Author Name'}
+                                </Link>
+                                <p className="text-sm text-gray-500">{author?.bio || 'Author bio placeholder'}</p>
+                            </div>
+                        </div>
+                    </Card>
+
+                    {/* <div className="prose lg:prose-xl mb-8 max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} /> */}
+                    <div
+                        className={`prose lg:prose-xl mb-8 max-w-none ${darkMode
+                            ? 'dark bg-gray-800 text-gray-200 prose-dark'
+                            : 'bg-gray-100 text-gray-900'
+                            }`}
+                        dangerouslySetInnerHTML={{ __html: post.content }}
+                    />
+
+                    <div className="flex flex-col md:flex-row justify-between items-center m-8 mt-10">
+                        <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2">
+                                <Button variant="outline" onClick={handleLike}>
+                                    {liked ? <HeartFilledIcon color='red' className="h-4 w-4 mr-2" /> : <Heart className="h-4 w-4 mr-2" />}
+                                    Like ({likes})
+                                </Button>
+                                <Button variant="outline">
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    View ({views ? views : 0})
+                                </Button>
+                            </div>
+                        </div>
+
+                        <br />
+                        <div className="flex items-center space-x-2">
+
+                            <span>Share:</span>
+                            <Button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("Check out this amazing post: " + post.title + " " + shareUrl)}`, '_blank')} variant="outline">
+                                <SiWhatsapp className="h-4 w-4" />
+                            </Button>
+                            <Button onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank')} variant="outline">
+                                <SiFacebook className="h-4 w-4" />
+                            </Button>
+                            <Button onClick={() => window.open(`https://twitter.com/intent/tweet?url=${shareUrl}&text=${encodeURIComponent(post.title)}`, '_blank')} variant="outline">
+                                <SiX className="h-4 w-4" />
+                            </Button>
+                            <Button onClick={() => window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${encodeURIComponent(post.title)}`, '_blank')} variant="outline">
+                                <SiLinkedin size={16} />
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 mb-8">
+                        {post.tags && post.tags.map((tag, index) => (
+                            <span key={index} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                {tag}
+                            </span>
+
+                        ))}
+                    </div>
+
+                    {relatedPosts.length > 0 && (
+                        <Card className="mb-8">
+                            <CardHeader>
+                                <CardTitle>Related Posts</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {relatedPosts.slice(0, 3).map((post) => (
+                                        <Link href={`/blogs/${post._id}`} key={post._id}>
+                                            <div className="border p-4 rounded-lg hover:shadow-md transition-shadow">
+                                                <h3 className="font-semibold">{post.title}</h3>
+                                                {/* // post preview */}
+                                                <p className="line-clamp-3">{post.content.replace(/<[^>]+>/g, '')}</p>
+                                                <p className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+                    <NewsLetter />
+                    <CommentSection postId={Array.isArray(id) ? id[0] : id} />
+
+                    {authorPosts.length === 0 && (
+                        <Card className="mb-8 mt-6">
+                            <CardHeader>
+                                <CardTitle>More from {author?.name}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <p className="text-sm text-gray-500">No more posts from this author</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+                    {authorPosts.length > 0 && (
+                        <Card className="mb-8 mt-6">
+                            <CardHeader>
+                                <CardTitle>More from {author?.name}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {authorPosts.slice(0, 3).map((post) => (
+                                        <Link href={`/blogs/${post._id}`} key={post._id}>
+                                            <div className="border p-4 rounded-lg hover:shadow-md transition-shadow">
+                                                <h3 className="font-semibold">{post.title}</h3>
+                                                {/* // post preview */}
+                                                <p className="line-clamp-3">{post.content.replace(/<[^>]+>/g, '')}</p>
+                                                <p className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+                </div>
+            </div>
         </>
     );
 };
 
-export default BlogPage;
+export default IndividualBlogPost;
