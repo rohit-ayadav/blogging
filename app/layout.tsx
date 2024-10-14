@@ -19,6 +19,55 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+
+export async function generateMetadata({
+  title = "Blogger App",
+  description = "A simple blogging platform built with Next.js where users can create, read, update, and delete blog posts.",
+  slug = "",
+  imageUrl = "/default-thumbnail.png",
+  canonicalUrl = "https://blogging-one-omega.vercel.app",
+}: {
+  title?: string;
+  description?: string;
+  slug?: string;
+  imageUrl?: string;
+  canonicalUrl?: string;
+}): Promise<Metadata> {
+  const fullUrl = `${canonicalUrl}/blogs/${slug}`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: fullUrl,
+      type: "article",
+      images: [
+        {
+          url: imageUrl,
+          width: 800,
+          height: 600,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
+    alternates: {
+      canonical: fullUrl,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
