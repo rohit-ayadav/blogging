@@ -61,18 +61,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {/* <head>
-        <meta charSet="utf-8" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1"
-        />
-        <meta property="og:title" content="Blogger App" />
-        <meta property="og:description" content="A simple blogging app built with Next.js and Prisma ORM which allows users to create, read, update and delete blog posts." />
-        <meta property="og:image" content="/blog.jpeg" />
-        <meta property="og:url" content="https://blogging-one-omega.vercel.app/" />
-        <meta name="twitter:card" content="summary_large_image" />
-      </head> */}
+      <head>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       > <Toaster
