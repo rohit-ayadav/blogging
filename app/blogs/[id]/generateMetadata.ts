@@ -39,6 +39,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: "Blog post not found",
       description: "The blog post you are looking for does not exist.",
+      openGraph: {
+        title: "Blog post not found",
+        description: "The blog post you are looking for does not exist.",
+        url: `https://blogging-one-omega.vercel.app/blogs/${params.id}`,
+        type: "website",
+        images: [
+          {
+            url: "/default-thumbnail.png",
+            width: 800,
+            height: 600,
+            alt: "Blog post not found",
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Blog post not found",
+        description: "The blog post you are looking for does not exist.",
+        images: ["/default-thumbnail.jpg"],
+      },
+
       alternates: {
         canonical: `https://blogging-one-omega.vercel.app/blogs/${params.id}`,
       },
