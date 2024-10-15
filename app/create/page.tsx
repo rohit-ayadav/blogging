@@ -25,16 +25,25 @@ export default function CreateBlog() {
     const [saveStatus, setSaveStatus] = useState('');
 
     useEffect(() => {
-        const newTags = generateTagsFromContent(content) as string[];
-        setTags(newTags);
+        if (content.length < 50) {
+
+        }
+        else {
+            const fetchTags = async () => {
+                const newTags = await generateTagsFromContent(content);
+                setTags(newTags || []);
+            };
+
+            const timeoutId = setTimeout(() => {
+                fetchTags();
+            }, 15000);
+
+            return () => clearTimeout(timeoutId);
+        }
     }, [content]);
 
     const handleContentChange = (value: string) => {
         setContent(value);
-    };
-
-    const countWords = (text: string) => {
-        return text.trim().split(/\s+/).filter(word => word.length > 0).length;
     };
 
     const checkTitle = (title: string) => {
@@ -191,7 +200,7 @@ export default function CreateBlog() {
                         <img src={thumbnail} alt="Thumbnail" className="w-full h-48 object-cover rounded" />
                     </div>
                 )}
-                
+
 
                 <div className="mb-5">
                     <label className="text-lg font-bold">Content:</label>
