@@ -12,6 +12,7 @@ import Head from 'next/head';
 import NewsLetter from '@/app/component/newsletter';
 import CommentSection from '../../component/commentsection';
 import { HeartFilledIcon } from '@radix-ui/react-icons';
+import { set } from 'mongoose';
 
 interface Post {
     _id: string;
@@ -57,7 +58,7 @@ const IndividualBlogPost = () => {
                     }
                     const data = await response.json();
                     setPost(data.data);
-                    setLiked(data.data.likes > 0);
+                    setLikes(data.data.likes);
                     setViews(data.data.views);
 
                     const authorResponse = await fetch(`/api/user?email=${data.data.createdBy}`);
