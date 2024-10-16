@@ -8,7 +8,7 @@ await connectDB();
 export async function GET(request: NextRequest) {
   const SearchParams = request.nextUrl.searchParams;
   const id = SearchParams.get("email");
-  console.log(`\n\nThis is email in app/api/user/route.ts: ${id}\n\n`);
+  // console.log(`\n\nThis is email in app/api/user/route.ts: ${id}\n\n`);
   if (!id) {
     return NextResponse.json(
       {

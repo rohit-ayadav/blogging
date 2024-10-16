@@ -7,6 +7,7 @@ import Navbar from "./navComponent/navigation/navbar";
 import Footer from "./footer/page";
 import { Toaster } from 'react-hot-toast';
 import SessionWrapper from "./component/sessionWrapper";
+import { Analytics } from "@vercel/analytics/react"
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -88,6 +89,7 @@ export default function RootLayout({
           {children}
           <Footer />
         </SessionWrapper>
+        <Analytics />
       </body>
     </html>
   );

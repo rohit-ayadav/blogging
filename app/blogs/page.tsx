@@ -205,7 +205,7 @@ const BlogCollection = () => {
                     </Card>
                     <Card>
                         <CardHeader>
-                            <CardTitle>Active Users</CardTitle>
+                            <CardTitle>Active Writers</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <p className="text-3xl font-bold">
