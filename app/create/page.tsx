@@ -2,7 +2,7 @@
 import dynamic from 'next/dynamic';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FormEvent, MouseEvent, useState, useEffect, SetStateAction } from 'react';
+import { FormEvent, MouseEvent, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,11 @@ const ReactQuill = dynamic(() => import('react-quill'), { ssr: false, loading: (
 import 'react-quill/dist/quill.snow.css';
 import { sanitize } from 'dompurify';
 import generateTagsFromContent from '../navComponent/generateTagsFromContent'
-import { set } from 'mongoose';
+import MarkdownIt from 'markdown-it';
+import MarkdownEditor from 'react-markdown-editor-lite';
+import 'react-markdown-editor-lite/lib/index.css';
+import generateTitleFromContent from '../navComponent/generateTitleFromContent';
+
 
 export default function CreateBlog() {
     const [title, setTitle] = useState('');
@@ -25,6 +29,7 @@ export default function CreateBlog() {
     const [blogId, setBlogId] = useState('');
     const [saveStatus, setSaveStatus] = useState('');
     const [tagAutoGen, setTagAutoGen] = useState(false);
+    const [editorMode, setEditorMode] = useState<'markdown' | 'visual'>('markdown');
 
 
     const generateTags = async () => {
@@ -46,9 +51,28 @@ export default function CreateBlog() {
             });
         }
     }
+    const generateTitle = () => {
+        if (content.length < 50) {
+            toast.error('Content should be at least 50 characters long to generate title');
+        } else {
+            toast.promise(generateTitleFromContent(content), {
+                pending: 'Generating Title...',
+                success: 'Title generated successfully',
+                error: 'Failed to generate title',
+            }).then(newTitle => {
+                if (newTitle) {
+                    setTitle(newTitle);
+                }
+            }).catch(error => {
+                console.error('Error generating title:', error);
+            });
+        }
+    }
 
     const handleContentChange = (value: string) => {
         setContent(value);
+        setWordCount(value.split(/\s+/).filter(Boolean).length);
+        setCharCount(value.length);
     };
 
     const checkTitle = (title: string) => {
@@ -64,6 +88,14 @@ export default function CreateBlog() {
         }
         return sanitize(tag);
     }
+    const checkContent = (value: string) => {
+        if (editorMode === 'markdown') {
+            const mdParser = new MarkdownIt();
+            const result = mdParser.render(value);
+            return sanitize(result);
+        }
+        return sanitize(value);
+    }
 
     const createBlogPost = async (isDraft: boolean) => {
         if (!title) {
@@ -77,7 +109,7 @@ export default function CreateBlog() {
         const checkedTags = tags.map(tag => checkTags(tag));
         const blogPostData = {
             title: checkedTitle,
-            content,
+            content: checkContent(content),
             thumbnail: thumbnail || null,
             tags: checkedTags,
             status: isDraft ? 'draft' : 'published',
@@ -181,6 +213,8 @@ export default function CreateBlog() {
                         placeholder="Enter the blog title"
                         className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
                     />
+                    {/* generate title based on content */}
+                    <p className="text-sm text-gray-500">Do you want to generate title based on content? <button type="button" onClick={() => generateTitle()} className="text-blue-500">Click here</button></p>
                 </div>
                 {title.length > 200 && (
                     <p className="text-red-500 text-sm">Count Character: {title.length}/250</p>
@@ -195,7 +229,7 @@ export default function CreateBlog() {
                         className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
                         onChange={(e) => setThumbnail(e.target.value)}
                     />
-                    <p className="text-sm text-gray-500">You can use any image link from the web</p>
+                    {/* <p className="text-sm text-gray-500">You can use any image link from the web</p> */}
                     <p className="text-sm text-gray-500">Optional: You can also add image in the content below</p>
                 </div>
                 {/* Preview of Image */}
@@ -206,19 +240,50 @@ export default function CreateBlog() {
                     </div>
                 )}
 
+                {/* Buttons for switch text editor mode to markdown */}
+                {editorMode === 'visual' ? (
+                    <p className="text-sm text-gray-500">Want to switch to Markdown Editor? <button type="button" onClick={() => setEditorMode('markdown')} className="text-blue-500">Click here</button></p>
+                ) : (
+                    <p className="text-sm text-gray-500">Want to switch to Visual Editor? <button type="button" onClick={() => setEditorMode('visual')} className="text-blue-500">Click here</button></p>
+                )}
 
-                <div className="mb-5">
-                    <label className="text-lg font-bold">Content:</label>
-                    <CustomToolbar />
-                    <ReactQuill
-                        value={content}
-                        onChange={handleContentChange}
-                        modules={modules}
-                        formats={formats}
-                        className='bg-white p-5 mt-1 rounded border border-gray-300'
-                    />
-                    <p className="mt-2 mr-6 text-right text-gray-600">Words: {wordCount} | Characters: {charCount}</p>
-                </div>
+                {editorMode === 'markdown' ? (
+                    <div className="mb-5">
+                        <label className="text-lg font-bold">Content:</label>
+                        <MarkdownEditor
+                            style={{ height: '400px' }}
+                            value={content}
+
+                            renderHTML={(text) => new MarkdownIt().render(text)}
+                            onChange={({ text }) => handleContentChange(text)}
+                            config={{
+                                view: {
+                                    menu: true,
+                                    md: true,
+                                    html: false,
+                                },
+                            }}
+                        />
+                        <p className="mt-2 mr-6 text-right text-gray-600">
+                            Words: {wordCount} | Characters: {charCount}
+                        </p>
+                    </div>
+                ) : (
+
+
+                    <div className="mb-5">
+                        <label className="text-lg font-bold">Content:</label>
+                        <CustomToolbar />
+                        <ReactQuill
+                            value={content}
+                            onChange={(value) => handleContentChange(value)}
+                            modules={modules}
+                            formats={formats}
+                            className='bg-white p-5 mt-1 rounded border border-gray-300'
+                        />
+                        <p className="mt-2 mr-6 text-right text-gray-600">Words: {wordCount} | Characters: {charCount}</p>
+                    </div>
+                )}
 
                 {!tagAutoGen && (
                     <div className="mb-5">
