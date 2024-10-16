@@ -11,6 +11,7 @@ const ReactQuill = dynamic(() => import('react-quill'), { ssr: false, loading: (
 import 'react-quill/dist/quill.snow.css';
 import { sanitize } from 'dompurify';
 import generateTagsFromContent from '../navComponent/generateTagsFromContent'
+import { set } from 'mongoose';
 
 export default function CreateBlog() {
     const [title, setTitle] = useState('');
@@ -23,24 +24,28 @@ export default function CreateBlog() {
     const { data: session } = useSession();
     const [blogId, setBlogId] = useState('');
     const [saveStatus, setSaveStatus] = useState('');
+    const [tagAutoGen, setTagAutoGen] = useState(false);
 
-    useEffect(() => {
+
+    const generateTags = async () => {
         if (content.length < 50) {
-
+            toast.error('Content should be at least 50 characters long to generate tags');
+        } else {
+            setTagAutoGen(true);
+            toast.promise(generateTagsFromContent(content), {
+                pending: 'Generating Tags...',
+                success: 'Tags generated successfully',
+                error: 'Failed to generate tags',
+            }).then(newTags => {
+                if (newTags) {
+                    setTags(prevTags => [...prevTags, ...newTags]);
+                }
+            }).catch(error => {
+                setTagAutoGen(false);
+                console.error('Error generating tags:', error);
+            });
         }
-        else {
-            const fetchTags = async () => {
-                const newTags = await generateTagsFromContent(content);
-                setTags(newTags || []);
-            };
-
-            const timeoutId = setTimeout(() => {
-                fetchTags();
-            }, 15000);
-
-            return () => clearTimeout(timeoutId);
-        }
-    }, [content]);
+    }
 
     const handleContentChange = (value: string) => {
         setContent(value);
@@ -215,26 +220,28 @@ export default function CreateBlog() {
                     <p className="mt-2 mr-6 text-right text-gray-600">Words: {wordCount} | Characters: {charCount}</p>
                 </div>
 
-                <div className="mb-5">
-                    <label htmlFor="tags" className="text-lg font-bold">Tags:</label>
-                    <input
-                        type="text"
-                        id="tags"
-                        // value={tags.join(', ')}
-                        placeholder="Enter tags separated by commas and hashes"
-                        className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
-                        onChange={(e) => setTags(
-                            e.target.value
-                                .split(/[,#\n]/)
-                                .map(tag => tag.trim())
-                                .filter(tag => tag)
-                        )}
-                    />
-                </div>
+                {!tagAutoGen && (
+                    <div className="mb-5">
+                        <label htmlFor="tags" className="text-lg font-bold">Tags:</label>
+                        <p className="text-sm text-gray-500">Want to generate tags automatically? <button type="button" onClick={generateTags} className="text-blue-500">Click here</button></p>
+
+                        <input
+                            type="text"
+                            id="tags"
+                            placeholder="Enter tags separated by commas and hashes"
+                            className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
+                            onChange={(e) => setTags(
+                                e.target.value
+                                    .split(/[,#\n]/)
+                                    .map(tag => tag.trim())
+                                    .filter(tag => tag)
+                            )}
+                        />
+                    </div>
+                )}
                 {tags.length > 0 && (
                     <div className="mb-5">
                         <label className="text-lg font-bold">Tags Preview:</label>
-                        <p className="text-sm text-gray-500">Note: Some tags may be AI-generated based on the content.</p>
                         <div className="flex flex-wrap gap-2 mt-1">
                             {tags.map((tag, index) => (
                                 <div key={index} className="flex items-center space-x-2">

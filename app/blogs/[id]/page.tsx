@@ -75,8 +75,6 @@ const IndividualBlogPost = () => {
                     }
                     const authorPostsData = await authorPostsResponse.json();
                     setAuthorPosts(authorPostsData.blogs.filter((p: Post) => p._id !== id));
-                    // console.log(authorPostsData.blogs);
-                    // setAuthorPosts(authorPostsData.blogs);
 
                     // Fetch related posts (based on tags)
                     const relatedPostsResponse = await fetch(`/api/blog?tags=${data.data.tags.join(',')}&limit=3`);

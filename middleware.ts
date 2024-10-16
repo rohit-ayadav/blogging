@@ -10,7 +10,6 @@ export async function middleware(req: NextRequest) {
   }
 
   const token = await getToken({ req, secret: process.env.JWT_SECRET });
-  console.log("token", token);
 
   if (!token) {
     const loginUrl = new URL("/login", req.url);
