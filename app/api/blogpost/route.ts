@@ -31,12 +31,16 @@ export async function GET(request: NextRequest) {
     if (!blogs) {
       return NextResponse.json(
         {
-          message: "You have not created any blog post",
+          message: "No blog post found",
           success: false,
         },
         { status: 404 }
       );
     }
+    // Sort by views or likes
+    blogs.sort((a, b) => b.views - a.views);
+    // blogs.sort((a, b) => b.likes - a.likes);
+
     return NextResponse.json({ blogs, success: true });
   } catch (error: any) {
     console.error("Error fetching blog:", error);
