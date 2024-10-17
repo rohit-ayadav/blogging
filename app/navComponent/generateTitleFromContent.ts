@@ -3,24 +3,18 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const generateResponse = async (prompt: string) => {
-  try {
-    if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY is not defined");
-    }
-    const genAI = new GoogleGenerativeAI(
-      process.env.NEXT_PUBLIC_GEMINI_API_KEY
-    );
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-    const result = await model.generateContent(prompt);
-    return result.response.text();
-  } catch (error) {
-    console.error("Error generating response:", error);
+  if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is not defined");
   }
+  const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+  const result = await model.generateContent(prompt);
+  return result.response.text();
 };
 
 const generateTitleFromContent = async (content: string) => {
-  const prompt = `Based on the following blog content, generate relevant, concise, and SEO-friendly titles. Ensure that the titles are catchy, descriptive, and effectively capture the main topics, themes, and keywords:
+  const prompt = `Based on the following blog content, generate relevant, concise, and SEO-friendly title. Ensure that the title are catchy, descriptive, and effectively capture the main topics, themes, and keywords:
 
     "${content}"
     
