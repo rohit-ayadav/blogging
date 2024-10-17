@@ -10,11 +10,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false, loading: () => <p>Loading...</p> });
 import 'react-quill/dist/quill.snow.css';
 import { sanitize } from 'dompurify';
-import generateTagsFromContent from '../navComponent/generateTagsFromContent'
 import MarkdownIt from 'markdown-it';
 import MarkdownEditor from 'react-markdown-editor-lite';
 import 'react-markdown-editor-lite/lib/index.css';
-import generateTitleFromContent from '../navComponent/generateTitleFromContent';
+
 
 
 export default function CreateBlog() {
@@ -55,7 +54,7 @@ export default function CreateBlog() {
         if (content.length < 50) {
             toast.error('Content should be at least 50 characters long to generate title');
         } else {
-            toast.promise(generateTitleFromContent(content), {
+            toast.promise(getTitle(content), {
                 pending: 'Generating Title...',
                 success: 'Title generated successfully',
                 error: 'Failed to generate title',
@@ -66,6 +65,38 @@ export default function CreateBlog() {
             }).catch(error => {
                 console.error('Error generating title:', error);
             });
+        }
+    }
+    const getTitle = async (content: string) => {
+        const response = await fetch("/api/generateTitle", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ content }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            return data.title;
+        } else {
+            throw new Error(data.error);
+        }
+    };
+    const generateTagsFromContent = async (content: string) => {
+        const response = await fetch('/api/generateTags', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            return data.tags;
+        } else {
+            throw new Error(data.error);
         }
     }
 
