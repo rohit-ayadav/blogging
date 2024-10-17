@@ -427,9 +427,9 @@ const CustomToolbar = () => (
         <button className="ql-script" value="sub" />
         <button className="ql-script" value="super" />
         <button className="ql-clean" />
-        <button className="ql-undo" />
-        <button className="ql-redo" />
-        <button className="ql-history" />
-        <button className="ql-remove" />
+        {/* <button className="ql-undo" /> */}
+        {/* <button className="ql-redo" /> */}
+        {/* <button className="ql-history" /> */}
+        {/* <button className="ql-remove" /> */}
     </div>
 );
