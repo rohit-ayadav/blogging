@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { PenTool, Book, Users, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import Head from 'next/head';
 import CountUp from 'react-countup';
 
 interface Post {
@@ -110,11 +109,6 @@ const HomePage: React.FC = () => {
 
   return (
     <>
-      <Head>
-        <title>Developer Blog Platform - Empower Your Career</title>
-        <meta name="description" content="Join our community of passionate developers, share knowledge, and take your career to the next level." />
-        <meta name="keywords" content="developer, blog, career, community, programming" />
-      </Head>
       <div className="min-h-screen bg-gray-50">
         <ToastContainer />
         <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
@@ -212,28 +206,28 @@ const HomePage: React.FC = () => {
             <h2 className="text-3xl font-bold mb-8">Our Impact</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div>
-          <p className="text-4xl font-bold text-blue-600">
-            <CountUp end={total?.blogs ?? 0} duration={2} />
-          </p>
-          <p className="text-xl">Blogs Published</p>
+                <p className="text-4xl font-bold text-blue-600">
+                  <CountUp end={total?.blogs ?? 0} duration={2} />
+                </p>
+                <p className="text-xl">Blogs Published</p>
               </div>
               <div>
-          <p className="text-4xl font-bold text-blue-600">
-            <CountUp end={total?.likes ?? 0} duration={3} />
-          </p>
-          <p className="text-xl">Total Likes</p>
+                <p className="text-4xl font-bold text-blue-600">
+                  <CountUp end={total?.likes ?? 0} duration={3} />
+                </p>
+                <p className="text-xl">Total Likes</p>
               </div>
               <div>
-          <p className="text-4xl font-bold text-blue-600">
-            <CountUp end={total?.views ?? 0} duration={3} />
-          </p>
-          <p className="text-xl">Total Views</p>
+                <p className="text-4xl font-bold text-blue-600">
+                  <CountUp end={total?.views ?? 0} duration={3} />
+                </p>
+                <p className="text-xl">Total Views</p>
               </div>
               <div>
-          <p className="text-4xl font-bold text-blue-600">
-            <CountUp end={total?.users ?? 0} duration={3} />
-          </p>
-          <p className="text-xl">Active Users</p>
+                <p className="text-4xl font-bold text-blue-600">
+                  <CountUp end={total?.users ?? 0} duration={3} />
+                </p>
+                <p className="text-xl">Active Users</p>
               </div>
             </div>
           </div>

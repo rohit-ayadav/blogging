@@ -5,7 +5,6 @@ import Blog from "@/models/blogs.models";
 await connectDB();
 
 export async function GET(request: NextRequest) {
-  // id is after the last slash in the URL
   const id = request.nextUrl.pathname.split("/").pop();
 
   if (!id) {
@@ -34,11 +33,6 @@ export async function GET(request: NextRequest) {
   }
 
   blog.views = (blog.views || 0) + 1;
-  await blog.save();
-  if (!blog.views) {
-    blog.views = 0;
-  }
-  blog.views += 1;
   await blog.save();
 
   return NextResponse.json({ data: blog, success: true });

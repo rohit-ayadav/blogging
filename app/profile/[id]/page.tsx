@@ -9,7 +9,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'react-hot-toast';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Head from 'next/head';
 import NewsLetter from '../../component/newsletter';
 
 interface Author {
@@ -82,16 +81,7 @@ const AuthorPage = () => {
 
     return (
         <>
-            <Head>
-                <title>{author.name} | Author Page</title>
-                <meta name="description" content={`Author page for ${author.name}`} />
-                <meta property="og:title" content={`${author.name} | Author Page`} />
-                <meta property="og:description" content={`Author page for ${author.name}`} />
-                <meta property="og:image" content={author.image || '/default-author-image.jpg'} />
-                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
-                <meta name="twitter:card" content="summary_large_image" />
-            </Head>
-            <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
+                    <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
                 <div className="container mx-auto px-4 py-8">
                     <div className="flex justify-between items-center mb-8">
                         <div className="flex items-center space-x-4">
