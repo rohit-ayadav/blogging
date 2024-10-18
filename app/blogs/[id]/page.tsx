@@ -11,7 +11,7 @@ const BlogPostClientContent = dynamic(
 
 async function getPostData(id: string) {
     try {
-        const res = await fetch(`http://localhost:3000/api/blog/${id}`);
+        const res = await fetch(`https://blogging-one-omega.vercel.app/api/blog/${id}`);
         const postData = await res.json();
         return postData.data;
     }
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
             title: title,
             description: description,
             images: [thumbnailUrl],
-            url: `http://localhost:3000/blogs/${params.id}`,
+            url: `https://blogging-one-omega.vercel.app/blogs/${params.id}`,
         },
         twitter: {
             card: 'summary_large_image',
