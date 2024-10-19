@@ -9,6 +9,12 @@ import { Toaster } from 'react-hot-toast';
 import SessionWrapper from "./component/sessionWrapper";
 import { Analytics } from "@vercel/analytics/react"
 
+declare global {
+  interface Window {
+    dataLayer: any[];
+  }
+}
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -22,8 +28,8 @@ const geistMono = localFont({
 
 
 export async function generateMetadata({
-  title = "Blogger App",
-  description = "A simple blogging platform built with Next.js where users can create, read, update, and delete blog posts.",
+  title = "Write & Share: Next.js Blogging Platform",
+  description = "Explore a user-friendly blogging platform built with Next.js. Effortlessly create, update, and share blogs on diverse topics with customizable features and an interactive interface.",
   slug = "",
   imageUrl = "/default-thumbnail.png",
   canonicalUrl = "https://blogging-one-omega.vercel.app",
@@ -69,6 +75,7 @@ export async function generateMetadata({
   };
 }
 
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -79,7 +86,7 @@ export default function RootLayout({
       <head>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8778160378200057"
           crossOrigin="anonymous"></script>
-          <meta name="google-adsense-account" content="ca-pub-8778160378200057"></meta>
+        <meta name="google-adsense-account" content="ca-pub-8778160378200057"></meta>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
