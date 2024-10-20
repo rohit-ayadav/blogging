@@ -72,7 +72,7 @@ export async function DELETE(request: NextRequest, response: NextResponse) {
   if (!session) {
     return NextResponse.json(
       {
-        message: "You need to be logged in to create a blog post",
+        message: "You need to be logged in to delete a blog post",
         success: false,
       },
       { status: 401 }
@@ -94,9 +94,9 @@ export async function DELETE(request: NextRequest, response: NextResponse) {
       return NextResponse.json(
         {
           message: "No blog post found",
-          success: false,
+          success: true,
         },
-        { status: 404 }
+        { status: 200 }
       );
     }
     return NextResponse.json({ blogs, success: true });

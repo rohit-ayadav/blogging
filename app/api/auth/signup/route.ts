@@ -1,7 +1,6 @@
 import User from "@/models/users.models";
 import { connectDB } from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from 'bcryptjs';
 await connectDB();
 
 export async function POST(request: NextRequest) {
@@ -56,15 +55,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (existingUsername) {
-      return NextResponse.json(
-        {
-          message: "Username already exists",
-          success: false,
-        },
-        { status: 400 }
-      );
-    }
     const newUser = {
       name,
       email,

@@ -31,7 +31,7 @@ export default function UserProfile() {
     const [userData, setUserData] = useState<UserData | null>(null);
     const [editMode, setEditMode] = useState(false);
     const [editData, setEditData] = useState<UserData | null>(null);
-    const [loading, setLoading] = useState(false); // Add loading state
+    const [loading, setLoading] = useState(false);
 
     interface Blog {
         _id: any;
@@ -116,13 +116,13 @@ export default function UserProfile() {
     }
 
     const changePasswordRequest = async (oldPassword: string, newPassword: string) => {
-        if(!session?.user?.email) {
+        if (!session?.user?.email) {
             throw new Error('Login again to change password');
         }
-        if(!oldPassword || !newPassword) {
+        if (!oldPassword || !newPassword) {
             throw new Error('Please enter old and new password');
         }
-        
+
         const response = await fetch(`/api/user/password`, {
             method: 'PUT',
             headers: {
@@ -169,6 +169,7 @@ export default function UserProfile() {
             throw new Error(data.message || 'Failed to delete account');
         }
     };
+
     const deleteAllBlogsRequest = async () => {
         const response = await fetch(`/api/blogpost?email=${session?.user?.email}`, {
             method: 'DELETE',
@@ -182,20 +183,43 @@ export default function UserProfile() {
 
     const deleteAccount = async () => {
         console.log("Deleting account");
-        await toast.promise(deleteAllBlogsRequest(), {
-            loading: 'Deleting blogs...',
-            success: 'Blogs deleted successfully',
-            error: 'Failed to delete blogs',
-        });
 
-        await toast.promise(deleteAccountRequest(), {
-            loading: 'Deleting account...',
-            success: 'Account deleted successfully',
-            error: 'Failed to delete account',
-        });
-        await signOut();
-        window.location.href = '/';
+
+        try {
+            await toast.promise(deleteAllBlogsRequest(), {
+                loading: 'Deleting blogs...',
+                success: 'Blogs deleted successfully',
+                error: 'Failed to delete blogs',
+            });
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error('Blog deletion failed:', error.message);
+            } else {
+                console.error('Blog deletion failed:', error);
+            }
+            toast.error('Cannot delete account until all blogs are deleted.');
+            return;
+        }
+
+
+        try {
+            await toast.promise(deleteAccountRequest(), {
+                loading: 'Deleting account...',
+                success: 'Account deleted successfully',
+                error: 'Failed to delete account',
+            });
+            await signOut();
+            window.location.href = '/';
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error('Account deletion failed:', error.message);
+            } else {
+                console.error('Account deletion failed:', error);
+            }
+            toast.error('Failed to delete account.');
+        }
     };
+
     const handleEditBlog = (blogId: string) => {
         router.push(`/edit/${blogId}`);
     };
