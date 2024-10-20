@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Video, Headphones, Users, Mail, TrendingUp } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
 
 interface ServiceCardProps {
   icon: React.ReactNode;
@@ -13,6 +14,7 @@ interface ServiceCardProps {
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, features, ctaText }) => (
+  
   <Card className="flex flex-col h-full">
     <CardHeader>
       <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mb-4">

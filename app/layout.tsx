@@ -8,6 +8,7 @@ import Footer from "./footer/page";
 import { Toaster } from 'react-hot-toast';
 import SessionWrapper from "./component/sessionWrapper";
 import { Analytics } from "@vercel/analytics/react"
+import { ThemeProvider } from "@/context/ThemeContext";
 
 declare global {
   interface Window {
@@ -95,11 +96,13 @@ export default function RootLayout({
           position="top-right"
           reverseOrder={false}
         />
-        <SessionWrapper>
-          <Navbar />
-          {children}
-          <Footer />
-        </SessionWrapper>
+        <ThemeProvider>
+          <SessionWrapper>
+            <Navbar />
+            {children}
+            <Footer />
+          </SessionWrapper>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

@@ -3,10 +3,12 @@ import React, { useState } from 'react';
 import { Facebook, Instagram, Mail, Plus, Twitter, X } from 'lucide-react';
 import { AlertDialog, AlertDialogContent, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { useTheme } from '@/context/ThemeContext';
 
 const Footer = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const currentYear = new Date().getFullYear();
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
   const handleCreatePost = () => {
     window.open('/create', '_self');
@@ -15,7 +17,7 @@ const Footer = () => {
 
   return (
     <>
-      <footer className="bg-gray-800 text-white py-8 relative">
+      <footer className={`${isDarkMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-800 text-white'} py-8 relative`}>
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-between items-center">
             <div className="w-full md:w-1/3 mb-4 md:mb-0">
@@ -48,32 +50,30 @@ const Footer = () => {
         </div>
       </footer>
       <AlertDialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <AlertDialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <AlertDialogTrigger asChild>
-            <button className="fixed bottom-4 right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition-colors">
-              <Plus size={24} />
-            </button>
-          </AlertDialogTrigger>
-          <AlertDialogContent className="bg-white p-6 rounded-lg shadow-xl">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Create Options</h3>
-              <Button variant="ghost" onClick={() => setIsModalOpen(false)}>
-                <X size={24} />
-              </Button>
-            </div>
-            <div className="space-y-4">
-              <Button onClick={handleCreatePost} className="w-full">
-                Create New Post
-              </Button>
-              <Button onClick={handleCreatePost} variant="outline" className="w-full">
-                Draft Quick Note
-              </Button>
-              <Button onClick={handleCreatePost} variant="outline" className="w-full">
-                Upload Media
-              </Button>
-            </div>
-          </AlertDialogContent>
-        </AlertDialog>
+        <AlertDialogTrigger asChild>
+          <button className={`fixed bottom-4 right-4 ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'} text-white p-3 rounded-full shadow-lg transition-colors`}>
+            <Plus size={24} />
+          </button>
+        </AlertDialogTrigger>
+        <AlertDialogContent className={`${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} p-6 rounded-lg shadow-xl`}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold">Create Options</h3>
+            <Button variant="ghost" onClick={() => setIsModalOpen(false)}>
+              <X size={24} />
+            </Button>
+          </div>
+          <div className="space-y-4">
+            <Button onClick={handleCreatePost} className={`w-full ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'}`}>
+              Create New Post
+            </Button>
+            <Button onClick={handleCreatePost} variant="outline" className={`w-full ${isDarkMode ? 'text-white border-white hover:bg-gray-700' : 'text-blue-500 border-blue-500 hover:bg-blue-50'}`}>
+              Draft Quick Note
+            </Button>
+            <Button onClick={handleCreatePost} variant="outline" className={`w-full ${isDarkMode ? 'text-white border-white hover:bg-gray-700' : 'text-blue-500 border-blue-500 hover:bg-blue-50'}`}>
+              Upload Media
+            </Button>
+          </div>
+        </AlertDialogContent>
       </AlertDialog>
     </>
   );

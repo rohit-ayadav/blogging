@@ -7,15 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Edit2, Trash2, Eye } from "lucide-react";
+import { Edit2, Trash2, Eye, Settings, User, BookOpen, ThumbsUp, ImageIcon } from "lucide-react";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function UserProfile() {
+    const { isDarkMode, toggleDarkMode } = useTheme();
     const { data: session } = useSession();
     const router = useRouter();
     interface UserData {
@@ -37,7 +40,10 @@ export default function UserProfile() {
         _id: any;
         id: string;
         title: string;
-        description: string;
+        content: string;
+        likes: number;
+        views: number;
+        thumbnail: string;
     }
 
     const [userBlogs, setUserBlogs] = useState<Blog[]>(() => []);
@@ -55,16 +61,25 @@ export default function UserProfile() {
         fetchData();
     }, [session]);
 
+  
+
     const fetchBlogs = async () => {
         if (session?.user) {
             const response = await fetch(`/api/blogpost?email=${session.user.email}`);
             const data = await response.json();
+            console.log("User blogs data:", data);
             setUserBlogs(data.blogs.map((blog: Blog) => ({
                 id: blog._id,
                 title: blog.title,
-                excerpt: blog.description.slice(0, 100) + (blog.description.length > 100 ? '...' : ''),
+                content: blog.content.replace(/<[^>]*>/g, '').slice(0, 100)?.trim() + (blog.content.length > 100 ? '...' : ''),
+                thumbnail: blog.thumbnail,
+                likes: blog.likes,
+                views: blog.views,
+
             })));
+            console.log("User blogs:", userBlogs);
         }
+
     };
 
     useEffect(() => {
@@ -155,8 +170,23 @@ export default function UserProfile() {
         console.log("Updating privacy settings:", settings);
     };
 
-    const updateThemeSettings = (theme: { darkMode: boolean }) => {
-        console.log("Updating theme settings:", theme);
+    const updateThemeSettings = async (theme: { darkMode: boolean }) => {
+        try {
+            const response = await fetch("/api/theme", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ theme: theme.darkMode ? "dark" : "light" }),
+            });
+            if (response.ok) {
+                toggleDarkMode();
+                const data = await response.json();
+                console.log(`${data.message} - ${data.success}`);
+            }
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const deleteAccountRequest = async () => {
@@ -283,17 +313,15 @@ export default function UserProfile() {
                         <CardFooter>
                             <Button className="w-full" onClick={() => setEditMode(true)}>Edit Profile</Button>
                         </CardFooter>
-                        {/* <CardFooter>
-                            <Button variant="destructive" className="w-full" onClick={() => signOut()}>Log Out</Button>
-                        </CardFooter> */}
+
                     </Card>
                 </div>
                 <div className="md:col-span-2">
                     <Tabs value={activeTab} onValueChange={setActiveTab}>
                         <TabsList className="grid w-full grid-cols-3 mb-8">
-                            <TabsTrigger value="profile">Profile</TabsTrigger>
-                            <TabsTrigger value="blogs">Blogs</TabsTrigger>
-                            <TabsTrigger value="settings">Settings</TabsTrigger>
+                            <TabsTrigger value="profile" className="flex items-center justify-center"><User className="w-4 h-4 mr-2" /> Profile</TabsTrigger>
+                            <TabsTrigger value="blogs" className="flex items-center justify-center"><BookOpen className="w-4 h-4 mr-2" /> Blogs</TabsTrigger>
+                            <TabsTrigger value="settings" className="flex items-center justify-center"><Settings className="w-4 h-4 mr-2" /> Settings</TabsTrigger>
                         </TabsList>
                         <TabsContent value="profile">
                             <Card>
@@ -329,30 +357,68 @@ export default function UserProfile() {
                             </Card>
                         </TabsContent>
                         <TabsContent value="blogs">
-                            <Card>
+                            <Card className="w-full">
                                 <CardHeader>
-                                    <CardTitle>Your Blogs</CardTitle>
+                                    <CardTitle className="text-2xl font-bold">Your Blogs</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    {userBlogs.length === 0 && (
-                                        <>
-                                            <p className="text-gray-600">You have not created any blogs yet.</p>
-                                            <p className="text-gray-600"><a href="/create" className="text-blue-500">Click here</a> to create your first blog.</p>
-                                        </>
-                                    )}
-                                    {userBlogs.map((blog) => (
-                                        <div key={blog.id} className="mb-4 p-4 border rounded-lg">
-                                            <h3 className="text-lg font-semibold">{blog.title}</h3>
-                                            <p className="text-gray-600">{blog.description.slice(0, 100) + (blog.description.length > 100 ? '...' : '')}</p>
-                                            <div className="mt-2 flex space-x-2">
-                                                <Button size="sm" variant="outline" onClick={() => handleEditBlog(blog.id)}><Edit2 className="w-4 h-4 mr-2" /> Edit</Button>
-                                                <Button size="sm" variant="outline" onClick={() => handleDeleteBlog(blog.id)}>
-                                                    {loading ? 'Deleting...' : <><Trash2 className="w-4 h-4 mr-2" /> Delete</>}
-                                                </Button>
-                                                <Button size="sm" variant="outline" onClick={() => handleViewBlog(blog.id)}><Eye className="w-4 h-4 mr-2" /> View</Button>
-                                            </div>
+                                    {userBlogs.length === 0 ? (
+                                        <div className="text-center py-8">
+                                            <p className="text-gray-600 mb-4">You have not created any blogs yet.</p>
+                                            <Link href="/create" className="text-blue-500 hover:underline">
+                                                Click here to create your first blog
+                                            </Link>
                                         </div>
-                                    ))}
+                                    ) : (
+                                        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                                            {userBlogs.map((blog) => (
+                                                <Card key={blog.id} className="flex flex-col h-full overflow-hidden">
+                                                    <div className="relative w-full pt-[56.25%] bg-gray-200">
+                                                        {blog.thumbnail ? (
+                                                            <img
+                                                                src={blog.thumbnail}
+                                                                alt={blog.title}
+                                                                className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-300 ease-in-out hover:scale-105"
+                                                                onError={(e) => {
+                                                                    (e.target as HTMLImageElement).onerror = null;
+                                                                    (e.target as HTMLImageElement).src = '/default-thumbnail.png';
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                                <ImageIcon className="h-16 w-16 text-gray-400" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <CardContent className="flex-grow p-6">
+                                                        <h3 className="text-xl font-semibold mb-2 line-clamp-2">{blog.title}</h3>
+                                                        <p className="text-gray-600 mb-4 line-clamp-3">{blog.content}</p>
+                                                        <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                                                            <div className="flex items-center space-x-2">
+                                                                <Eye className="h-4 w-4" />
+                                                                <span>{blog.views}</span>
+                                                            </div>
+                                                            <div className="flex items-center space-x-2">
+                                                                <ThumbsUp className="h-4 w-4" />
+                                                                <span>{blog.likes}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            <Button size="sm" variant="outline" onClick={() => handleEditBlog(blog.id)}>
+                                                                <Edit2 className="w-4 h-4 mr-2" /> Edit
+                                                            </Button>
+                                                            <Button size="sm" variant="outline" onClick={() => handleDeleteBlog(blog.id)}>
+                                                                {loading ? 'Deleting...' : <><Trash2 className="w-4 h-4 mr-2" /> Delete</>}
+                                                            </Button>
+                                                            <Button size="sm" variant="outline" onClick={() => handleViewBlog(blog.id)}>
+                                                                <Eye className="w-4 h-4 mr-2" /> View
+                                                            </Button>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            ))}
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         </TabsContent>
@@ -425,7 +491,7 @@ export default function UserProfile() {
                                                 </DialogContent>
                                             </Dialog>
                                         </div>
-
+{/* 
                                         <div className="flex items-center justify-between">
                                             <div>
                                                 <h3 className="font-medium">Notification Preferences</h3>
@@ -480,7 +546,7 @@ export default function UserProfile() {
                                                     </div>
                                                 </DialogContent>
                                             </Dialog>
-                                        </div>
+                                        </div> */}
 
                                         <div className="flex items-center justify-between">
                                             <div>
@@ -499,7 +565,7 @@ export default function UserProfile() {
                                                     <div className="space-y-4">
                                                         <div className="flex items-center justify-between">
                                                             <span>Dark Mode</span>
-                                                            <Switch onCheckedChange={(checked) => updateThemeSettings({ darkMode: checked })} />
+                                                            <Switch onCheckedChange={(isDarkMode) => updateThemeSettings({ darkMode: isDarkMode })} />
                                                         </div>
                                                     </div>
                                                 </DialogContent>

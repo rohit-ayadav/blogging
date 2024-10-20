@@ -1,8 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Button() {
+    const router = useRouter();
     const [login, setLogin] = useState(false);
     const { data: session } = useSession();
     const [showDropdown, setShowDropdown] = useState(false);
@@ -15,7 +17,7 @@ export default function Button() {
         return (
             <div className="relative flex items-center space-x-2 hover:cursor-pointer">
                 <span className="text-white font-semibold">{session.user.name}</span>
-                <img src={session.user.image ?? '/default-profile.jpg'} alt="profile" className="w-10 h-10 rounded-full" onClick={() => window.open('/profile', '_self')} />
+                <img src={session.user.image ?? '/default-profile.jpg'} alt="profile" className="w-10 h-10 rounded-full" onClick={() => router.push('/profile')} />
                 {/* <img src={session.user.image ?? '/default-profile.jpg'} alt="profile" className="w-10 h-10 rounded-full" onClick={() => setShowDropdown(!showDropdown)} /> */}
                 {/* {showDropdown && (
                     <div className="absolute right-0 top-12 bg-white shadow-md w-48 rounded-md">

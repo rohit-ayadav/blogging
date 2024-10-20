@@ -1,7 +1,6 @@
 import { connectDB } from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/users.models";
-import exp from "constants";
 
 await connectDB();
 

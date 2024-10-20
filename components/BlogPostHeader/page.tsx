@@ -1,13 +1,8 @@
-"use client";
-
 import React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, Calendar, Clock, Eye, Heart, Moon, Sun } from 'lucide-react';
-import { useDarkMode } from '../../hooks/useDarkMode';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Calendar, Clock, Eye, Heart } from 'lucide-react';
 
 interface Post {
   _id: string;
@@ -31,76 +26,57 @@ interface Author {
   views: number;
 }
 
-
 interface BlogPostHeaderProps {
   post: Post;
   author: Author;
 }
 
-
-const BlogPostHeader = ({ post, author }: BlogPostHeaderProps) => {
-  const router = useRouter();
-  const { isDarkMode, toggleDarkMode } = useDarkMode();
+const BlogPostHeader: React.FC<BlogPostHeaderProps> = ({ post, author }) => {
+  
+  const readingTime = Math.ceil(post.content.split(' ').length / 200);
 
   return (
-    <>
-      <div className="flex justify-between items-center mb-8">
-        <div className="flex items-center space-x-4">
-          <Button onClick={() => router.push('/blogs')} variant="outline" size="icon">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <Link href="/blogs" className="text-sm text-gray-500 hover:underline">Blog/</Link>
-            <Link href={`/blogs/${post._id}`} className="text-sm text-gray-500 hover:underline"> {post.title}</Link>
+    <header className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+      <div className="container mx-auto px-4 py-8">
+       
+        <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+        {post.thumbnail && (
+          <img src={post.thumbnail} alt="" className="w-full max-h-96 object-cover mb-8 rounded-lg" />
+        )}
+        <div className="flex flex-wrap items-center gap-4 mb-8 text-sm">
+          <div className="flex items-center">
+            <Calendar className="h-4 w-4 mr-2" />
+            <time dateTime={post.createdAt}>{new Date(post.createdAt).toLocaleDateString()}</time>
           </div>
-          {/* night mode button*/}
-          <Button onClick={toggleDarkMode} variant="outline" size="icon">
-            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </Button>
-        </div>
-      </div>
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold">{post.title}</h1>
-      </div>
-      {post.thumbnail && (
-        <img src={post.thumbnail} alt={post.title} className="w-full max-h-96 object-cover mb-8 rounded-lg" />
-      )}
-      <div className="flex flex-wrap items-center space-x-4 mb-8">
-        <div className="flex items-center space-x-2">
-          <Calendar className="h-4 w-4" />
-          <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Clock className="h-4 w-4" />
-          <span>Reading time: {Math.ceil(post.content.split(' ').length / 200)} mins</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Heart className="h-4 w-4" />
-          <span>{post.likes} Likes</span>
-        </div>
-        <div className='flex items-center space-x-2'>
-          <Eye className="h-4 w-4" />
-          <span>{post.views || 0} Views</span>
-        </div>
-      </div>
-      <Card className="p-6 mb-8">
-        <div className="flex items-center space-x-4">
-          <Avatar>
-            {author?.image ? (
-              <AvatarImage src={author.image} alt={author.name} />
-            ) : (
-              <AvatarImage src="/default-profile.jpg" alt={author?.name || 'Default Name'} />
-            )}
-          </Avatar>
-          <div>
-            <Link href={`/profile/${author?._id}`} className="font-semibold hover:underline">
-              {author?.name || 'Author Name'}
-            </Link>
-            <p className="text-sm text-gray-500">{author?.bio || 'Author bio placeholder'}</p>
+          <div className="flex items-center">
+            <Clock className="h-4 w-4 mr-2" />
+            <span>{readingTime} min read</span>
+          </div>
+          <div className="flex items-center">
+            <Heart className="h-4 w-4 mr-2" />
+            <span>{post.likes} Likes</span>
+          </div>
+          <div className="flex items-center">
+            <Eye className="h-4 w-4 mr-2" />
+            <span>{post.views || 0} Views</span>
           </div>
         </div>
-      </Card>
-    </>
+        <Card className="p-6 mb-8 dark:bg-gray-800">
+          <div className="flex items-center space-x-4">
+            <Avatar>
+              <AvatarImage src={author?.image || '/default-profile.jpg'} alt={author?.name || 'Author'} />
+              <AvatarFallback>{author?.name?.charAt(0) || 'A'}</AvatarFallback>
+            </Avatar>
+            <div>
+              <Link href={`/profile/${author?._id}`} className="font-semibold hover:underline">
+                {author?.name || 'Anonymous'}
+              </Link>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{author?.bio || 'No bio available'}</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </header>
   );
 };
 

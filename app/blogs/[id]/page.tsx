@@ -22,10 +22,7 @@ async function getPostData(id: string) {
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
     const postData = await getPostData(params.id);
-    // console.log('postData Title:', postData.title);
-    // console.log('postData Thumbnail:', postData.thumbnail);
-    // console.log('postData Content:', postData.content? postData.content.substring(0, 150): 'No content found');
-
+  
     const title = postData.title || 'Next.js Blog Post';
     const thumbnailUrl = postData.thumbnail || '/default-thumbnail.png';
     const description = postData.content ? postData.content.substring(0, 150) :

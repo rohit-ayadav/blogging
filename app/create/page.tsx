@@ -9,12 +9,13 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false, loading: () => <p>Loading...</p> });
 import 'react-quill/dist/quill.snow.css';
-import { sanitize } from 'dompurify';
 import MarkdownIt from 'markdown-it';
 import MarkdownEditor from 'react-markdown-editor-lite';
 import 'react-markdown-editor-lite/lib/index.css';
-
-
+import CustomToolbar from './customToolbar';
+import { useTheme } from '@/context/ThemeContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import DOMPurify from 'dompurify';
 
 export default function CreateBlog() {
     const [title, setTitle] = useState('');
@@ -30,6 +31,7 @@ export default function CreateBlog() {
     const [tagAutoGen, setTagAutoGen] = useState(false);
     const [editorMode, setEditorMode] = useState<'markdown' | 'visual'>('markdown');
 
+    const { isDarkMode } = useTheme();
 
     const generateTags = async () => {
         if (content.length < 50) {
@@ -102,30 +104,28 @@ export default function CreateBlog() {
 
     const handleContentChange = (value: string) => {
         setContent(value);
-        setWordCount(value.split(/\s+/).filter(Boolean).length);
-        setCharCount(value.length);
     };
 
     const checkTitle = (title: string) => {
         if (title.length > 250) {
             throw new Error('Title should not exceed 250 characters');
         }
-        return sanitize(title);
+        return DOMPurify.sanitize(title);
     }
 
     const checkTags = (tag: string) => {
         if (tag.length > 50) {
             throw new Error('Tag should not exceed 50 characters');
         }
-        return sanitize(tag);
+        return DOMPurify.sanitize(tag);
     }
     const checkContent = (value: string) => {
         if (editorMode === 'markdown') {
             const mdParser = new MarkdownIt();
             const result = mdParser.render(value);
-            return sanitize(result);
+            return DOMPurify.sanitize(result);
         }
-        return sanitize(value);
+        return DOMPurify.sanitize(value);
     }
 
     const createBlogPost = async (isDraft: boolean) => {
@@ -163,9 +163,9 @@ export default function CreateBlog() {
             }
             console.log(data);
             setBlogId(data.blogPostId);
-            // toast.success(`${blogId}`);
+
             const successMessage = data.message || 'Blog post created successfully';
-            console.log(successMessage);
+            toast.success(successMessage);
             return successMessage;
         } catch (error: any) {
             throw new Error(error.message);
@@ -244,7 +244,7 @@ export default function CreateBlog() {
                         placeholder="Enter the blog title"
                         className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
                     />
-                    {/* generate title based on content */}
+
                     <p className="text-sm text-gray-500">Do you want to generate title based on content? <button type="button" onClick={() => generateTitle()} className="text-blue-500">Click here</button></p>
                 </div>
                 {title.length > 200 && (
@@ -263,7 +263,6 @@ export default function CreateBlog() {
                     {/* <p className="text-sm text-gray-500">You can use any image link from the web</p> */}
                     <p className="text-sm text-gray-500">Optional: You can also add image in the content below</p>
                 </div>
-                {/* Preview of Image */}
                 {thumbnail && (
                     <div className="mb-5">
                         <p className="text-lg font-bold">Thumbnail Preview:</p>
@@ -271,20 +270,16 @@ export default function CreateBlog() {
                     </div>
                 )}
 
-                {/* Buttons for switch text editor mode to markdown */}
-                {editorMode === 'visual' ? (
-                    <p className="text-sm text-gray-500">Want to switch to Markdown Editor? <button type="button" onClick={() => setEditorMode('markdown')} className="text-blue-500">Click here</button></p>
-                ) : (
-                    <p className="text-sm text-gray-500">Want to switch to Visual Editor? <button type="button" onClick={() => setEditorMode('visual')} className="text-blue-500">Click here</button></p>
-                )}
-
-                {editorMode === 'markdown' ? (
-                    <div className="mb-5">
-                        <label className="text-lg font-bold">Content:</label>
+                <label className="text-lg font-bold">Content:</label>
+                <Tabs defaultValue={editorMode} onValueChange={(value) => setEditorMode(value as 'markdown' | 'visual')}>
+                    <TabsList>
+                        <TabsTrigger value="markdown">Markdown Editor</TabsTrigger>
+                        <TabsTrigger value="visual">Visual Editor</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="markdown">
                         <MarkdownEditor
                             style={{ height: '400px' }}
                             value={content}
-
                             renderHTML={(text) => new MarkdownIt().render(text)}
                             onChange={({ text }) => handleContentChange(text)}
                             config={{
@@ -294,16 +289,10 @@ export default function CreateBlog() {
                                     html: false,
                                 },
                             }}
+                            className={isDarkMode ? 'dark-mode' : ''}
                         />
-                        <p className="mt-2 mr-6 text-right text-gray-600">
-                            Words: {wordCount} | Characters: {charCount}
-                        </p>
-                    </div>
-                ) : (
-
-
-                    <div className="mb-5">
-                        <label className="text-lg font-bold">Content:</label>
+                    </TabsContent>
+                    <TabsContent value="visual">
                         <CustomToolbar />
                         <ReactQuill
                             value={content}
@@ -312,9 +301,9 @@ export default function CreateBlog() {
                             formats={formats}
                             className='bg-white p-5 mt-1 rounded border border-gray-300'
                         />
-                        <p className="mt-2 mr-6 text-right text-gray-600">Words: {wordCount} | Characters: {charCount}</p>
-                    </div>
-                )}
+                    </TabsContent>
+                </Tabs>
+
 
                 {!tagAutoGen && (
                     <div className="mb-5">
@@ -383,53 +372,3 @@ export default function CreateBlog() {
     );
 }
 
-const CustomToolbar = () => (
-    <div id="toolbar">
-        <select className="ql-header" defaultValue={""} onChange={e => e.persist()}>
-            <option value="1">Heading 1</option>
-            <option value="2">Heading 2</option>
-            <option value="3">Heading 3</option>
-            <option value="4">Heading 4</option>
-            <option value="5">Heading 5</option>
-            <option value="6">Heading 6</option>
-            <option value="">Normal</option>
-        </select>
-        <select className="ql-font" defaultValue="sans-serif">
-            <option value="sans-serif">Sans Serif</option>
-            <option value="serif">Serif</option>
-            <option value="monospace">Monospace</option>
-
-        </select>
-        <select className="ql-size" defaultValue="medium">
-            <option value="small">Small</option>
-            <option value="medium">Medium</option>
-            <option value="large">Large</option>
-            <option value="huge">Huge</option>
-
-        </select>
-        <button className="ql-bold" />
-        <button className="ql-italic" />
-        <button className="ql-underline" />
-        <button className="ql-strike" />
-        <select className="ql-color" />
-        <select className="ql-background" />
-        <button className="ql-link" />
-        <button className="ql-image" />
-        <button className="ql-video" />
-        <button className="ql-formula" />
-        <button className="ql-code-block" />
-        <button className="ql-blockquote" />
-        <button className="ql-list" value="ordered" />
-        <button className="ql-list" value="bullet" />
-        <button className="ql-indent" value="-1" />
-        <button className="ql-indent" value="+1" />
-        <select className="ql-align" />
-        <button className="ql-script" value="sub" />
-        <button className="ql-script" value="super" />
-        <button className="ql-clean" />
-        {/* <button className="ql-undo" /> */}
-        {/* <button className="ql-redo" /> */}
-        {/* <button className="ql-history" /> */}
-        {/* <button className="ql-remove" /> */}
-    </div>
-);

@@ -106,6 +106,8 @@ const useBlogPost = (id: string, initialData: Post | null = null) => {
         views,
         liked,
         createdBy,
+        isLoading: !post,
+        error: !post ? new Error("Post not found") : null,
     };
 };
 
