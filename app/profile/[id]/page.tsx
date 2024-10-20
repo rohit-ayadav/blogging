@@ -62,7 +62,7 @@ const AuthorPage = () => {
                     }
                     const postsData = await postsResponse.json();
                     setAuthorPosts(postsData.blogs);
-                    console.log(postsData.blogs.reverse());
+                    // console.log(postsData.blogs.reverse());
                 } catch (error: any) {
                     console.error('Error fetching data:', error);
                     toast.error(`Failed to fetch data: ${error.message}`);
@@ -81,7 +81,7 @@ const AuthorPage = () => {
 
     return (
         <>
-                    <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
+            <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
                 <div className="container mx-auto px-4 py-8">
                     <div className="flex justify-between items-center mb-8">
                         <div className="flex items-center space-x-4">

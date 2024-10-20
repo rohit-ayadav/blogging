@@ -37,7 +37,7 @@ export default function UserProfile() {
         _id: any;
         id: string;
         title: string;
-        excerpt: string;
+        description: string;
     }
 
     const [userBlogs, setUserBlogs] = useState<Blog[]>(() => []);
@@ -62,7 +62,7 @@ export default function UserProfile() {
             setUserBlogs(data.blogs.map((blog: Blog) => ({
                 id: blog._id,
                 title: blog.title,
-                excerpt: blog.excerpt,
+                excerpt: blog.description.slice(0, 100) + (blog.description.length > 100 ? '...' : ''),
             })));
         }
     };
@@ -343,7 +343,7 @@ export default function UserProfile() {
                                     {userBlogs.map((blog) => (
                                         <div key={blog.id} className="mb-4 p-4 border rounded-lg">
                                             <h3 className="text-lg font-semibold">{blog.title}</h3>
-                                            <p className="text-gray-600">{blog.excerpt}</p>
+                                            <p className="text-gray-600">{blog.description.slice(0, 100) + (blog.description.length > 100 ? '...' : '')}</p>
                                             <div className="mt-2 flex space-x-2">
                                                 <Button size="sm" variant="outline" onClick={() => handleEditBlog(blog.id)}><Edit2 className="w-4 h-4 mr-2" /> Edit</Button>
                                                 <Button size="sm" variant="outline" onClick={() => handleDeleteBlog(blog.id)}>
