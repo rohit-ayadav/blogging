@@ -37,11 +37,12 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({ initialDa
     }
 
     if (!post || !author) {
-        return (
-            <div className="flex justify-center items-center h-screen dark:text-white">
-                No post or author data available.
-            </div>
-        );
+        // return (
+        //     <div className="flex justify-center items-center h-screen dark:text-white">
+        //         No post or author data available.
+        //     </div>
+        // );
+        return <LoadingSkeleton />;
     }
 
     return (
