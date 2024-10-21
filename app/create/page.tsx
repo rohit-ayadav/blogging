@@ -16,7 +16,7 @@ import CustomToolbar from './customToolbar';
 import { useTheme } from '@/context/ThemeContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DOMPurify from 'dompurify';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function CreateBlog() {
     const route = useRouter();
