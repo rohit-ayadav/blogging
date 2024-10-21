@@ -275,7 +275,7 @@ export default function UserProfile() {
     };
 
     const handleViewBlog = (blogId: string) => {
-        router.push(`/blog/${blogId}`);
+        router.push(`/blogs/${blogId}`);
     };
 
     return (
