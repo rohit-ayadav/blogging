@@ -2,6 +2,7 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
+import { getSessionAtHome } from "@/auth";
 
 const generateResponse = async (prompt: string) => {
   if (!process.env.GEMINI_API_KEY) {
@@ -16,6 +17,13 @@ const generateResponse = async (prompt: string) => {
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const { content } = await req.json();
+  const session = await getSessionAtHome();
+  if (!session) {
+    return NextResponse.json(
+      { message: "Not authorized to generate title." },
+      { status: 401 }
+    );
+  }
 
   const prompt = `Based on the following blog content, generate relevant, concise, and SEO-friendly title. Ensure that the title is catchy, descriptive, and effectively captures the main topics, themes, and keywords: "${content}" 
   return only one title that best represents the content and keep normal text only (means dont add ## etc.).`;

@@ -4,14 +4,16 @@ import { Facebook, Instagram, Mail, Plus, Twitter, X } from 'lucide-react';
 import { AlertDialog, AlertDialogContent, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/context/ThemeContext';
+import { useRouter } from 'next/navigation';
 
 const Footer = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const currentYear = new Date().getFullYear();
   const { isDarkMode, toggleDarkMode } = useTheme();
+  const router = useRouter();
 
   const handleCreatePost = () => {
-    window.open('/create', '_self');
+    router.push('/create');
     setIsModalOpen(false);
   };
 

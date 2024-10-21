@@ -10,9 +10,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import toast from 'react-hot-toast';
 import { signIn } from 'next-auth/react';
-import { set } from 'mongoose';
+import { useRouter } from 'next/navigation';
 
 const SignupPage = () => {
+    const router = useRouter();
+
+
     const [formData, setFormData] = useState<{
         name: string;
         username: string;
@@ -62,7 +65,7 @@ const SignupPage = () => {
             console.error('Error creating user:', error);
         }
 
-        console.log('Form submitted:', formData);
+
         setError('');
     };
 
@@ -74,7 +77,7 @@ const SignupPage = () => {
             error: 'Failed to create user',
         });
 
-        window.location.href = '/login';
+        router.push('/login');
     };
 
     return (

@@ -4,19 +4,9 @@ import { connectDB } from "../../../utils/db";
 import Joi from "joi";
 import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
-import { getSession } from "next-auth/react";
-import { Session } from "next-auth";
 import User from "@/models/users.models";
 import mongoose from "mongoose";
-
-interface CustomSession extends Session {
-  user: {
-    id: string;
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-  };
-}
+import { getSessionAtHome } from "@/auth";
 
 await connectDB();
 
@@ -30,9 +20,7 @@ const blogSchema = Joi.object({
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const session = (await getSession({
-    req: { headers: Object.fromEntries(request.headers) },
-  })) as CustomSession | null;
+  const session = await getSessionAtHome();
   if (!session) {
     return NextResponse.json(
       {
@@ -54,9 +42,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { title, content, status = "published", tags,thumbnail } = body;
+  const { title, content, status = "published", tags, thumbnail } = body;
 
-  if (!session.user.email) {
+  if (!session?.user?.email) {
     return NextResponse.json(
       {
         message: "You need to be logged in to create a blog post",
@@ -87,7 +75,7 @@ export async function POST(request: NextRequest) {
     const newBlogPost = new Blog(blogPost);
     await newBlogPost.save();
     const blogPostId = newBlogPost._id;
-    console.log(`\n\nBlog post id: ${blogPostId}\n\n`);
+    
     await User.findOneAndUpdate(
       { email: session.user.email },
       {
@@ -140,9 +128,7 @@ export async function DELETE(request: NextRequest) {
     );
   }
 
-  const session = (await getSession({
-    req: { headers: Object.fromEntries(request.headers) },
-  })) as CustomSession | null;
+  const session = await getSessionAtHome();
 
   if (!session) {
     return NextResponse.json(
@@ -165,7 +151,7 @@ export async function DELETE(request: NextRequest) {
     );
   }
 
-  if (blogPost.createdBy !== session.user.email) {
+  if (blogPost.createdBy !== session?.user?.email) {
     return NextResponse.json(
       {
         message: "You are not authorized to delete this blog post",
@@ -179,7 +165,7 @@ export async function DELETE(request: NextRequest) {
     await Blog.findByIdAndDelete(id);
 
     await User.findOneAndUpdate(
-      { email: session.user.email },
+      { email: session?.user?.email },
       {
         $inc: { noOfBlogs: -1 },
       }
@@ -205,8 +191,7 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   const data = await Blog.find().sort({ createdAt: -1 });
   if (!data) {
     return NextResponse.json(
@@ -217,7 +202,7 @@ export async function GET(request: NextRequest) {
       { status: 404 }
     );
   }
-  // console.log(`\n\nData: ${data}\n\n`);
+
   return NextResponse.json(
     {
       message: "Blog posts found",

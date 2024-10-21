@@ -62,7 +62,7 @@ const AuthorPage = () => {
                     }
                     const postsData = await postsResponse.json();
                     setAuthorPosts(postsData.blogs);
-                    // console.log(postsData.blogs.reverse());
+
                 } catch (error: any) {
                     console.error('Error fetching data:', error);
                     toast.error(`Failed to fetch data: ${error.message}`);
@@ -114,7 +114,7 @@ const AuthorPage = () => {
                                             {author.email}
                                         </Button>
                                         {author.website && (
-                                            <Button variant="outline" size="sm" onClick={() => window.open(author.website, '_blank')}>
+                                            <Button variant="outline" size="sm" onClick={() => author.website && router.push(author.website)}>
                                                 <Globe className="h-4 w-4 mr-2" />
                                                 Website
                                             </Button>
@@ -125,17 +125,21 @@ const AuthorPage = () => {
                             {author.socialLinks && (
                                 <div className="flex justify-center md:justify-start space-x-2 mt-4">
                                     {author.socialLinks.facebook && (
-                                        <Button onClick={() => window.open(author.socialLinks?.facebook, '_blank')} variant="outline" size="icon">
+                                        <Button onClick={() => author.socialLinks?.facebook && router.push(author.socialLinks.facebook)}
+                                            variant="outline" size="icon">
                                             <Facebook className="h-4 w-4" />
                                         </Button>
+
                                     )}
                                     {author.socialLinks.twitter && (
-                                        <Button onClick={() => window.open(author.socialLinks?.twitter, '_blank')} variant="outline" size="icon">
+                                        <Button onClick={() => author.socialLinks?.twitter && router.push(author.socialLinks.twitter)}
+                                            variant="outline" size="icon">
                                             <Twitter className="h-4 w-4" />
                                         </Button>
                                     )}
                                     {author.socialLinks.linkedin && (
-                                        <Button onClick={() => window.open(author.socialLinks?.linkedin, '_blank')} variant="outline" size="icon">
+                                        <Button onClick={() => author.socialLinks?.linkedin && router.push(author.socialLinks.linkedin)}
+                                            variant="outline" size="icon">
                                             <SiLinkedin size={16} />
                                         </Button>
                                     )}

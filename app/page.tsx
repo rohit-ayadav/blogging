@@ -151,10 +151,10 @@ const HomePage = () => {
           <h1 className="text-4xl font-bold mb-4 md:text-5xl lg:text-6xl">Empower Your Developer Journey</h1>
           <p className="text-xl mb-8 md:text-2xl max-w-3xl mx-auto">Join our thriving community of passionate developers. Share knowledge, learn from peers, and accelerate your career growth.</p>
           <div className="space-y-4 md:space-y-0 md:space-x-4 flex flex-col md:flex-row justify-center">
-            <Button size="lg" variant={isDarkMode ? "outline" : "secondary"} onClick={() => window.location.href = 'https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t'}>
+            <Button size="lg" variant={isDarkMode ? "outline" : "secondary"} onClick={() => router.push('https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t')}>
               Join the Community
             </Button>
-            <Button size="lg" variant={isDarkMode ? "outline" : "secondary"} onClick={() => window.location.href = '/blogs'}>
+            <Button size="lg" variant={isDarkMode ? "outline" : "secondary"} onClick={() => router.push('/blogs')}>
               Explore Blogs
             </Button>
           </div>
@@ -179,8 +179,8 @@ const HomePage = () => {
                 </Card>
               ))}
             </div>
-          // ) : error ? (
-          //   <div className="text-center text-red-600">{error}</div>
+            // ) : error ? (
+            //   <div className="text-center text-red-600">{error}</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {posts.map((blog, index) => (
@@ -190,7 +190,7 @@ const HomePage = () => {
                   </CardHeader>
                   <CardContent className="flex-grow">
                     <p className="line-clamp-3 mb-4">{blog.content.replace(/<[^>]+>/g, '')}</p>
-                    <Button variant={isDarkMode ? "outline" : "secondary"} onClick={() => window.location.href = `/blogs/${blog._id}`}>
+                    <Button variant={isDarkMode ? "outline" : "secondary"} onClick={() => router.push(`/blogs/${blog._id}`)}>
                       Read More <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </CardContent>
@@ -216,21 +216,21 @@ const HomePage = () => {
               title="Write Your Own Blogs"
               description="Share your knowledge and experiences with the community. Establish yourself as an expert in your field."
               action="Start Writing"
-              onClick={() => window.location.href = '/create'}
+              onClick={() => router.push('/create')}
             />
             <FeatureCard
               icon={<Book size={48} className="mx-auto text-blue-600" />}
               title="Learn from Others"
               description="Explore a wide range of topics written by expert developers. Stay updated with the latest trends and technologies."
               action="Discover Blogs"
-              onClick={() => window.location.href = '/blogs'}
+              onClick={() => router.push('/blogs')}
             />
             <FeatureCard
               icon={<Users size={48} className="mx-auto text-blue-600" />}
               title="Connect with Peers"
               description="Network with like-minded professionals and grow together. Collaborate on projects and share opportunities."
               action="Join Community"
-              onClick={() => window.location.href = 'https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t'}
+              onClick={() => router.push('https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t')}
             />
           </div>
         </div>

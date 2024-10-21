@@ -2,6 +2,7 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
+import { getSessionAtHome } from "@/auth";
 
 const generateResponse = async (prompt: string) => {
   if (!process.env.GEMINI_API_KEY) {
@@ -16,6 +17,13 @@ const generateResponse = async (prompt: string) => {
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const { content } = await req.json();
+  const session = await getSessionAtHome();
+  if (!session) {
+    return NextResponse.json(
+      { message: "Not authorized to generate tags." },
+      { status: 401 }
+    );
+  }
 
   const prompt = `Based on the following blog content, generate relevant, concise, and SEO-friendly tags. Ensure that the tags are descriptive and capture the core topics, themes, and keywords:
 

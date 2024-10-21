@@ -1,10 +1,21 @@
 import { connectDB } from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/users.models";
+import { getSessionAtHome } from "@/auth";
 
 await connectDB();
 
 export async function POST(request: NextRequest) {
+  const session = await getSessionAtHome();
+  if (!session) {
+    return NextResponse.json(
+      {
+        message: "Not authorized to update password",
+        success: false,
+      },
+      { status: 401 }
+    );
+  }
   if (!request.body) {
     return NextResponse.json(
       { error: "Request body is null" },

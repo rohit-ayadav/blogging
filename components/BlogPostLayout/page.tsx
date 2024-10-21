@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
+import BlogPostClientContent from '../BlogPostContent/page';
 interface Post {
   _id: string;
   title: string;
@@ -53,7 +54,8 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({ children, post }) => {
         </div>
       </header>
       <main className="container mx-auto px-4 py-8">
-        {children}
+        <BlogPostClientContent initialData={post} id={post._id} />
+        {/* {children} */}
       </main>
     </div>
   );

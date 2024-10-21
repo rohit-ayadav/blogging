@@ -1,16 +1,7 @@
 import { connectDB } from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
 import Blog from "@/models/blogs.models";
-import { getToken } from "next-auth/jwt";
-import { getSession } from "next-auth/react";
-
-interface CustomSession {
-  email: string;
-  user: {
-    email: string;
-  };
-  // Add other properties if needed
-}
+import { getSessionAtHome } from "@/auth";
 
 connectDB();
 
@@ -66,9 +57,7 @@ export async function DELETE(request: NextRequest, response: NextResponse) {
       { status: 400 }
     );
   }
-  const session = (await getSession({
-    req: { headers: Object.fromEntries(request.headers) },
-  })) as CustomSession | null;
+  const session = await getSessionAtHome();
   if (!session) {
     return NextResponse.json(
       {
@@ -78,8 +67,7 @@ export async function DELETE(request: NextRequest, response: NextResponse) {
       { status: 401 }
     );
   }
-  if (session.user.email !== id) {
-    console.log(`\n\nSession email: ${session.user.email}\nId: ${id}\n\n`);
+  if (!session.user || session.user.email !== id) {
     return NextResponse.json(
       {
         message: "You are not authorized to delete this blog post",

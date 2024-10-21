@@ -37,18 +37,13 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({ initialDa
     }
 
     if (!post || !author) {
-        // return (
-        //     <div className="flex justify-center items-center h-screen dark:text-white">
-        //         No post or author data available.
-        //     </div>
-        // );
         return <LoadingSkeleton />;
     }
 
     return (
         <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
             <BlogPostHeader post={post} author={author} />
-            <main className="container mx-auto px-4 py-8">
+            <main className="container mx-auto px-4">
                 <BlogPostContent post={post} />
                 <BlogPostFooter post={post} likes={likes} views={views} liked={liked} id={id} />
                 <CommentSection postId={id} />
@@ -68,6 +63,18 @@ const LoadingSkeleton = () => (
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-5/6" />
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-5/6" />
+
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-5/6" />
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-4 w-full" />
+
         </div>
     </div>
 );

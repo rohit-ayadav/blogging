@@ -16,8 +16,11 @@ import CustomToolbar from './customToolbar';
 import { useTheme } from '@/context/ThemeContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DOMPurify from 'dompurify';
+import { useRouter } from 'next/router';
 
 export default function CreateBlog() {
+    const route = useRouter();
+
     const [title, setTitle] = useState('');
     const [thumbnail, setThumbnail] = useState<string | null>(null);
     const [content, setContent] = useState('');
@@ -145,7 +148,7 @@ export default function CreateBlog() {
             tags: checkedTags,
             status: isDraft ? 'draft' : 'published',
         };
-        console.log(blogPostData);
+
 
         try {
             const response = await fetch('/api/blog', {
@@ -161,7 +164,7 @@ export default function CreateBlog() {
             if (!response.ok) {
                 throw new Error(data.message || 'Something went wrong');
             }
-            console.log(data);
+
             setBlogId(data.blogPostId);
 
             const successMessage = data.message || 'Blog post created successfully';
@@ -187,8 +190,8 @@ export default function CreateBlog() {
                 },
             });
 
-            window.location.href = `/blogs/${blogId}`;
-            console.log(message);
+            route.push(`/blog/${blogId}`);
+
         } catch (error) {
             console.error('Submission Error:', error);
         }

@@ -2,11 +2,7 @@
 import { useState } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
-
-const signUp = async ({ email, password }: { email: string; password: string }) => {
-    alert('Sign up is not implemented yet.');
-    return { ok: true };
-};
+import { useRouter } from 'next/navigation';
 
 export default function Auth() {
     const [email, setEmail] = useState('');
@@ -14,9 +10,11 @@ export default function Auth() {
     const [isLogin, setIsLogin] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const router = useRouter();
+
     const { data: session } = useSession();
     if (session) {
-        console.log(session);
+        
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 py-5 px-4 sm:px-6 lg:px-8">
                 <div>
@@ -30,13 +28,13 @@ export default function Auth() {
                         Sign out
                     </button>
                     <button
-                        onClick={() => window.location.href = '/dashboard'}
+                        onClick={() => router.push('/profile')}
                         className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-4"
                     >
                         Go to Dashboard
                     </button>
                     <button
-                        onClick={() => window.location.href = '/blogs'}
+                        onClick={() => router.push('/blogs')}
                         className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-4"
                     >
                         Go to Blogs
@@ -58,7 +56,7 @@ export default function Auth() {
                 loading: 'Signing in...',
                 success: (data) => {
                     if (data?.ok) {
-                        window.location.href = '/profile';
+                        router.push('/profile');
                         return 'Sign in successful';
                     }
                     throw new Error(data?.error || 'Sign in failed');
@@ -68,7 +66,7 @@ export default function Auth() {
                 },
             });
         } else {
-            window.location.href = '/signup';
+            router.push('/signup');
         }
     }
 
@@ -151,7 +149,7 @@ export default function Auth() {
 
                 <div className="text-center">
                     <button
-                        onClick={() => window.location.href = '/signup'}
+                        onClick={() => router.push('/signup')}
                         className="font-medium text-indigo-600 hover:text-indigo-500"
                     >
                         Don't have an account? Sign up

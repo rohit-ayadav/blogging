@@ -1,6 +1,7 @@
 import Newsletter from "@/models/newsletter.models";
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/utils/db";
+import { getSessionAtHome } from "@/auth";
 
 await connectDB();
 
@@ -16,6 +17,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { email } = await request.json();
+  const session = await getSessionAtHome();
 
   if (!email) {
     return NextResponse.json(
@@ -26,8 +28,28 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
+  if (email !== session?.user?.email) {
+    return NextResponse.json(
+      {
+        message: "You can only subscribe with your own email",
+        success: false,
+      },
+      { status: 401 }
+    );
+  }
 
   try {
+    const existingSubscriber = await Newsletter.findOne({ email });
+    if (existingSubscriber) {
+      return NextResponse.json(
+        {
+          message: "You have already subscribed",
+          success: false,
+        },
+        { status: 400 }
+      );
+    }
+
     const newSubscriber = new Newsletter({ email });
     await newSubscriber.save();
     return NextResponse.json(

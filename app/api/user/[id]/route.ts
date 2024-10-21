@@ -4,11 +4,11 @@ import User from "@/models/users.models";
 
 await connectDB();
 
+
+// This api route is used to get a user by their ID
 export async function GET(request: NextRequest) {
-  // id is after the last slash in the URL
 
   const id = request.nextUrl.pathname.split("/").pop();
-  console.log(`\n\nThis is id in app/api/user/route.ts: ${id}\n\n`);
   if (!id) {
     return NextResponse.json(
       {

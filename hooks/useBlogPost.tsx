@@ -27,7 +27,6 @@ interface Author {
 
 const useBlogPost = (id: string, initialData: Post | null = null) => {
     const [post, setPost] = useState<Post | null>(initialData);
-    // console.log("useBlogPost called with id:", id);
     const [author, setAuthor] = useState<Author | null>(null);
     const [authorPosts, setAuthorPosts] = useState<Post[]>([]);
     const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);

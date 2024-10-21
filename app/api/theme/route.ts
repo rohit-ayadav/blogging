@@ -64,11 +64,11 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
-    console.log("\n\n\n\nUser found:", user);
+    
     user.theme = theme;
     await user.save();
 
-    console.log("\n\n\n\nUser updated:", user);
+    
     return NextResponse.json(
       {
         message: "Theme selected successfully",

@@ -6,7 +6,7 @@ await connectDB();
 
 export async function POST(request: NextRequest) {
   const id = request.nextUrl.pathname.split("/").slice(-2, -1)[0];
-  // console.log(`\n\n\n\n\nMessage from like route: ${id}`);
+  
   if (!id) {
     return NextResponse.json(
       {

@@ -9,9 +9,8 @@ import toast from 'react-hot-toast';
 import { useSession, signIn } from 'next-auth/react';
 import { Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-// import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 
-import exp from 'constants';
 
 interface CommentSectionProps {
     postId: string;
@@ -27,6 +26,7 @@ interface Comment {
 }
 
 export const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
+    const router = useRouter();
     const [comments, setComments] = useState<Comment[]>([]);
     const [content, setContent] = useState<string>('');
 
@@ -128,7 +128,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                         ) : (
                             <div className="text-center py-4">
                                 <p className="mb-4">Please log in to leave a comment.</p>
-                                <Button onClick={() => window.open('/login')}>Login</Button>
+                                <Button onClick={() => router.push('/login')}>Login</Button>
                             </div>
                         )}
                     </div>

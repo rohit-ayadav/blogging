@@ -32,13 +32,13 @@ interface BlogPostHeaderProps {
 }
 
 const BlogPostHeader: React.FC<BlogPostHeaderProps> = ({ post, author }) => {
-  
+
   const readingTime = Math.ceil(post.content.split(' ').length / 200);
 
   return (
     <header className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
-      <div className="container mx-auto px-4 py-8">
-       
+      <div className="container mx-auto px-4">
+
         <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
         {post.thumbnail && (
           <img src={post.thumbnail} alt="" className="w-full max-h-96 object-cover mb-8 rounded-lg" />

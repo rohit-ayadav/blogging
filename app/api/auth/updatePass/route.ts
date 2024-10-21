@@ -2,10 +2,27 @@
 import User from "@/models/users.models";
 import { connectDB } from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit } from "@/utils/rate-limit";
+
 await connectDB();
 
-
 export async function PUT(request: NextRequest) {
+  const ip =
+    request.headers.get("x-real-ip") ||
+    request.headers.get("x-forwarded-for") ||
+    "";
+    
+  const isAllowed = rateLimit(ip);
+  if (!isAllowed) {
+    return NextResponse.json(
+      {
+        message: "Too many requests, please try again later",
+        success: false,
+      },
+      { status: 429 }
+    );
+  }
+
   const body = await request.json();
   let { email, secretKey, newPassword } = body;
   if (!email || !secretKey || !newPassword) {

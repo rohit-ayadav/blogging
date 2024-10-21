@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
   } else if (username.trim() === "") {
     username = email.split("@")[0];
   }
-  console.log(`\n\nUsername: ${username}\n\n`);
+  
   if (!name) {
     name = email.split("@")[0];
   }
@@ -65,9 +65,9 @@ export async function POST(request: NextRequest) {
       username,
     };
 
-    console.log(`\n\nNew user: ${newUser}\n\n`);
+    
     await User.create(newUser);
-    console.log(`\n\nNew user: ${newUser}\n\n`);
+    
     return NextResponse.json(
       {
         message: "User created successfully",

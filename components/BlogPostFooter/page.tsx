@@ -36,7 +36,6 @@ const BlogPostFooter = ({ post, likes, views, liked, id }: BlogPostFooterProps) 
 
   useEffect(() => {
     setNoOfLikes(post.likes);
-    console.log(`Likes and setNoOfLikes: ${post.likes} ${no_of_likes}`);
   }, []);
 
   const handleLike = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -96,7 +95,8 @@ const BlogPostFooter = ({ post, likes, views, liked, id }: BlogPostFooterProps) 
       </div>
       <div className="flex items-center space-x-2 mt-4 md:mt-0">
         <span>Share:</span>
-        <Button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("Check out this amazing post: " + post.title + " " + shareUrl)}`, '_blank')} variant="outline">
+        {/* Check out this amazing post:  */}
+        <Button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("👉 " + post.title + " " + shareUrl)}`, '_blank')} variant="outline">
           <SiWhatsapp className="h-4 w-4" />
         </Button>
         <Button onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank')} variant="outline">

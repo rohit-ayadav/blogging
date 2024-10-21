@@ -25,7 +25,6 @@ export const useDarkMode = () => {
           if (response.ok) {
             const { theme } = await response.json();
             setIsDarkMode(theme === "dark");
-            console.log("Theme found:", theme);
           }
         } catch (error) {
           console.error(error);
@@ -53,9 +52,6 @@ export const useDarkMode = () => {
           },
           body: JSON.stringify({ theme: newTheme }),
         });
-        if (response.ok) {
-          console.log("Theme updated:", newTheme);
-        }
       } catch (error) {
         setIsDarkMode(!isDarkMode);
         console.error(error);

@@ -4,11 +4,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { valid } from "joi";
 import { isValidObjectId } from "mongoose";
 import User from "@/models/users.models";
+import { getSessionAtHome } from "@/auth";
 
 await connectDB();
 
 export async function POST(req: NextRequest) {
   const { postId, name, email, content } = await req.json();
+  const session = await getSessionAtHome();
+  if (!session) {
+    return NextResponse.json(
+      { message: "Not authorized to post comment." },
+      { status: 401 }
+    );
+  }
 
   if (!postId || !name || !email || !content) {
     return NextResponse.json(

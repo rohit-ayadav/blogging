@@ -1,13 +1,14 @@
 import { connectDB } from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/users.models";
+import { getSessionAtHome } from "@/auth";
 
 await connectDB();
 
 export async function GET(request: NextRequest) {
   const SearchParams = request.nextUrl.searchParams;
   const id = SearchParams.get("email");
-  // console.log(`\n\nThis is email in app/api/user/route.ts: ${id}\n\n`);
+
   if (!id) {
     return NextResponse.json(
       {
@@ -43,6 +44,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const session = await getSessionAtHome();
+
   const body = await request.json();
   const { email, name, image, bio, username } = body;
   if (!email) {
@@ -54,7 +57,16 @@ export async function PUT(request: NextRequest) {
       { status: 400 }
     );
   }
-  
+  if (session?.user?.email !== email) {
+    return NextResponse.json(
+      {
+        message: "Unauthorized",
+        success: false,
+      },
+      { status: 401 }
+    );
+  }
+
   const existingUser = await User.findOne({ username });
   if (existingUser.username !== username) {
     return NextResponse.json(
@@ -94,17 +106,19 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const email = searchParams.get("email");
-  if (!email) {
+  const session = await getSessionAtHome();
+  
+  if (!session) {
     return NextResponse.json(
       {
-        message: "Email is required",
+        message: "Unauthorized",
         success: false,
       },
-      { status: 400 }
+      { status: 401 }
     );
   }
+
+  const email = session?.user?.email;
   try {
     const user = await User.findOneAndDelete({ email });
     if (!user) {

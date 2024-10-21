@@ -24,7 +24,8 @@ const BlogPostContent: React.FC<BlogPostContentProps> = ({ post }) => {
   const sanitizedContent = DOMPurify.sanitize(post.content);
 
   return (
-    <article className="container mx-auto px-4 py-8">
+    
+    <article className="container mx-auto ">
       <div
         className={`
           prose lg:prose-xl max-w-none
@@ -47,7 +48,7 @@ const BlogPostContent: React.FC<BlogPostContentProps> = ({ post }) => {
                 key={index}
                 className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full text-sm"
               >
-                {tag}
+                #{tag}
               </span>
             ))}
           </div>

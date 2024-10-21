@@ -61,13 +61,13 @@ export default function UserProfile() {
         fetchData();
     }, [session]);
 
-  
+
 
     const fetchBlogs = async () => {
         if (session?.user) {
             const response = await fetch(`/api/blogpost?email=${session.user.email}`);
             const data = await response.json();
-            console.log("User blogs data:", data);
+
             setUserBlogs(data.blogs.map((blog: Blog) => ({
                 id: blog._id,
                 title: blog.title,
@@ -77,7 +77,7 @@ export default function UserProfile() {
                 views: blog.views,
 
             })));
-            console.log("User blogs:", userBlogs);
+
         }
 
     };
@@ -101,7 +101,7 @@ export default function UserProfile() {
 
     const saveProfile = async () => {
         if (editData) {
-            console.log("Saving profile:", editData);
+
             const response = await fetch(`/api/user`, {
                 method: 'PUT',
                 headers: {
@@ -182,7 +182,7 @@ export default function UserProfile() {
             if (response.ok) {
                 toggleDarkMode();
                 const data = await response.json();
-                console.log(`${data.message} - ${data.success}`);
+
             }
         } catch (error) {
             console.error(error);
@@ -239,7 +239,7 @@ export default function UserProfile() {
                 error: 'Failed to delete account',
             });
             await signOut();
-            window.location.href = '/';
+            router.push('/');
         } catch (error) {
             if (error instanceof Error) {
                 console.error('Account deletion failed:', error.message);
@@ -275,7 +275,7 @@ export default function UserProfile() {
     };
 
     const handleViewBlog = (blogId: string) => {
-        window.location.href = `/blogs/${blogId}`;
+        router.push(`/blog/${blogId}`);
     };
 
     return (
@@ -491,7 +491,7 @@ export default function UserProfile() {
                                                 </DialogContent>
                                             </Dialog>
                                         </div>
-{/* 
+                                        {/* 
                                         <div className="flex items-center justify-between">
                                             <div>
                                                 <h3 className="font-medium">Notification Preferences</h3>
