@@ -3,7 +3,6 @@ import dynamic from 'next/dynamic';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FormEvent, MouseEvent, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -24,11 +23,8 @@ export default function CreateBlog() {
     const [title, setTitle] = useState('');
     const [thumbnail, setThumbnail] = useState<string | null>(null);
     const [content, setContent] = useState('');
-    const [wordCount, setWordCount] = useState(0);
-    const [charCount, setCharCount] = useState(0);
     const [tags, setTags] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
-    const { data: session } = useSession();
     const [blogId, setBlogId] = useState('');
     const [saveStatus, setSaveStatus] = useState('');
     const [tagAutoGen, setTagAutoGen] = useState(false);
@@ -164,8 +160,9 @@ export default function CreateBlog() {
             if (!response.ok) {
                 throw new Error(data.message || 'Something went wrong');
             }
-
+            
             setBlogId(data.blogPostId);
+            
 
             const successMessage = data.message || 'Blog post created successfully';
             toast.success(successMessage);
@@ -180,17 +177,8 @@ export default function CreateBlog() {
     const handleSubmit = async (e: MouseEvent<HTMLButtonElement> | FormEvent<HTMLFormElement>, isDraft: boolean) => {
         e.preventDefault();
         try {
-            const message = await toast.promise(createBlogPost(isDraft), {
-                pending: 'Creating Blog Post...',
-                success: 'Blog post created successfully',
-                error: {
-                    render({ data }) {
-                        return <div>{(data as Error).message}</div>;
-                    },
-                },
-            });
 
-            route.push(`/blog/${blogId}`);
+            route.push(`/blogs/${blogId}`);
 
         } catch (error) {
             console.error('Submission Error:', error);

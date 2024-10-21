@@ -22,13 +22,11 @@ async function getPostData(id: string) {
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
     const postData = await getPostData(params.id);
-  
+
     const title = postData.title || 'Next.js Blog Post';
     const thumbnailUrl = postData.thumbnail || '/default-thumbnail.png';
-    const description = postData.content ? postData.content.substring(0, 150) :
-        // Write a default long generalised description here which suits all the blog posts
-        'This is a blog post on Next.js blog application.';
-
+    // Remove HTML tags from description and traun
+    const description = postData.content.replace(/<[^>]*>?/gm, '').substring(0, 200);
     return {
         title: title,
         description: description,
