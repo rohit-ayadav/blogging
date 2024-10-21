@@ -190,7 +190,7 @@ export default function CreateBlog() {
                 },
             });
             if (message === 'Blog post created successfully') {
-                route.push(`/blog/${blogId}`);
+                route.push(`/blogs/${blogId}`);
             }
         } catch (error) {
             console.error('Submission Error:', error);
