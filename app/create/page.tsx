@@ -144,7 +144,7 @@ export default function CreateBlog() {
         const blogPostData = {
             title: checkedTitle,
             content: checkContent(content),
-            thumbnail: thumbnail || null,
+            thumbnail: thumbnail,
             tags: checkedTags,
             status: isDraft ? 'draft' : 'published',
         };

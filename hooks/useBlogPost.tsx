@@ -2,6 +2,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 interface Post {
     _id: string;
@@ -26,28 +27,34 @@ interface Author {
 }
 
 const useBlogPost = (id: string, initialData: Post | null = null) => {
+    const router = useRouter();
     const [post, setPost] = useState<Post | null>(initialData);
     const [author, setAuthor] = useState<Author | null>(null);
     const [authorPosts, setAuthorPosts] = useState<Post[]>([]);
     const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
     const [likes, setLikes] = useState(0);
     const [views, setViews] = useState(0);
-    const [liked, setLiked] = useState(false);
+    const [liked] = useState(false);
     const [createdBy, setCreatedBy] = useState<string | null>(null);
 
     const fetchPostAndRelatedData = async () => {
         if (id) {
+            let data;
             try {
                 const response = await fetch(`/api/blog/${id}`);
                 if (!response.ok) {
                     throw new Error(`${response.status} - ${response.statusText}`);
                 }
-                const data = await response.json();
+                data = await response.json();
                 setPost(data.data);
                 setLikes(data.data.likes);
                 setViews(data.data.views);
                 setCreatedBy(data.data.createdBy);
-
+            } catch (error: any) {
+                toast.error(`$error.message}`);
+                router.push("/blogs");
+            }
+            try {
                 const authorResponse = await fetch(
                     `/api/user?email=${data.data.createdBy}`
                 );
@@ -58,7 +65,12 @@ const useBlogPost = (id: string, initialData: Post | null = null) => {
                 }
                 const authorData = await authorResponse.json();
                 setAuthor(authorData.user);
+            }
+            catch (error: any) {
+                toast.error(error.message);
+            }
 
+            try {
                 const authorPostsResponse = await fetch(
                     `/api/blogpost?email=${data.data.createdBy}`
                 );
@@ -71,7 +83,10 @@ const useBlogPost = (id: string, initialData: Post | null = null) => {
                 setAuthorPosts(
                     authorPostsData.blogs.filter((p: Post) => p._id !== id)
                 );
-
+            } catch (error: any) {
+                toast.error(error.message);
+            }
+            try {
                 const relatedPostsResponse = await fetch(
                     `/api/blog?tags=${data.data.tags.join(",")}&limit=3`
                 );
@@ -84,8 +99,8 @@ const useBlogPost = (id: string, initialData: Post | null = null) => {
                 setRelatedPosts(
                     relatedPostsData.data.filter((p: Post) => p._id !== id)
                 );
-            } catch (error) {
-                toast.error("An error occurred while fetching blog post data");
+            } catch (error: any) {
+                // toast.error("An error occurred while fetching blog post data");
             }
         }
     };

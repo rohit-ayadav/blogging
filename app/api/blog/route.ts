@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Blog from "../../../models/blogs.models";
 import { connectDB } from "../../../utils/db";
-import Joi from "joi";
+import Joi, { optional } from "joi";
 import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
 import User from "@/models/users.models";
@@ -15,7 +15,8 @@ const blogSchema = Joi.object({
   content: Joi.string().required(),
   status: Joi.string().valid("published", "draft").optional(),
   tags: Joi.array().items(Joi.string()).optional(),
-  thumbnail: Joi.string().optional(),
+  // Thumbnail is optional and can be a string
+  // thumbnail: Joi.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -31,18 +32,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { error } = blogSchema.validate(body);
-  if (error) {
-    return NextResponse.json(
-      {
-        message: error.details[0].message,
-        success: false,
-      },
-      { status: 400 }
-    );
-  }
-
-  const { title, content, status = "published", tags, thumbnail } = body;
+  let { title, content, status = "published", tags, thumbnail } = body;
 
   if (!session?.user?.email) {
     return NextResponse.json(
@@ -51,6 +41,46 @@ export async function POST(request: NextRequest) {
         success: false,
       },
       { status: 401 }
+    );
+  }
+  if (!content) {
+    return NextResponse.json(
+      {
+        message: "Content is required",
+        success: false,
+      },
+      { status: 400 }
+    );
+  }
+
+  if (!title) {
+    return NextResponse.json(
+      {
+        message: "Title is required",
+        success: false,
+      },
+      { status: 400 }
+    );
+  }
+  if (!thumbnail) {
+    // thumbnail is optional
+    thumbnail = "";
+  }
+
+  const { error } = blogSchema.validate({
+    title,
+    content,
+    status,
+    tags,
+    // thumbnail,
+  });
+  if (error) {
+    return NextResponse.json(
+      {
+        message: error.message,
+        success: false,
+      },
+      { status: 400 }
     );
   }
 
@@ -75,7 +105,7 @@ export async function POST(request: NextRequest) {
     const newBlogPost = new Blog(blogPost);
     await newBlogPost.save();
     const blogPostId = newBlogPost._id;
-    
+
     await User.findOneAndUpdate(
       { email: session.user.email },
       {
