@@ -3,8 +3,10 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowRight, Calendar, Eye, ImageIcon, ThumbsUp, User } from 'lucide-react';
+import { ArrowRight, Calendar, Copy, Eye, ImageIcon, ThumbsUp, User } from 'lucide-react';
 import Link from 'next/link';
+import { FaClipboard } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 interface BlogPostType {
     _id: string;
@@ -136,6 +138,16 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                 </div>
                 <div className="flex items-center space-x-4 w-full sm:w-auto justify-end">
                     <div className="flex items-center space-x-1">
+                        <span onClick={() => {
+                            navigator.clipboard.writeText(`${post.title}\nRead More: ${window.location.origin}/blogs/${post._id}`);
+                            toast.success('Copied to clipboard!');
+                        }}
+                            className="cursor-pointer text-sm font-medium text-gray-600 dark:text-gray-300">
+                            {/* \n${post.content.replace(/<[^>]*>?/gm, '').substring(0, 100)}\n */}
+                            <FaClipboard className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                        </span>
+                    </div>
+                    <div className="flex items-center space-x-1">
                         <Eye className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                         <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{post.views || 0}</span>
                     </div>
@@ -157,8 +169,8 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                     </Button>
                 </Link>
             </CardFooter>
-        </div>
-    </Card>
+        </div >
+    </Card >
 );
 
 export default BlogPostGrid;

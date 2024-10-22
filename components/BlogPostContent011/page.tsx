@@ -151,7 +151,7 @@ const BlogPostContent: React.FC<BlogPostContentProps> = ({ post }) => {
           [&_:not(pre)_code]:mx-1
           [&_:not(pre)_code]:rounded
           [&_:not(pre)_code]:font-mono
-          [&_:not(pre)_code]:text-sm
+          // [&_:not(pre)_code]:text-sm
           [&_:not(pre)_code]:break-words
           ${isDarkMode 
             ? '[&_:not(pre)_code]:bg-gray-800 [&_:not(pre)_code]:text-gray-100' 

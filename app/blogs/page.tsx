@@ -113,6 +113,9 @@ const BlogCollection = () => {
         setFilteredPosts(sorted);
     }, [posts, searchTerm, sortBy]);
 
+    const copyMessage = "${post.title}\n${post.content.replace(/<[^>]*>?/gm, '').substring(0, 100)}\n\nRead more at: ${window.location.href}";
+
+
     if (error) {
         return (
             <div className="flex flex-col justify-center items-center h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
