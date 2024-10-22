@@ -139,7 +139,7 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                 <div className="flex items-center space-x-4 w-full sm:w-auto justify-end">
                     <div className="flex items-center space-x-1">
                         <span onClick={() => {
-                            navigator.clipboard.writeText(`${post.title}\nRead here: ${window.location.origin}/blogs/${post._id}`);
+                            navigator.clipboard.writeText(`${post.title}\nRead here: ${window.location.origin}/blogs/${post._id}\n\n`);
                             toast.success('Copied to clipboard!');
                         }}
                             className="cursor-pointer text-sm font-medium text-gray-600 dark:text-gray-300">
