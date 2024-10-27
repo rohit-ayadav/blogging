@@ -24,9 +24,8 @@ export default function CreateBlog() {
     const [title, setTitle] = useState('');
     const [thumbnail, setThumbnail] = useState<string | null>(null);
     const [content, setContent] = useState('');
-    const [wordCount, setWordCount] = useState(0);
-    const [charCount, setCharCount] = useState(0);
     const [tags, setTags] = useState<string[]>([]);
+    const [category, setCategory] = useState('');
     const [loading, setLoading] = useState(false);
     const { data: session } = useSession();
     const [blogId, setBlogId] = useState('');
@@ -146,6 +145,7 @@ export default function CreateBlog() {
             content: checkContent(content),
             thumbnail: thumbnail,
             tags: checkedTags,
+            category: category,
             status: isDraft ? 'draft' : 'published',
         };
 
@@ -305,6 +305,11 @@ export default function CreateBlog() {
                             className='bg-white p-5 mt-1 rounded border border-gray-300'
                         />
                     </TabsContent>
+                    {/* // Show word count and character count */}
+                    <div className="flex justify-between mt-2">
+                        <p className="text-sm text-gray-500">Word Count: {content.split(/\s+/).length}</p>
+                        <p className="text-sm text-gray-500">Character Count: {content.length}</p>
+                    </div>
                 </Tabs>
 
 
@@ -348,7 +353,23 @@ export default function CreateBlog() {
                         </div>
                     </div>
                 )}
+                {/* // Cateogary option like DSA JOB Posting WebDev etc Give option to select cateogary */}
 
+                <div className="mb-5">
+                    <label htmlFor="category" className="text-lg font-bold">Category:</label>
+                    <select
+                        id="category"
+                        className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
+                        onChange={(e) => setCategory(e.target.value)}
+                    >
+                        <option value="">Select a category</option>
+                        <option value="DSA">DSA</option>
+                        <option value="Job Posting">Job Posting</option>
+                        <option value="WebDev">Web Development</option>
+                        <option value="AI">Artificial Intelligence</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
                 <div className="flex justify-between mt-20">
                     <Button
                         type="button"

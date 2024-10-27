@@ -15,8 +15,7 @@ const blogSchema = Joi.object({
   content: Joi.string().required(),
   status: Joi.string().valid("published", "draft").optional(),
   tags: Joi.array().items(Joi.string()).optional(),
-  // Thumbnail is optional and can be a string
-  // thumbnail: Joi.string().optional(),
+  cateogry: Joi.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -32,7 +31,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let { title, content, status = "published", tags, thumbnail } = body;
+  let { title, content, status = "published", tags, thumbnail, category } = body;
 
   if (!session?.user?.email) {
     return NextResponse.json(
@@ -66,6 +65,10 @@ export async function POST(request: NextRequest) {
     // thumbnail is optional
     thumbnail = "";
   }
+  if (!category) {
+    // category is optional
+    category = "Others";
+  }
 
   const { error } = blogSchema.validate({
     title,
@@ -89,6 +92,7 @@ export async function POST(request: NextRequest) {
   const sanitizedContent = purify.sanitize(content);
   const sanitizedTitle = purify.sanitize(title);
   const sanitizedTags = tags.map((tag: string) => purify.sanitize(tag));
+  const sanitizedCategory = purify.sanitize(category);
 
   const blogPost = {
     title: sanitizedTitle,
@@ -99,6 +103,7 @@ export async function POST(request: NextRequest) {
     createdBy: session.user.email,
     likes: 0,
     views: 0,
+    category: sanitizedCategory,
   };
 
   try {
