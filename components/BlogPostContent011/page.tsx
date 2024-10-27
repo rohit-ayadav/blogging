@@ -1,11 +1,9 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import DOMPurify from 'dompurify';
 import { useTheme } from '@/context/ThemeContext';
-import { Copy, Check } from 'lucide-react';
 import ReactDOM from 'react-dom';
 import Tags from './tags';
-import { CopyButton, MobileCopyButton } from './copyBtn';
-
+import CopyButton from './copyBtn';
 
 interface Post {
   _id: string;
@@ -23,9 +21,7 @@ interface BlogPostContentProps {
   post: Post;
 }
 
-
-
-const BlogPostContent: React.FC<BlogPostContentProps> = ({ post }) => {
+export default function BlogPostContent({ post }: BlogPostContentProps) {
   const { isDarkMode } = useTheme();
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -41,46 +37,45 @@ const BlogPostContent: React.FC<BlogPostContentProps> = ({ post }) => {
     ]
   };
 
-  const addCopyButtons = useCallback(() => {
+  useEffect(() => {
     if (!contentRef.current) return;
-
-    const existingButtons = contentRef.current.querySelectorAll('.copy-button-container');
-    existingButtons.forEach(button => {
-      ReactDOM.unmountComponentAtNode(button);
-      button.remove();
-    });
 
     const preElements = contentRef.current.getElementsByTagName('pre');
 
     Array.from(preElements).forEach((pre) => {
-      if (!pre.parentElement?.classList.contains('relative')) {
+      // Ensure pre elements maintain their formatting
+      pre.style.whiteSpace = 'pre';
+      pre.style.overflowX = 'auto';
+
+      if (!pre.parentElement?.classList.contains('code-block-wrapper')) {
         const wrapper = document.createElement('div');
-        wrapper.className = 'relative group';
+        wrapper.className = 'code-block-wrapper relative group';
         pre.parentNode?.insertBefore(wrapper, pre);
         wrapper.appendChild(pre);
+
+        // Add inner wrapper for proper scrolling
+        const scrollWrapper = document.createElement('div');
+        scrollWrapper.className = 'code-scroll-wrapper';
+        scrollWrapper.style.overflow = 'auto';
+        wrapper.insertBefore(scrollWrapper, pre);
+        scrollWrapper.appendChild(pre);
       }
 
       const code = pre.querySelector('code');
       if (!code) return;
 
-      // Add desktop copy button
+      // Ensure code elements maintain their formatting
+      code.style.whiteSpace = 'pre';
+      code.style.display = 'inline-block';
+      code.style.minWidth = '100%';
+
       const buttonContainer = document.createElement('div');
       buttonContainer.className = 'copy-button-container';
-      pre.parentElement?.appendChild(buttonContainer);
+      pre.parentElement?.parentElement?.insertBefore(buttonContainer, pre.parentElement);
 
       ReactDOM.render(
         <CopyButton isDarkMode={isDarkMode} code={code.textContent || ''} />,
         buttonContainer
-      );
-      
-      // Add mobile copy button
-      const mobileButtonContainer = document.createElement('div');
-      mobileButtonContainer.className = 'mobile-copy-button-container';
-      pre.parentElement?.appendChild(mobileButtonContainer);
-
-      ReactDOM.render(
-        <MobileCopyButton isDarkMode={isDarkMode} code={code.textContent || ''} />,
-        mobileButtonContainer
       );
     });
 
@@ -92,20 +87,19 @@ const BlogPostContent: React.FC<BlogPostContentProps> = ({ post }) => {
         link.setAttribute('rel', 'noopener noreferrer');
       }
     });
-  }, [isDarkMode]);
 
-  useEffect(() => {
-    addCopyButtons();
+    // Cleanup function
     return () => {
       if (contentRef.current) {
-        const copyButtons = contentRef.current.querySelectorAll('.copy-button-container, .mobile-copy-button-container');
+        const copyButtons = contentRef.current.querySelectorAll('.copy-button-container');
         copyButtons.forEach(button => {
           ReactDOM.unmountComponentAtNode(button);
           button.remove();
         });
       }
     };
-  }, [addCopyButtons, post.content, isDarkMode]);
+  });
+
 
   const sanitizedContent = DOMPurify.sanitize(post.content, sanitizeConfig);
 
@@ -158,14 +152,14 @@ const BlogPostContent: React.FC<BlogPostContentProps> = ({ post }) => {
       [&_th]:min-w-[8rem] [&_td]:min-w-[8rem]
     `,
     codeBlocks: `
-      [&_pre]:my-4 sm:[&_pre]:my-6
-      [&_pre]:p-3 sm:[&_pre]:p-6
-      [&_pre]:rounded-lg
-      [&_pre]:shadow-md
-      [&_pre]:overflow-x-auto
-      [&_pre]:bg-gray-50 dark:[&_pre]:bg-gray-800
-      [&_pre_code]:text-gray-800 dark:[&_pre_code]:text-gray-100
+      [&_.code-block-wrapper]:relative [&_.code-block-wrapper]:my-4 sm:[&_.code-block-wrapper]:my-6
+      [&_.code-block-wrapper]:rounded-lg [&_.code-block-wrapper]:shadow-md
+      [&_.code-block-wrapper]:overflow-hidden
+      [&_pre]:overflow-x-auto [&_pre]:p-4 sm:[&_pre]:p-6
+      [&_pre]:bg-gray-800 [&_pre]:min-w-full
+      [&_pre_code]:text-gray-100 [&_pre_code]:inline-block [&_pre_code]:min-w-full
       [&_pre]:text-[14px] sm:[&_pre]:text-[15px] [&_pre]:leading-relaxed
+      [&_.copy-button-container]:absolute [&_.copy-button-container]:right-2 [&_.copy-button-container]:top-2
     `,
     inlineCode: `
       [&_:not(pre)_code]:text-inherit
@@ -175,9 +169,7 @@ const BlogPostContent: React.FC<BlogPostContentProps> = ({ post }) => {
       [&_:not(pre)_code]:after:content-['']
       [&_:not(pre)_code]:whitespace-normal
       [&_:not(pre)_code]:break-words
-      ${isDarkMode
-        ? '[&_:not(pre)_code]:text-blue-300'
-        : '[&_:not(pre)_code]:text-blue-600'}
+      [&_:not(pre)_code]:text-blue-300
     `,
     details: `
       prose-details:my-2 sm:prose-details:my-4
@@ -230,6 +222,4 @@ const BlogPostContent: React.FC<BlogPostContentProps> = ({ post }) => {
       </div>
     </article>
   );
-};
-
-export default BlogPostContent;
+}

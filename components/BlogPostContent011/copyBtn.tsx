@@ -1,20 +1,30 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Check, Copy } from "lucide-react";
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 interface CopyButtonProps {
     isDarkMode: boolean;
     code: string;
 }
 
-const CopyButton = ({ isDarkMode, code }: CopyButtonProps) => {
-    const [isCopied, setIsCopied] = React.useState(false);
+const CopyButton: React.FC<CopyButtonProps> = ({ isDarkMode, code }) => {
+    const [isCopied, setIsCopied] = useState(false);
+
+    useEffect(() => {
+        let timeout: NodeJS.Timeout;
+        if (isCopied) {
+            timeout = setTimeout(() => setIsCopied(false), 3000);
+        }
+        return () => clearTimeout(timeout);
+    }, [isCopied]);
 
     const handleCopy = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         try {
             await navigator.clipboard.writeText(code);
             setIsCopied(true);
-            setTimeout(() => setIsCopied(false), 2000);
+            toast.success("Copied to clipboard!");
         } catch (err) {
             console.error('Failed to copy:', err);
         }
@@ -24,78 +34,27 @@ const CopyButton = ({ isDarkMode, code }: CopyButtonProps) => {
         <button
             onClick={handleCopy}
             className={`
-        group absolute right-4 top-4
-        hidden md:opacity-0 md:group-hover:opacity-100
-        sm:flex sm:items-center sm:gap-2
-        rounded-md px-2 py-1 text-sm
+        absolute right-2 top-2
+        flex items-center justify-center
+        w-8 h-8 rounded-md
         transition-all duration-200
         ${isDarkMode
-                    ? 'hover:bg-gray-700 text-gray-300'
-                    : 'hover:bg-gray-200 text-gray-600'}
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-600'
+                }
+        md:opacity-0 md:group-hover:opacity-100
       `}
-            aria-label="Copy code"
+            aria-label={isCopied ? "Copied" : "Copy code"}
         >
             {isCopied ? (
                 <>
-                    <Check className="h-4 w-4" />
-                    <span className="sm:inline hidden">Copied!</span>
+                    <Check className="h-4 w-4 text-green-500" />
                 </>
             ) : (
-                <>
-                    <Copy className="h-4 w-4" />
-                    <span className="sm:inline hidden">Copy</span>
-                </>
+                <Copy className="h-4 w-4" />
             )}
         </button>
     );
 };
 
-interface MobileCopyButtonProps {
-    isDarkMode: boolean;
-    code: string;
-}
-
-const MobileCopyButton = ({ isDarkMode, code }: MobileCopyButtonProps) => {
-    const [isCopied, setIsCopied] = React.useState(false);
-
-    const handleCopy = async (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation();
-        try {
-            await navigator.clipboard.writeText(code);
-            setIsCopied(true);
-            setTimeout(() => setIsCopied(false), 2000);
-        } catch (err) {
-            console.error('Failed to copy:', err);
-        }
-    };
-
-    return (
-        <button
-            onClick={handleCopy}
-            className={`
-        md:hidden flex items-center gap-2
-        absolute right-4 top-4
-        rounded-md px-2 py-1 text-sm
-        transition-all duration-200
-        ${isDarkMode
-                    ? 'bg-gray-700 text-gray-300'
-                    : 'bg-gray-200 text-gray-600'}
-      `}
-            aria-label="Copy code"
-        >
-            {isCopied ? (
-                <>
-                    <Check className="h-4 w-4" />
-                    <span>Copied!</span>
-                </>
-            ) : (
-                <>
-                    <Copy className="h-4 w-4" />
-                    <span>Copy</span>
-                </>
-            )}
-        </button>
-    );
-};
-
-export { CopyButton, MobileCopyButton };
+export default CopyButton;
