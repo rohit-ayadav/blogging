@@ -63,8 +63,7 @@ export const authOptions = {
                 token.image = user.image;
                 token.provider = user.provider;
                 token.id = user._id;
-                token.role = "user"
-
+                token.role = user.role;
             }
             return token;
         },
