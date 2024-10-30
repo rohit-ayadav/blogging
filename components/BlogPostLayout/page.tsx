@@ -38,7 +38,7 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({ children, post }) => {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className='flex items-center justify-between w-full'>
             <div className='flex items-center space-x-2'>
-              <Button onClick={() => router.back} variant="outline" size="icon" className="dark:bg-gray-800 dark:text-gray-200">
+              <Button onClick={() => router.back()} variant="outline" size="icon" className="dark:bg-gray-800 dark:text-gray-200">
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
