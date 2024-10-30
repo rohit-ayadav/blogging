@@ -9,37 +9,10 @@ export async function GET(request: NextRequest) {
   const SearchParams = request.nextUrl.searchParams;
   const id = SearchParams.get("email");
 
-  if (!id) {
-    return NextResponse.json(
-      {
-        message: "Email is required",
-        success: false,
-      },
-      { status: 400 }
-    );
-  }
-  try {
-    const user = await User.findOne({ email: id });
-    if (!user) {
-      return NextResponse.json(
-        {
-          message: "User not found",
-          success: false,
-        },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({ user, success: true });
-  } catch (error: any) {
-    console.error("Error fetching user:", error);
-    return NextResponse.json(
-      {
-        message: error.message || "Something went wrong",
-        success: false,
-      },
-      { status: 500 }
-    );
+  if (id) {
+    return getUserByEmail(id);
+  } else {
+    return getAllUsers();
   }
 }
 
@@ -52,7 +25,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(
       {
         message: "Email is required",
-        success: false,
+        success: false
       },
       { status: 400 }
     );
@@ -61,7 +34,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(
       {
         message: "Unauthorized",
-        success: false,
+        success: false
       },
       { status: 401 }
     );
@@ -72,7 +45,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(
       {
         message: "Username already exists",
-        success: false,
+        success: false
       },
       { status: 400 }
     );
@@ -87,7 +60,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json(
         {
           message: "User not found",
-          success: false,
+          success: false
         },
         { status: 404 }
       );
@@ -98,7 +71,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(
       {
         message: error.message || "Something went wrong",
-        success: false,
+        success: false
       },
       { status: 500 }
     );
@@ -107,12 +80,12 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   const session = await getSessionAtHome();
-  
+
   if (!session) {
     return NextResponse.json(
       {
         message: "Unauthorized",
-        success: false,
+        success: false
       },
       { status: 401 }
     );
@@ -125,7 +98,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json(
         {
           message: "User not found",
-          success: false,
+          success: false
         },
         { status: 404 }
       );
@@ -136,7 +109,58 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json(
       {
         message: error.message || "Something went wrong",
-        success: false,
+        success: false
+      },
+      { status: 500 }
+    );
+  }
+}
+
+async function getUserByEmail(email: string) {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return NextResponse.json(
+        {
+          message: "User not found",
+          success: false
+        },
+        { status: 404 }
+      );
+    }
+    return NextResponse.json({ user, success: true });
+  } catch (error: any) {
+    console.error("Error fetching user by email:", error);
+    return NextResponse.json(
+      {
+        message: error.message || "Something went wrong",
+        success: false
+      },
+      { status: 500 }
+    );
+  }
+}
+
+async function getAllUsers() {
+  try {
+    const user = await User.find();
+    if (!user) {
+      return NextResponse.json(
+        {
+          message: "User not found",
+          success: false
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ user, success: true });
+  } catch (error: any) {
+    console.error("Error fetching user:", error);
+    return NextResponse.json(
+      {
+        message: error.message || "Something went wrong",
+        success: false
       },
       { status: 500 }
     );

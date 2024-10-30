@@ -16,10 +16,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(
       {
         message: "Message sent successfully",
-        data: contact,
+        data: contact
       },
       { status: 201 }
     );
+  } catch (error: any) {
+    return NextResponse.json({ message: error.message }, { status: 400 });
+  }
+}
+
+// GET request to get all data
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  try {
+    await connectDB();
+    const contacts = await Contact.find();
+    return NextResponse.json({ data: contacts, success: true });
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 400 });
   }

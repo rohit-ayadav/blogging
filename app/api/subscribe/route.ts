@@ -69,3 +69,31 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// GET /api/subscribe
+export async function GET(request: NextRequest) {
+  const session = await getSessionAtHome();
+
+  if (!session) {
+    return NextResponse.json(
+      {
+        message: "Unauthorized",
+        success: false,
+      },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const subscribers = await Newsletter.find();
+    return NextResponse.json({ subscribers, success: true });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        message: "An error occurred while fetching subscribers",
+        success: false,
+      },
+      { status: 500 }
+    );
+  }
+}
