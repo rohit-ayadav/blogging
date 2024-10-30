@@ -35,6 +35,7 @@ export const authOptions = {
                     email: user.email,
                     name: user.name,
                     image: user.image,
+                    role: user.role,
                 };
             },
         }),
@@ -62,6 +63,7 @@ export const authOptions = {
                 token.image = user.image;
                 token.provider = user.provider;
                 token.id = user._id;
+                token.role = "user"
 
             }
             return token;
@@ -74,6 +76,7 @@ export const authOptions = {
                 session.user.image = token.image;
                 session.user.provider = token.provider;
                 session.user.id = token.id;
+                session.user.role = token.role;
             }
             return session;
         },
@@ -93,6 +96,7 @@ export const authOptions = {
                     image: profile.picture || profile.avatar_url || null,
                     provider: account.provider,
                     providerId: profile.id,
+                    role: "user",
                 };
 
                 await User.create(newUser);

@@ -370,8 +370,7 @@ export default function CreateBlog() {
                         <option value="ML">Machine Learning</option>
                         <option value="Skill Development">Skill Development</option>
                         <option value="Resume and Cover Letter Guidance">Resume and Cover Letter Guidance</option>
-                        <option value="Interview Preparation">Interview Preparation</option>
-                        
+                        <option value="Interview Preparation">Interview Preparation</option>                        
                         <option value="Others">Others</option>
                     </select>
                 </div>

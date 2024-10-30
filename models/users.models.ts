@@ -1,67 +1,73 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import { required } from "joi";
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    required: true
   },
   email: {
     type: String,
     required: true,
-    unique: true,
+    unique: true
   },
   password: {
     type: String,
     required: function (this: any) {
       return this.provider === "credentials";
-    },
+    }
   },
   image: {
-    type: String,
+    type: String
   },
   provider: {
     type: String,
     enum: ["google", "github", "credentials"],
-    default: "credentials",
+    default: "credentials"
   },
   providerId: {
-    type: String,
+    type: String
   },
 
   username: {
     type: String,
     unique: false,
-    required: false,
+    required: false
   },
   bio: {
     type: String,
-    default: "",
+    default: ""
   },
   follower: {
     type: Number,
-    default: 0,
+    default: 0
   },
   following: {
     type: Number,
-    default: 0,
+    default: 0
   },
   noOfBlogs: {
     type: Number,
-    default: 0,
+    default: 0
   },
   createdAt: {
     type: Date,
-    default: Date.now,
+    default: Date.now
   },
   updatedAt: {
     type: Date,
-    default: Date.now,
+    default: Date.now
   },
   theme: {
     type: String,
-    default: "light",
+    default: "light"
   },
+  role: {
+    type: String,
+    default: "user",
+    required: true
+  }
 });
 
 userSchema.pre("save", async function (next) {

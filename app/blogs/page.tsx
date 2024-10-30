@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect } from 'react';
 import { Moon, Sun, Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ interface BlogPostType {
     views?: number;
     likes?: number;
     bio?: string;
+    category: string;
 }
 
 interface UserType {
@@ -35,6 +37,19 @@ interface UserType {
     theme: string;
 }
 
+const CATEGORIES = [
+    { value: "all", label: "All Categories" },
+    { value: "DSA", label: "DSA" },
+    { value: "Job Posting", label: "Job Posting" },
+    { value: "WebDev", label: "Web Development" },
+    { value: "AI", label: "Artificial Intelligence" },
+    { value: "ML", label: "Machine Learning" },
+    { value: "Skill Development", label: "Skill Development" },
+    { value: "Resume and Cover Letter Guidance", label: "Resume & Cover Letter" },
+    { value: "Interview Preparation", label: "Interview Prep" },
+    { value: "Others", label: "Others" }
+];
+
 const BlogCollection = () => {
     const [posts, setPosts] = useState<BlogPostType[]>([]);
     const [filteredPosts, setFilteredPosts] = useState<BlogPostType[]>([]);
@@ -43,13 +58,13 @@ const BlogCollection = () => {
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('newest');
+    const [category, setCategory] = useState('all');
     const [totalLikes, setTotalLikes] = useState(0);
     const [totalViews, setTotalViews] = useState(0);
 
     const { isDarkMode, toggleDarkMode } = useTheme();
 
     useEffect(() => {
-
         document.body.classList.toggle('dark', isDarkMode);
     }, [isDarkMode]);
 
@@ -96,13 +111,22 @@ const BlogCollection = () => {
     }, []);
 
     useEffect(() => {
-        const filtered = posts.filter(post =>
+        let filtered = posts;
+
+        // Apply category filter
+        if (category !== 'all') {
+            filtered = filtered.filter(post => post.category === category);
+        }
+
+        // Apply search filter
+        filtered = filtered.filter(post =>
             post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
             post.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
         );
 
-        const sorted = filtered.sort((a, b) => {
+        // Apply sorting
+        const sorted = [...filtered].sort((a, b) => {
             if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
             if (sortBy === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
             if (sortBy === 'mostViews') return (b.views || 0) - (a.views || 0);
@@ -111,10 +135,7 @@ const BlogCollection = () => {
         });
 
         setFilteredPosts(sorted);
-    }, [posts, searchTerm, sortBy]);
-
-    const copyMessage = "${post.title}\n${post.content.replace(/<[^>]*>?/gm, '').substring(0, 100)}\n\nRead more at: ${window.location.href}";
-
+    }, [posts, searchTerm, sortBy, category]);
 
     if (error) {
         return (
@@ -146,8 +167,8 @@ const BlogCollection = () => {
                     </Button>
                 </div>
 
-                <div className="mb-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div className="flex items-center w-full sm:w-auto">
+                <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="flex items-center w-full">
                         <Input
                             type="text"
                             placeholder="Search posts..."
@@ -159,24 +180,44 @@ const BlogCollection = () => {
                             <Search className="h-4 w-4" />
                         </Button>
                     </div>
-                    <div className="flex items-center w-full sm:w-auto">
-                        <Select value={sortBy} onValueChange={setSortBy}>
-                            <SelectTrigger className="w-[180px] bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700">
-                                <SelectValue placeholder="Sort by" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700">
-                                <SelectItem value="newest">Newest</SelectItem>
-                                <SelectItem value="oldest">Oldest</SelectItem>
-                                <SelectItem value="mostViews">Most Views</SelectItem>
-                                <SelectItem value="mostLikes">Most Likes</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <Button size="icon" className="ml-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700">
-                            <Filter className="h-4 w-4" />
-                        </Button>
-                    </div>
+
+                    <Select value={category} onValueChange={setCategory}>
+                        <SelectTrigger className="w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700">
+                            <SelectValue placeholder="Select Category" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700">
+                            {CATEGORIES.map((cat) => (
+                                <SelectItem key={cat.value} value={cat.value}>
+                                    {cat.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                        <SelectTrigger className="w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700">
+                            <SelectValue placeholder="Sort by" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700">
+                            <SelectItem value="newest">Newest</SelectItem>
+                            <SelectItem value="oldest">Oldest</SelectItem>
+                            <SelectItem value="mostViews">Most Views</SelectItem>
+                            <SelectItem value="mostLikes">Most Likes</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
-                <DashboardGrid posts={posts.map(post => ({ ...post, views: post.views || 0, likes: post.likes || 0 }))} totalViews={totalViews} totalLikes={totalLikes} users={users} />
+
+                <DashboardGrid
+                    posts={posts.map(post => ({
+                        ...post,
+                        views: post.views || 0,
+                        likes: post.likes || 0
+                    }))}
+                    totalViews={totalViews}
+                    totalLikes={totalLikes}
+                    users={users}
+                    loading={loading}
+                />
             </div>
 
             <BlogPostGrid filteredPosts={filteredPosts} users={users} loading={loading} />

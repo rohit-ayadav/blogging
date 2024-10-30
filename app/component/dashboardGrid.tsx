@@ -9,22 +9,32 @@ interface BlogPostType {
     views: number;
     likes: number;
 }
-
 interface DashboardGridProps {
     posts: BlogPostType[];
     totalViews: number;
     totalLikes: number;
     users: { [key: string]: any };
+    loading: boolean;
 }
 
-const DashboardGrid: React.FC<DashboardGridProps> = ({ posts, totalViews, totalLikes, users }) => {
+const DashboardGrid: React.FC<DashboardGridProps> = ({ posts, totalViews, totalLikes, users, loading }) => {
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 p-4">
-            <StatsCard title="Total Posts" value={posts.length} icon="📚" />
-            <StatsCard title="Total Views" value={totalViews} icon="👀" />
-            <StatsCard title="Total Likes" value={totalLikes} icon="❤️" />
-            <StatsCard title="Active Writers" value={Object.keys(users).length} icon="✍️" />
-        </div>
+        <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 p-4">
+                {loading
+                    ? Array(4)
+                        .fill(null)
+                        .map((_, index) => <SkeletonStatsCard key={index} />)
+                    : (
+                        <>
+                            <StatsCard title="Total Posts" value={posts.length} icon="📚" />
+                            <StatsCard title="Total Views" value={totalViews} icon="👀" />
+                            <StatsCard title="Total Likes" value={totalLikes} icon="❤️" />
+                            <StatsCard title="Active Writers" value={Object.keys(users).length} icon="✍️" />
+                        </>
+                    )}
+            </div>
+        </>
     );
 };
 
@@ -46,6 +56,17 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon }) => (
             <p className="text-3xl sm:text-4xl font-bold text-blue-600 dark:text-blue-400">
                 <CountUp end={value} duration={2} />
             </p>
+        </CardContent>
+    </Card>
+);
+
+const SkeletonStatsCard = () => (
+    <Card className="flex flex-col justify-between h-full animate-pulse">
+        <CardHeader className="pb-2">
+            <div className="h-6 w-3/4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+        </CardHeader>
+        <CardContent>
+            <div className="h-12 w-full bg-gray-200 dark:bg-gray-700 rounded"></div>
         </CardContent>
     </Card>
 );
