@@ -14,6 +14,7 @@ import { useInView } from 'react-intersection-observer';
 import { ErrorBoundary } from 'react-error-boundary';
 import { set } from 'mongoose';
 import ContactFormPage from './ContactFormPage';
+import NewsLetterPage from './NewsLetterPage';
 
 const PostManagement = lazy(() => import('./PostManagement'));
 const CategoryOverview = lazy(() => import('./CategoryOverview'));
@@ -147,6 +148,7 @@ const OptimizedAdminDashboard = () => {
     const [contactFormStats, setContactFormStats] = useState({ total: 0, unresolved: 0 });
     const [isSuperAdmin] = useState(true);
     const [contactUsDataPage, setcontactUsDataPage] = useState([]);
+    const [newsLetterDataPage, setNewsLetterDataPage] = useState([]);
 
     const fetchData = useCallback(async () => {
         try {
@@ -207,6 +209,9 @@ const OptimizedAdminDashboard = () => {
             });
             setcontactUsDataPage(contactUsData.data);
             console.log("contactUsDataPage" + contactUsDataPage);
+            setNewsLetterDataPage(subscriberData.subscribers);
+            console.log("newsLetterDataPage" + newsLetterDataPage);
+
         } catch (error) {
             console.error('Error fetching additional data:', error);
             throw new Error('Failed to fetch data');
@@ -352,7 +357,7 @@ const OptimizedAdminDashboard = () => {
 
             <ErrorBoundary FallbackComponent={ErrorFallback}>
                 <Tabs defaultValue="overview" className="space-y-4">
-                    <TabsList>
+                    <TabsList className="flex flex-wrap gap-2">
                         <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="posts">Posts</TabsTrigger>
                         <TabsTrigger value="categories">Categories</TabsTrigger>
@@ -360,7 +365,6 @@ const OptimizedAdminDashboard = () => {
                         <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
                         <TabsTrigger value="contact">Contact Form</TabsTrigger>
                         {isSuperAdmin && <TabsTrigger value="settings">Settings</TabsTrigger>}
-
                     </TabsList>
 
                     <TabsContent value="overview" className="space-y-4">
@@ -447,26 +451,7 @@ const OptimizedAdminDashboard = () => {
                     )}
 
                     <TabsContent value="newsletter">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Newsletter</CardTitle>
-                                <CardDescription>Track newsletter subscribers and open rates</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <StatCard
-                                        title="Total Subscribers"
-                                        value={newsletterStats.total}
-                                        icon={Users}
-                                    />
-                                    <StatCard
-                                        title="Open Rate"
-                                        value={`${newsletterStats.openRate}%`}
-                                        icon={Mail}
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <NewsLetterPage subscribers={newsLetterDataPage} />
                     </TabsContent>
 
                     <TabsContent value="contact">
