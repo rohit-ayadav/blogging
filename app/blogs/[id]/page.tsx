@@ -13,11 +13,12 @@ const BlogPostClientContent = dynamic(
 async function getPostData(id: string) {
     try {
         const res = await fetch(`https://blogging-one-omega.vercel.app/api/blog/${id}`);
+        // const res = await fetch(`http://localhost:3000/api/blog/${id}`);
         const postData = await res.json();
-        if(!postData) {
+        if (!postData) {
             throw new Error('Post not found');
         }
-        if(!res.ok) {
+        if (!res.ok) {
             throw new Error(postData.message || 'Failed to fetch post data');
         }
 
