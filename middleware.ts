@@ -52,7 +52,7 @@ export const config = {
     "/create",
     "/profile",
     "/dashboard/:path*",
-    "/api/blog/:path*",
+    // "/api/blog/:path*",
     "/edit/:path*",
     "/about",
     "/contact",

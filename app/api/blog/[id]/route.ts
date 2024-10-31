@@ -36,7 +36,11 @@ export async function GET(request: NextRequest) {
   blog.views = (blog.views || 0) + 1;
   await blog.save();
 
-  return NextResponse.json({ data: blog, success: true });
+  return NextResponse.json({
+    message: "Blog found",
+    data: blog,
+    success: true
+  });
 }
 
 export async function PUT(request: NextRequest) {
@@ -101,9 +105,7 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function PATCH(
-  request: NextRequest
-): Promise<NextResponse | undefined> {
+export async function PATCH(request: NextRequest) {
   await connectDB();
   // This api will be used to update the category of a blog
 
