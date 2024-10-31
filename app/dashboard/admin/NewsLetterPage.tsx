@@ -46,7 +46,13 @@ export default function NewsletterAdminPage({ subscribers }: NewsletterAdminPage
             growth[month]++;
         });
 
-        return Object.entries(growth).map(([month, subscribers]) => ({ month, subscribers }));
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const growthArray = months.map(month => ({
+            month,
+            subscribers: growth[month] || 0
+        }));
+
+        return growthArray;
     };
 
     // Usage in useEffect
@@ -127,7 +133,7 @@ export default function NewsletterAdminPage({ subscribers }: NewsletterAdminPage
 
                 <TabsContent value="analytics" className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                        <Card className="col-span-4">
+                        <Card className="col-span-7 lg:col-span-4">
                             <CardHeader>
                                 <CardTitle>Subscriber Growth</CardTitle>
                             </CardHeader>
@@ -152,7 +158,7 @@ export default function NewsletterAdminPage({ subscribers }: NewsletterAdminPage
                                 </ChartContainer>
                             </CardContent>
                         </Card>
-                        <Card className="col-span-3">
+                        <Card className="col-span-7 lg:col-span-3">
                             <CardHeader>
                                 <CardTitle>Engagement Rate</CardTitle>
                             </CardHeader>

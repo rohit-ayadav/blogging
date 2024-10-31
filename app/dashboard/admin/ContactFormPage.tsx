@@ -184,7 +184,7 @@ export default function ContactFormPage({ data: initialData }: ContactFormPagePr
             <div className="bg-white shadow-md rounded-lg overflow-hidden">
                 <Table>
                     <TableHeader>
-                        <TableRow>
+                        <TableRow className='bg-gray-100'>
                             <TableHead className="w-[50px]">
                                 <Checkbox
                                     checked={paginatedData.length > 0 && selectedMessages.length === paginatedData.length}

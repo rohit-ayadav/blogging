@@ -357,7 +357,7 @@ const OptimizedAdminDashboard = () => {
 
             <ErrorBoundary FallbackComponent={ErrorFallback}>
                 <Tabs defaultValue="overview" className="space-y-4">
-                    <TabsList className="flex flex-wrap gap-2">
+                    <TabsList className="flex flex-wrap gap-2 mb-4">
                         <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="posts">Posts</TabsTrigger>
                         <TabsTrigger value="categories">Categories</TabsTrigger>
@@ -436,9 +436,7 @@ const OptimizedAdminDashboard = () => {
 
                     <TabsContent value="users">
                         <Suspense fallback={<div className="flex justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-                            <UserManagement
-
-                            />
+                            <UserManagement />
                         </Suspense>
                     </TabsContent>
 
