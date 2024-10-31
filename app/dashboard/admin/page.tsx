@@ -166,7 +166,7 @@ const OptimizedAdminDashboard = () => {
 
     useEffect(() => {
         fetchData();
-    }, [fetchData]);
+    }, []);
 
     const fetchPosts = async () => {
         try {
@@ -193,8 +193,6 @@ const OptimizedAdminDashboard = () => {
                 subscribersResponse.json(),
                 contactResponse.json()
             ]);
-            setcontactUsDataPage(contactUsData.data);
-
             interface User {
                 createdAt: string;
             }
@@ -207,6 +205,8 @@ const OptimizedAdminDashboard = () => {
                 total: contactUsData.data.length,
                 unresolved: contactUsData.data.filter((c: { resolved: boolean }) => !c.resolved).length
             });
+            setcontactUsDataPage(contactUsData.data);
+            console.log("contactUsDataPage" + contactUsDataPage);
         } catch (error) {
             console.error('Error fetching additional data:', error);
             throw new Error('Failed to fetch data');
