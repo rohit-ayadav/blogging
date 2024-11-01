@@ -77,6 +77,16 @@ const getCategoryColor = (category: string): { bg: string; text: string; border:
             text: 'text-pink-800 dark:text-pink-200',
             border: 'border-pink-200 dark:border-pink-800'
         },
+        "Tech-news": {
+            bg: 'bg-cyan-100 dark:bg-cyan-900',
+            text: 'text-cyan-800 dark:text-cyan-200',
+            border: 'border-cyan-200 dark:border-cyan-800'
+        },
+        Internship: {
+            bg: 'bg-teal-100 dark:bg-teal-900',
+            text: 'text-teal-800 dark:text-teal-200',
+            border: 'border-teal-200 dark:border-teal-800'
+        },
         Others: {
             bg: 'bg-gray-100 dark:bg-gray-800',
             text: 'text-gray-800 dark:text-gray-200',
