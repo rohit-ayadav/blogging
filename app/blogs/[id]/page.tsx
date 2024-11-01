@@ -3,40 +3,90 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import BlogPostLayout from '../../../components/BlogPostLayout/page';
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 
+// Error message components
+const ErrorMessage = ({ message }: { message: string }) => (
+    <div className="min-h-screen flex items-center justify-center">
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 max-w-2xl w-full">
+            <div className="flex">
+                <div>
+                    <p className="text-red-700">Error</p>
+                    <p className="text-red-700 mt-1">{message}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+);
 
 const BlogPostClientContent = dynamic(
     () => import('../../../components/BlogPostContent/page'),
     { ssr: false }
 );
 
-async function getPostData(id: string) {
+type ApiResponse = {
+    success: boolean;
+    data?: any;
+    error?: string;
+    statusCode?: number;
+};
+
+async function getPostData(id: string): Promise<ApiResponse> {
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+    const headersList = headers();
+    const host = headersList.get('host') || 'localhost:3000';
+    const apiUrl = `${protocol}://${host}/api/blog/${id}`;
+
     try {
-        const res = await fetch(`https://blogging-one-omega.vercel.app/api/blog/${id}`);
-        // const res = await fetch(`http://localhost:3000/api/blog/${id}`);
-        const postData = await res.json();
-        if (!postData) {
-            throw new Error('Post not found');
-        }
+        const res = await fetch(apiUrl, {
+            cache: 'no-store',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const data = await res.json();
+
         if (!res.ok) {
-            throw new Error(postData.message || 'Failed to fetch post data');
+            return {
+                success: false,
+                error: data.message || 'Failed to fetch blog post',
+                statusCode: res.status
+            };
         }
 
-        return postData.data;
-    }
-    catch (error) {
-        // console.error('Error fetching post data:', error);
-        throw new Error('Error fetching post data' + error);
+        return {
+            success: true,
+            data: data.data,
+            statusCode: res.status
+        };
+    } catch (error) {
+        console.error('Error fetching post data:', error);
+        return {
+            success: false,
+            // error: 'An unexpected error occurred while fetching the blog post',
+            error: (error as Error).message,
+            statusCode: 500
+        };
     }
 }
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-    const postData = await getPostData(params.id);
+    const response = await getPostData(params.id);
 
+    if (!response.success || !response.data) {
+        return {
+            title: 'Error | Blog Post',
+            description: 'Unable to load blog post'
+        };
+    }
+
+    const postData = response.data;
     const title = postData?.title || 'Next.js Blog Post';
     const thumbnailUrl = postData?.thumbnail || '/default-thumbnail.png';
-    // Remove HTML tags from description and traun
     const description = postData?.content.replace(/<[^>]*>?/gm, '').substring(0, 200);
+
     return {
         title: title,
         description: description,
@@ -53,17 +103,30 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
             images: [thumbnailUrl],
         },
         keywords: postData?.tags?.join(', '),
-    }
+    };
 }
 
 export default async function IndividualBlogPost({ params }: { params: { id: string } }) {
-    const id = params.id;
-    const initialData = await getPostData(id);
+    const response = await getPostData(params.id);
 
+    // Handle different error scenarios
+    if (!response.success) {
+        switch (response.statusCode) {
+            case 404:
+                notFound(); // This will trigger the not-found.tsx page
+            case 403:
+                return <ErrorMessage message="You don't have permission to view this blog post" />;
+            case 401:
+                return <ErrorMessage message="Please login to view this blog post" />;
+            default:
+                return <ErrorMessage message={response.error || 'Failed to load blog post'} />;
+        }
+    }
+
+    // If we have data, render the blog post
     return (
-        <BlogPostLayout post={initialData}>
-            <BlogPostClientContent initialData={initialData} id={id} />
+        <BlogPostLayout post={response.data}>
+            <BlogPostClientContent initialData={response.data} id={params.id} />
         </BlogPostLayout>
     );
-};
-
+}

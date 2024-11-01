@@ -22,6 +22,16 @@ export async function GET(request: NextRequest) {
     const blogs = await Blog.find({ createdBy: authorId });
     return NextResponse.json({ data: blogs, success: true });
   }
+  // if not valid id return 400
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    return NextResponse.json(
+      {
+        message: "Invalid Blog ID",
+        success: false
+      },
+      { status: 400 }
+    );
+  }
   const blog = await Blog.findById(id);
   if (!blog) {
     return NextResponse.json(
