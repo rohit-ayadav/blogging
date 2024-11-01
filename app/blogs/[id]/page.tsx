@@ -113,7 +113,7 @@ export default async function IndividualBlogPost({ params }: { params: { id: str
     if (!response.success) {
         switch (response.statusCode) {
             case 404:
-                notFound(); // This will trigger the not-found.tsx page
+                notFound();
             case 403:
                 return <ErrorMessage message="You don't have permission to view this blog post" />;
             case 401:
@@ -123,7 +123,7 @@ export default async function IndividualBlogPost({ params }: { params: { id: str
         }
     }
 
-    // If we have data, render the blog post
+
     return (
         <BlogPostLayout post={response.data}>
             <BlogPostClientContent initialData={response.data} id={params.id} />

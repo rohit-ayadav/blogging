@@ -15,6 +15,9 @@ const CATEGORIES = [
     { value: "Skill Development", label: "Skill Development" },
     { value: "Resume and Cover Letter Guidance", label: "Resume & Cover Letter" },
     { value: "Interview Preparation", label: "Interview Prep" },
+    { value: "Tech-news", label: "Tech News" },
+    { value: "Internship", label: "Internship" },
+    
     { value: "Others", label: "Others" }
 ]
 
