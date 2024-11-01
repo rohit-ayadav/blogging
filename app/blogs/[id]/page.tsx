@@ -5,6 +5,7 @@ import BlogPostLayout from '../../../components/BlogPostLayout/page';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
+import toast from 'react-hot-toast';
 
 // Error message components
 const ErrorMessage = ({ message }: { message: string }) => (
@@ -86,7 +87,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     const title = postData?.title || 'Next.js Blog Post';
     const thumbnailUrl = postData?.thumbnail || '/default-thumbnail.png';
     const description = postData?.content.replace(/<[^>]*>?/gm, '').substring(0, 200);
-
+        
     return {
         title: title,
         description: description,
@@ -109,7 +110,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export default async function IndividualBlogPost({ params }: { params: { id: string } }) {
     const response = await getPostData(params.id);
 
-    // Handle different error scenarios
+    
     if (!response.success) {
         switch (response.statusCode) {
             case 404:

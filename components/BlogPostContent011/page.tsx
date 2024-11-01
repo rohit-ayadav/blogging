@@ -34,6 +34,7 @@ export default function BlogPostContent({ post }: BlogPostContentProps) {
       'img', 'span', 'br', 'div', 'hr',
       'table', 'thead', 'tbody', 'tr', 'th', 'td',
       'sup', 'sub', 'details', 'summary'
+
     ]
   };
 
@@ -101,7 +102,9 @@ export default function BlogPostContent({ post }: BlogPostContentProps) {
   });
 
 
-  const sanitizedContent = DOMPurify.sanitize(post.content, sanitizeConfig);
+  // const sanitizedContent = DOMPurify.sanitize(post.content, sanitizeConfig);
+  const sanitizedContent = post.content;
+
 
   const proseStyles = {
     base: `

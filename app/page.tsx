@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import CountUp from 'react-countup';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
+import { set } from 'mongoose';
 
 
 interface Post {
@@ -42,27 +43,41 @@ interface Total {
   users: number;
 }
 
-
-const useStats = () => {
-  const [total, setTotal] = useState<Total | null>(null);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      const response = await fetch('/api/stats');
-      const data = await response.json();
-      setTotal(data.total);
-    };
-    fetchStats();
-  }, []);
-
-  return total;
-};
-
 const useBlogData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [users, setUsers] = useState({});
+  const [totalLikes, setTotalLikes] = useState(0);
+  const [totalViews, setTotalViews] = useState(0);
+  const [totalBlogs, setTotalBlogs] = useState(0);
+  const [totalUsers, setTotalUsers] = useState(0);
+
+
+
+  useEffect(() => {
+    const fetchStats = async () => {
+
+      try {
+        const response = await fetch('/api/stats');
+        if (!response.ok) {
+          throw new Error(`${response.status} - ${response.statusText}`);
+        }
+        const data = await response.json();
+        setTotalLikes(data.totalLikes);
+        setTotalViews(data.totalViews);
+        setTotalBlogs(data.totalBlogs);
+        setTotalUsers(parseInt(data.totalUsers + data.totalAuthors.totalBlogs));
+        // toast.success(data.totalAuthors.totalBlogs);
+
+      } catch (error: any) {
+        console.error('Error fetching stats:', error);
+        toast.error(error.message);
+      }
+    };
+    fetchStats();
+  }, []);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,7 +118,7 @@ const useBlogData = () => {
     fetchData();
   }, []);
 
-  return { loading, error, posts, users };
+  return { loading, error, posts, users, totalBlogs, totalLikes, totalViews, totalUsers };
 };
 
 interface FeatureCardProps {
@@ -136,8 +151,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, act
 const HomePage = () => {
   const { isDarkMode } = useTheme();
   const router = useRouter();
-  const total = useStats();
-  const { loading, error, posts, users } = useBlogData();
+  const { loading, error, posts, users, totalBlogs, totalUsers, totalLikes, totalViews } = useBlogData();
 
   useEffect(() => {
     document.body.classList.toggle('dark', isDarkMode);
@@ -242,25 +256,25 @@ const HomePage = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
               <p className="text-4xl font-bold text-blue-600">
-                <CountUp end={total?.blogs ?? 0} duration={2} />
+                <CountUp end={totalBlogs} duration={3} />
               </p>
               <p className="text-xl">Blogs Published</p>
             </div>
             <div>
               <p className="text-4xl font-bold text-blue-600">
-                <CountUp end={total?.likes ?? 0} duration={3} />
+                <CountUp end={totalLikes} duration={3} />
               </p>
               <p className="text-xl">Total Likes</p>
             </div>
             <div>
               <p className="text-4xl font-bold text-blue-600">
-                <CountUp end={total?.views ?? 0} duration={3} />
+                <CountUp end={totalViews} duration={3} />
               </p>
               <p className="text-xl">Total Views</p>
             </div>
             <div>
               <p className="text-4xl font-bold text-blue-600">
-                <CountUp end={total?.users ?? 0} duration={3} />
+                <CountUp end={totalUsers} duration={3} />
               </p>
               <p className="text-xl">Active Users</p>
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from 'react';
+import { toast } from 'react-toastify';
 import useBlogPost from '../../hooks/useBlogPost';
 import BlogPostHeader from '../BlogPostHeader/page';
 import BlogPostContent from '../BlogPostContent011/page';
@@ -24,6 +25,13 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({ initialDa
         document.body.classList.toggle('dark', isDarkMode);
     }, [isDarkMode]);
 
+    // useEffect(() => {
+    //     if (typeof window !== 'undefined' && navigator.clipboard && post?.content) {
+    //         navigator.clipboard.writeText(post.content);
+    //         toast.success('Content copied to clipboard');
+    //     }
+    // }, [post]);
+
     if (error) {
         return (
             <div className="flex justify-center items-center h-screen text-red-600 dark:text-red-400">
@@ -39,7 +47,6 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({ initialDa
     if (!post || !author) {
         return <LoadingSkeleton />;
     }
-
     return (
         <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
             <BlogPostHeader post={post} author={author} />
