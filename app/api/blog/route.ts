@@ -226,24 +226,75 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-export async function GET() {
-  const data = await Blog.find().sort({ createdAt: -1 });
-  if (!data) {
-    return NextResponse.json(
-      {
-        message: "No blog post found",
-        success: false,
-      },
-      { status: 404 }
-    );
-  }
+export async function GET(request: Request) {
+    try {
+        // Get URL parameters
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '9');
+        
+        // Calculate skip value for pagination
+        const skip = (page - 1) * limit;
 
-  return NextResponse.json(
-    {
-      message: "Blog posts found",
-      success: true,
-      data,
-    },
-    { status: 200 }
-  );
+        // Get total count of documents
+        const totalCount = await Blog.countDocuments();
+
+        // Fetch paginated data
+        const data = await Blog.find()
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        if (!data || data.length === 0) {
+            return NextResponse.json(
+                {
+                    message: page === 1 ? "No blog posts found" : "No more blog posts",
+                    success: false,
+                    data: [],
+                    metadata: {
+                        currentPage: page,
+                        totalPages: Math.ceil(totalCount / limit),
+                        totalPosts: totalCount,
+                        hasMore: false
+                    }
+                },
+                { status: 404 }
+            );
+        }
+
+        // Calculate pagination metadata
+        const metadata = {
+            currentPage: page,
+            totalPages: Math.ceil(totalCount / limit),
+            totalPosts: totalCount,
+            hasMore: skip + data.length < totalCount
+        };
+
+        return NextResponse.json(
+            {
+                message: "Blog posts found",
+                success: true,
+                data,
+                metadata
+            },
+            { status: 200 }
+        );
+    } catch (error) {
+        console.error('Error fetching blog posts:', error);
+        return NextResponse.json(
+            {
+                message: "Error fetching blog posts",
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error occurred'
+            },
+            { status: 500 }
+        );
+    }
+}
+
+// Optional: Add a helper function to validate pagination parameters
+function validatePaginationParams(page: number, limit: number) {
+    const validatedPage = Math.max(1, page); // Ensure page is at least 1
+    const validatedLimit = Math.min(Math.max(1, limit), 100); // Limit between 1 and 100
+    return { page: validatedPage, limit: validatedLimit };
 }

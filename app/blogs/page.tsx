@@ -9,6 +9,7 @@ import { toast, Toaster } from 'react-hot-toast';
 import DashboardGrid from '../component/dashboardGrid';
 import BlogPostGrid from '../component/BlogPostGrid';
 import { useTheme } from '@/context/ThemeContext';
+import { CATEGORIES } from '../component/BlogPostCard';
 
 interface BlogPostType {
     _id: string;
@@ -37,20 +38,6 @@ interface UserType {
     theme: string;
 }
 
-const CATEGORIES = [
-    { value: "all", label: "All Categories" },
-    { value: "DSA", label: "DSA" },
-    { value: "Job Posting", label: "Job Posting" },
-    { value: "WebDev", label: "Web Development" },
-    { value: "AI", label: "Artificial Intelligence" },
-    { value: "ML", label: "Machine Learning" },
-    { value: "Skill Development", label: "Skill Development" },
-    { value: "Resume and Cover Letter Guidance", label: "Resume & Cover Letter" },
-    { value: "Interview Preparation", label: "Interview Prep" },
-    { value: "Tech-news", label: "Tech News" },
-    { value: "Internship", label: "Internship" },
-    { value: "Others", label: "Others" }
-];
 
 const BlogCollection = () => {
     const [posts, setPosts] = useState<BlogPostType[]>([]);
@@ -63,6 +50,13 @@ const BlogCollection = () => {
     const [category, setCategory] = useState('all');
     const [totalLikes, setTotalLikes] = useState(0);
     const [totalViews, setTotalViews] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+    const [totalAuthors, setTotalAuthors] = useState(0);
+    const [totalBlogs, setTotalBlogs] = useState(0);
+    const [page, setPage] = useState(1);
+    const [loading1, setLoading1] = useState(true);
+    const [POSTS_PER_PAGE, setPOSTS_PER_PAGE] = useState(6);
+    const [totalUsers, setTotalUsers] = useState(0);
 
     const { isDarkMode, toggleDarkMode } = useTheme();
 
@@ -70,46 +64,119 @@ const BlogCollection = () => {
         document.body.classList.toggle('dark', isDarkMode);
     }, [isDarkMode]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const response = await fetch('/api/blog');
-                if (!response.ok) {
-                    throw new Error(`${response.status} - ${response.statusText}`);
+    const [fetchedUsers, setFetchedUsers] = useState<Set<string>>(new Set());
+
+    const fetchUserDetails = async (emails: string[]) => {
+        // Filter out emails we've already fetched
+        const newEmails = emails.filter(email => !fetchedUsers.has(email));
+
+        if (newEmails.length === 0) return {};
+
+        const userDetails = await Promise.all(
+            newEmails.map(async (email) => {
+                const userResponse = await fetch(`/api/user?email=${email}`);
+                if (!userResponse.ok) {
+                    throw new Error(`${userResponse.status} - ${userResponse.statusText}`);
                 }
-                const data = await response.json();
-                setPosts(data.data);
-                setFilteredPosts(data.data);
-                setTotalLikes(data.data.reduce((sum: number, post: BlogPostType) => sum + (post.likes || 0), 0));
-                setTotalViews(data.data.reduce((sum: number, post: BlogPostType) => sum + (post.views || 0), 0));
+                const userData = await userResponse.json();
+                return { email, ...userData.user };
+            })
+        );
 
-                const userEmails = data.data.map((post: BlogPostType) => post.createdBy);
-                const uniqueEmails = [...new Set(userEmails)];
-                const userDetails = await Promise.all(uniqueEmails.map(async (email) => {
-                    const userResponse = await fetch(`/api/user?email=${email}`);
-                    if (!userResponse.ok) {
-                        throw new Error(`${userResponse.status} - ${userResponse.statusText}`);
-                    }
-                    const userData = await userResponse.json();
-                    return { email, ...userData.user };
-                }));
+        // Add new emails to fetchedUsers set
+        setFetchedUsers(prev => new Set([...prev, ...newEmails]));
 
-                const userMap = userDetails.reduce((acc, user) => {
-                    acc[user.email] = user;
-                    return acc;
-                }, {});
-                setUsers(userMap);
-            } catch (error: any) {
-                console.error('Error fetching blog data:', error);
-                setError(error.message);
-                toast.error(error.message);
-            } finally {
-                setLoading(false);
+        return userDetails.reduce((acc, user) => {
+            acc[user.email] = user;
+            return acc;
+        }, {});
+    };
+
+    const fetchPosts = async (pageNumber: number) => {
+        try {
+            setError(null);
+            setLoading(pageNumber === 1);
+
+            const response = await fetch(`/api/blog?page=${pageNumber}&limit=${POSTS_PER_PAGE}`);
+            if (!response.ok) {
+                throw new Error(`${response.status} - ${response.statusText}`);
             }
-        };
-        fetchData();
+
+            const data = await response.json();
+            const newPosts = data.data;
+            setPOSTS_PER_PAGE(9);
+
+            // Update hasMore based on whether we received a full page of posts
+            setHasMore(newPosts.length === POSTS_PER_PAGE);
+
+            // Get user details for new posts
+            const userEmails = newPosts.map((post: BlogPostType) => post.createdBy);
+            const newUserDetails = await fetchUserDetails(userEmails);
+
+            // Update users state with new user details
+            setUsers(prev => ({ ...prev, ...newUserDetails }));
+
+            // Update posts
+            if (pageNumber === 1) {
+                setPosts(newPosts);
+                setFilteredPosts(newPosts);
+                // Reset totals for first page
+                // setTotalLikes(newPosts.reduce((sum: number, post: BlogPostType) => sum + (post.likes || 0), 0));
+                // setTotalViews(newPosts.reduce((sum: number, post: BlogPostType) => sum + (post.views || 0), 0));
+            } else {
+                setPosts(prev => {
+                    const updatedPosts = [...prev, ...newPosts];
+                    // Update totals with new posts
+                    // setTotalLikes(updatedPosts.reduce((sum: number, post: BlogPostType) => sum + (post.likes || 0), 0));
+                    // setTotalViews(updatedPosts.reduce((sum: number, post: BlogPostType) => sum + (post.views || 0), 0));
+                    return updatedPosts;
+                });
+                setFilteredPosts(prev => [...prev, ...newPosts]);
+            }
+
+        } catch (error: any) {
+            console.error('Error fetching blog data:', error);
+            setError(error.message);
+            toast.error(error.message);
+            setHasMore(false);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchStats = async () => {
+        try {
+            setLoading1(true);
+            setError(null);
+            const response = await fetch('/api/stats');
+            if (!response.ok) {
+                throw new Error(`${response.status} - ${response.statusText}`);
+            }
+            const data = await response.json();
+            setTotalLikes(data.totalLikes);
+            setTotalViews(data.totalViews);
+            setTotalBlogs(data.totalBlogs);
+            setTotalUsers(data.totalUsers);
+            
+        } catch (error: any) {
+            console.error('Error fetching stats:', error);
+            setError(error.message);
+            toast.error(error.message);
+        } finally {
+            setLoading1(false);
+        }
+    };
+
+    const loadMore = async () => {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        await fetchPosts(nextPage);
+    };
+
+    // Initial load
+    useEffect(() => {
+        fetchPosts(1);
+        fetchStats();
     }, []);
 
     useEffect(() => {
@@ -152,6 +219,10 @@ const BlogCollection = () => {
             </div>
         );
     }
+
+    const handleLoadMore = async () => {
+        await loadMore();
+    };
 
     return (
         <div className={`min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 ${isDarkMode ? 'dark' : ''}`}>
@@ -210,19 +281,21 @@ const BlogCollection = () => {
                 </div>
 
                 <DashboardGrid
-                    posts={posts.map(post => ({
-                        ...post,
-                        views: post.views || 0,
-                        likes: post.likes || 0
-                    }))}
-                    totalViews={totalViews}
+                    totalBlogs={totalBlogs}
                     totalLikes={totalLikes}
-                    users={users}
-                    loading={loading}
+                    totalViews={totalViews}
+                    totalUsers={totalUsers}
+                    loading={loading1}
                 />
             </div>
 
-            <BlogPostGrid filteredPosts={filteredPosts} users={users} loading={loading} />
+            <BlogPostGrid
+                loading={loading}
+                filteredPosts={posts}
+                users={users}
+                hasMore={hasMore}
+                onLoadMore={handleLoadMore}
+            />
         </div>
     );
 };

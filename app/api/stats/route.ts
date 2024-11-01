@@ -7,19 +7,43 @@ await connectDB();
 
 export async function GET() {
   try {
-    const users = await User.find();
-    const blogs = await Blog.find();
-    const total = {
-      blogs: blogs.length,
-      likes: blogs.reduce((acc, blog) => acc + blog.likes, 0),
-      views: blogs.reduce((acc, blog) => acc + blog.views, 0),
-      users: users.length,
-    };
+    /*
+    Total number of blogs, likes, views, user, and author (which user has no of blogs)*/
+    const totalBlogs = await Blog.countDocuments();
+    const totalLikes = await Blog.aggregate([
+      { $group: { _id: null, totalLikes: { $sum: "$likes" } } }
+    ]);
+    const totalViews = await Blog.aggregate([
+      { $group: { _id: null, totalViews: { $sum: "$views" } } }
+    ]);
+    const totalUsers = await User.countDocuments();
+    const totalAuthors = await Blog.aggregate([
+      {
+        $group: {
+          _id: "$createdBy",
+          totalBlogs: { $sum: 1 }
+        }
+      },
+      { $sort: { totalBlogs: -1 } },
+      { $limit: 1 }
+    ]);
+
+
     return NextResponse.json({
-      message: "Stats fetched successfully",
-      total,
+      totalBlogs,
+      totalLikes: totalLikes[0]?.totalLikes || 0,
+      totalViews: totalViews[0]?.totalViews || 0,
+      totalUsers,
+      totalAuthors: totalAuthors[0] || { _id: "", totalBlogs: 0 },
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        message: (error as Error).message,
+        success: false,
+        error
+      },
+      { status: 500 }
+    );
   }
 }
