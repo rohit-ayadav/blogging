@@ -5,6 +5,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogTrigger } from '@/component
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/context/ThemeContext';
 import { useRouter } from 'next/navigation';
+import { set } from 'mongoose';
 
 const Footer = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -71,9 +72,13 @@ const Footer = () => {
             <Button onClick={handleCreatePost} variant="outline" className={`w-full ${isDarkMode ? 'text-white border-white hover:bg-gray-700' : 'text-blue-500 border-blue-500 hover:bg-blue-50'}`}>
               Draft Quick Note
             </Button>
-            <Button onClick={handleCreatePost} variant="outline" className={`w-full ${isDarkMode ? 'text-white border-white hover:bg-gray-700' : 'text-blue-500 border-blue-500 hover:bg-blue-50'}`}>
-              Upload Media
+            <Button onClick={() => {
+              router.push('/dashboard/admin');
+              setIsModalOpen(false);
+            }} variant="outline" className={`w-full ${isDarkMode ? 'text-white border-white hover:bg-gray-700' : 'text-blue-500 border-blue-500 hover:bg-blue-50'}`}>
+              Open Admin Dashboard
             </Button>
+
           </div>
         </AlertDialogContent>
       </AlertDialog>

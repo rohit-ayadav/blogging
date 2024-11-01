@@ -92,7 +92,6 @@ const getCategoryColor = (category: string): { bg: string; text: string; border:
             text: 'text-gray-800 dark:text-gray-200',
             border: 'border-gray-200 dark:border-gray-700'
         }
-
     };
     return colors[category] || {
         bg: 'bg-gray-100 dark:bg-gray-800',
