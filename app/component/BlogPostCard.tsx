@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { FaClipboard } from 'react-icons/fa';
+import { FaCalendarAlt, FaClipboard, FaEye, FaThumbsUp, FaUserCircle } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar, Eye, ImageIcon, ThumbsUp, User } from 'lucide-react';
 import { ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardTitle, CardHeader } from '@/components/ui/card';
@@ -99,106 +99,176 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
     const categoryColors = getCategoryColor(post.category);
 
     return (
-        <Card className="group relative overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 transform hover:-translate-y-1">
-            <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+        <Card className="group relative overflow-hidden transition-all duration-300 flex flex-col h-full 
+            bg-white dark:bg-gray-900 
+            border-2 border-gray-200 dark:border-gray-700 
+            hover:shadow-2xl hover:border-opacity-50 
+            rounded-xl 
+            transform hover:-translate-y-2 hover:scale-[1.02]">
+            {/* Thumbnail Section with Improved Overlay */}
+            <div className="relative h-56 lg:h-64 overflow-hidden rounded-t-xl">
                 {post.thumbnail ? (
                     <img
                         src={post.thumbnail}
                         alt={post.title}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 
+                            group-hover:scale-110 
+                            brightness-90 group-hover:brightness-75"
                         onError={(e) => {
                             (e.target as HTMLImageElement).onerror = null;
                             (e.target as HTMLImageElement).src = '/default-thumbnail.png';
                         }}
                     />
                 ) : (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-700">
-                        <ImageIcon className="h-16 w-16 text-gray-400 dark:text-gray-500" />
+                    <div className="absolute inset-0 flex items-center justify-center 
+                        bg-gradient-to-br from-gray-100 to-gray-200 
+                        dark:from-gray-800 dark:to-gray-700">
+                        <ImageIcon className="h-16 w-16 text-gray-400 dark:text-gray-500 opacity-50" />
                     </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+                {/* Improved Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                
+                {/* Category Badge with Enhanced Styling */}
                 <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full border ${categoryColors.bg} ${categoryColors.text} ${categoryColors.border} text-sm font-medium transition-transform duration-300 hover:scale-105`}>
+                    <span className={`
+                        inline-flex items-center px-3 py-1 rounded-full 
+                        text-sm font-semibold tracking-wide 
+                        transition-all duration-300 
+                        hover:scale-105 hover:shadow-lg 
+                        ${categoryColors.bg} ${categoryColors.text} ${categoryColors.border}
+                        shadow-sm
+                    `}>
                         {post.category}
                     </span>
                 </div>
-                <div className="absolute bottom-4 left-4 right-4">
-                    <CardTitle className="text-white text-xl sm:text-2xl font-bold line-clamp-2 mb-2">
+                
+                {/* Title and Metadata with Improved Typography */}
+                <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <CardTitle className="
+                        text-2xl font-bold 
+                        line-clamp-2 
+                        mb-3 
+                        drop-shadow-lg 
+                        transition-all duration-300 
+                        group-hover:text-opacity-90
+                    ">
                         {post.title}
                     </CardTitle>
-                    <div className="flex items-center justify-between text-gray-200">
-                        <div className="flex items-center space-x-2 text-sm">
-                            <Calendar className="h-4 w-4" />
+                    
+                    {/* Enhanced Metadata Section */}
+                    <div className="flex items-center justify-between text-gray-100 text-sm">
+                        <div className="flex items-center space-x-2">
+                            <FaCalendarAlt className="h-4 w-4 opacity-80" />
                             <span>{new Date(post.createdAt).toLocaleDateString()}</span>
                         </div>
-                        <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-3">
                             <div className="flex items-center space-x-1">
-                                <Eye className="h-4 w-4" />
-                                <span className="text-sm font-medium">{post.views || 0}</span>
+                                <FaEye className="h-4 w-4 opacity-80" />
+                                <span className="font-medium">{post.views || 0}</span>
                             </div>
                             <div className="flex items-center space-x-1">
-                                <ThumbsUp className="h-4 w-4" />
-                                <span className="text-sm font-medium">{post.likes || 0}</span>
+                                <FaThumbsUp className="h-4 w-4 opacity-80" />
+                                <span className="font-medium">{post.likes || 0}</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <CardContent className="flex-grow pt-6">
-                <div className="flex flex-wrap gap-2 mb-4">
-                    {post.tags?.slice(0, 3).map((tag: string, index: number) => (
-                        <span
-                            key={index}
-                            className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-semibold px-2.5 py-0.5 rounded-full transition-transform duration-300 hover:scale-105"
-                        >
-                            {tag}
-                        </span>
-                    ))}
-                </div>
-                <p className="line-clamp-3 text-gray-600 dark:text-gray-300">
+
+            {/* Content Preview Section */}
+            <CardContent className="flex-grow p-6">
+                <p className="
+                    line-clamp-4 
+                    text-gray-700 dark:text-gray-300 
+                    text-base 
+                    leading-relaxed
+                ">
                     {post.content.replace(/<[^>]+>/g, '')}
                 </p>
             </CardContent>
-            <div className="mt-auto">
-                <CardFooter className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 border-t border-gray-200 dark:border-gray-700 pt-4">
-                    <div className="flex items-center space-x-3 w-full sm:w-auto">
-                        <Avatar className="ring-2 ring-offset-2 ring-gray-200 dark:ring-gray-700">
-                            {user?.image ? (
-                                // <img src={user.image} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
-                                <img src={user.image} alt={user.name} />
-                            ) : (
-                                <AvatarFallback className="bg-gray-200 dark:bg-gray-600">
-                                    <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-                                </AvatarFallback>
-                            )}
-                        </Avatar>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {user?.name || 'Unknown User'}
+
+            {/* Footer Section with Enhanced User and Action Layout */}
+            <CardFooter className="
+                flex flex-col sm:flex-row 
+                justify-between 
+                items-center 
+                p-6 pt-0 
+                space-y-4 sm:space-y-0
+            ">
+                {/* User Section */}
+                <div className="flex items-center space-x-3 w-full sm:w-auto">
+                    <Avatar className="
+                        w-10 h-10 
+                        ring-2 ring-offset-2 
+                        ring-blue-100 dark:ring-blue-900
+                    ">
+                        <AvatarImage 
+                            src={user?.image} 
+                            alt={user?.name} 
+                            className="object-cover"
+                        />
+                        <AvatarFallback>
+                            <FaUserCircle className="w-full h-full text-gray-400" />
+                        </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                            {user?.name || 'Unknown Author'}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {user?.bio?.slice(0, 30) || 'No bio available'}
                         </span>
                     </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center space-x-3 mt-4 sm:mt-0">
                     <button
                         onClick={() => {
-                            navigator.clipboard.writeText(`${post.title}\nRead here: ${window.location.origin}/blogs/${post._id}\n\n`);
-                            toast.success('Copied to clipboard!');
+                            navigator.clipboard.writeText(
+                                `${post.title}\nRead here: ${window.location.origin}/blogs/${post._id}\n\n`
+                            );
+                            toast.success('Blog link copied!', { 
+                                icon: '📋',
+                                style: {
+                                    borderRadius: '10px',
+                                    background: '#333',
+                                    color: '#fff',
+                                }
+                            });
                         }}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-transform duration-300 hover:scale-105"
+                        className="
+                            p-2 rounded-full 
+                            hover:bg-gray-100 dark:hover:bg-gray-800 
+                            transition-all duration-300 
+                            hover:scale-110
+                        "
                     >
-                        <FaClipboard className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                        <FaClipboard className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                     </button>
-                </CardFooter>
-                <CardFooter className="border-t border-gray-200 dark:border-gray-700 pt-4">
+
                     <Link href={`/blogs/${post._id}`} className="w-full">
                         <Button
                             variant="outline"
                             size="sm"
-                            className="w-full group hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600 transition-all duration-300"
+                            className="
+                                group 
+                                w-full 
+                                hover:bg-blue-500 hover:text-white 
+                                dark:hover:bg-blue-600 
+                                text-gray-800 dark:text-gray-200 
+                                border-gray-300 dark:border-gray-600 
+                                transition-all duration-300 
+                                rounded-full
+                            "
                         >
                             Read More
                             <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                         </Button>
                     </Link>
-                </CardFooter>
-            </div>
+                </div>
+            </CardFooter>
         </Card>
     );
 };
