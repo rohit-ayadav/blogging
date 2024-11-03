@@ -132,34 +132,14 @@ const BlogCollection = () => {
             const newPosts = postsData.data.filter(newPost =>
                 isInitialLoad || !state.posts.some(existingPost => existingPost._id === newPost._id)
             );
-            let updatedStats = { ...state.stats };
-            if (state.category !== 'all') {
-                updatedStats.totalBlogs = newPosts.length;
-                updatedStats.totalLikes = newPosts.reduce((acc, post) => acc + (post.likes ?? 0), 0);
-                updatedStats.totalViews = newPosts.reduce((acc, post) => acc + (post.views ?? 0), 0);
-            }
-
-            const userEmails = newPosts.map(post => post.createdBy);
-            const uniqueEmails = Array.from(new Set(userEmails));
-
-            const userDetailsPromises = uniqueEmails.map(email =>
-                fetchWithErrorHandling<{ user: UserType }>(`/api/user?email=${email}`)
-            );
-
-            const userDetails = await Promise.all(userDetailsPromises);
-            const newUsers = userDetails.reduce((acc, response) => {
-                if (response?.user) {
-                    acc[response.user.email] = response.user;
-                }
-                return acc;
-            }, {} as Record<string, UserType>);
 
             setState(prev => ({
                 ...prev,
                 posts: isInitialLoad ? newPosts : [...prev.posts, ...newPosts],
-                users: { ...prev.users, ...newUsers },
+                users: { ...prev.users },
                 loading: false,
-                stats: state.category === 'all' ? statsData : updatedStats
+                metadata: postsData.metadata, // Update metadata from response
+                stats: state.category === 'all' ? statsData : prev.stats //|| state.sortBy==='trending'
             }));
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -172,6 +152,27 @@ const BlogCollection = () => {
         }
     }, [state.page, state.category, state.sortBy, state.searchTerm, fetchWithErrorHandling]);
 
+    // Modified scroll handler
+    useEffect(() => {
+        const handleScroll = debounce(() => {
+            const scrollPosition = window.innerHeight + window.scrollY;
+            const scrollThreshold = document.documentElement.scrollHeight - 200; // Add buffer
+
+            if (
+                scrollPosition >= scrollThreshold && 
+                !state.loading && 
+                state.metadata.hasMore
+            ) {
+                setState(prev => ({ ...prev, page: prev.page + 1 }));
+            }
+        }, 100);
+
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            handleScroll.cancel();
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [state.loading, state.metadata.hasMore]);
     useEffect(() => {
         setState(prev => ({ ...prev, posts: [], page: 1 })); // Clear posts when filters change
         fetchData(true);
@@ -183,6 +184,13 @@ const BlogCollection = () => {
         setState(prev => ({ ...prev, searchTerm: value }));
         debouncedSearch(value);
     };
+
+    useEffect(() => {
+        if (state.page > 1) {
+            fetchData(false);
+        }
+    }, [state.page, fetchData]);
+
 
     const handleLoadMore = useCallback(async () => {
         if (!state.loading && state.metadata.hasMore) {
@@ -199,17 +207,6 @@ const BlogCollection = () => {
         }));
         fetchData(true);
     }, [fetchData]);
-
-    useEffect(() => {
-
-        const uniquePosts = Array.from(new Set(state.posts.map(post => post._id)));
-        if (uniquePosts.length < state.posts.length) {
-            setState(prev => ({
-                ...prev,
-                posts: state.posts.filter((post, index) => state.posts.indexOf(post) === index)
-            }));
-        }
-    }, []);
 
     const themeClasses = {
         layout: `min-h-screen transition-colors duration-300 ease-in-out
