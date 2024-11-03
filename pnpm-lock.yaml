@@ -249,6 +249,9 @@ importers:
       '@types/jsdom':
         specifier: ^21.1.7
         version: 21.1.7
+      '@types/lodash':
+        specifier: ^4.17.13
+        version: 4.17.13
       '@types/markdown-it':
         specifier: ^14.1.2
         version: 14.1.2
@@ -1410,6 +1413,9 @@ packages:
 
   '@types/linkify-it@5.0.0':
     resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==, tarball: https://registry.npmjs.org/@types/linkify-it/-/linkify-it-5.0.0.tgz}
+
+  '@types/lodash@4.17.13':
+    resolution: {integrity: sha512-lfx+dftrEZcdBPczf9d0Qv0x+j/rfNCMuC6OcfXmO8gkfeNAY88PgKUbvG56whcN23gc27yenwF6oJZXGFpYxg==, tarball: https://registry.npmjs.org/@types/lodash/-/lodash-4.17.13.tgz}
 
   '@types/markdown-it@12.2.3':
     resolution: {integrity: sha512-GKMHFfv3458yYy+v/N8gjufHO6MSZKCOXpZc5GXIWWy8uldwfmPn98vp81gZ5f9SVw8YYBctgfJ22a2d7AOMeQ==, tarball: https://registry.npmjs.org/@types/markdown-it/-/markdown-it-12.2.3.tgz}
@@ -5479,6 +5485,8 @@ snapshots:
       parse5: 7.2.0
 
   '@types/linkify-it@5.0.0': {}
+
+  '@types/lodash@4.17.13': {}
 
   '@types/markdown-it@12.2.3':
     dependencies:
