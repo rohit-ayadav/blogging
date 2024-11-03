@@ -17,6 +17,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DOMPurify from 'dompurify';
 import { useRouter } from 'next/navigation';
+import { CATEGORIES } from '../component/BlogPostCard';
 
 export default function CreateBlog() {
     const route = useRouter();
@@ -359,21 +360,16 @@ export default function CreateBlog() {
                     <label htmlFor="category" className="text-lg font-bold">Category:</label>
                     <select
                         id="category"
-                        className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
+                        value={category}
                         onChange={(e) => setCategory(e.target.value)}
+                        className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
                     >
-                        <option value="">Select a category</option>
-                        <option value="DSA">DSA</option>
-                        <option value="Job Posting">Job Posting</option>
-                        <option value="WebDev">Web Development</option>
-                        <option value="AI">Artificial Intelligence</option>
-                        <option value="ML">Machine Learning</option>
-                        <option value="Skill Development">Skill Development</option>
-                        <option value="Resume and Cover Letter Guidance">Resume and Cover Letter Guidance</option>
-                        <option value="Interview Preparation">Interview Preparation</option>  
-                        <option value="Tech-news">Tech News</option>                   
-                        <option value="Others">Others</option>
+                        <option value="">Select Category</option>
+                        {CATEGORIES.map((category, index) => (
+                            <option key={index} value={category.value}>{category.label}</option>
+                        ))}
                     </select>
+
                 </div>
                 <div className="flex justify-between mt-20">
                     <Button

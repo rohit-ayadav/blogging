@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import CountUp from 'react-countup';
+import { useTheme } from '@/context/ThemeContext';
 
 interface BlogPostType {
     _id: string;
@@ -18,24 +19,36 @@ interface DashboardGridProps {
 }
 
 const DashboardGrid: React.FC<DashboardGridProps> = ({ totalBlogs, totalViews, totalLikes, totalUsers, loading }) => {
-    return (
-    <>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 p-4">
-            {loading
-                ? Array(4)
-                    .fill(null)
-                    .map((_, index) => <SkeletonStatsCard key={index} />)
-                : (
-                    <>
-                        <StatsCard title="Total Posts" value={totalBlogs} icon="📚" />
-                        <StatsCard title="Total Views" value={totalViews} icon="👀" />
-                        <StatsCard title="Total Likes" value={totalLikes} icon="❤️" />
 
-                        <StatsCard title="Total Users" value={totalUsers} icon="👥" />
-                    </>
-                )}
-        </div>
-    </>
+    const { isDarkMode, toggleDarkMode } = useTheme();
+    useEffect(() => {
+        // Set body to dark mode if dark mode is enabled
+        if (isDarkMode) {
+            document.body.classList.add('dark');
+        }
+        if (!isDarkMode) {
+            document.body.classList.remove('dark');
+        }
+    }, [isDarkMode]);
+
+    return (
+        <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 p-4">
+                {loading
+                    ? Array(4)
+                        .fill(null)
+                        .map((_, index) => <SkeletonStatsCard key={index} />)
+                    : (
+                        <>
+                            <StatsCard title="Total Posts" value={totalBlogs} icon="📚" />
+                            <StatsCard title="Total Views" value={totalViews} icon="👀" />
+                            <StatsCard title="Total Likes" value={totalLikes} icon="❤️" />
+
+                            <StatsCard title="Total Users" value={totalUsers} icon="👥" />
+                        </>
+                    )}
+            </div>
+        </>
     );
 };
 

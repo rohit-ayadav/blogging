@@ -83,7 +83,7 @@ const useBlogData = () => {
     const fetchData = async () => {
       setError(null);
       try {
-        const response = await fetch('/api/blog');
+        const response = await fetch('/api/blog?trending');
         if (!response.ok) {
           throw new Error(`${response.status} - ${response.statusText}`);
         }
