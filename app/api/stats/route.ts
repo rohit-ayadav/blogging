@@ -8,7 +8,8 @@ await connectDB();
 export async function GET() {
   try {
     /*
-    Total number of blogs, likes, views, user, and author (which user has no of blogs)*/
+    Total number of blogs, likes, views, user, and author (which user has no of blogs)
+    */
     const totalBlogs = await Blog.countDocuments();
     const totalLikes = await Blog.aggregate([
       { $group: { _id: null, totalLikes: { $sum: "$likes" } } }

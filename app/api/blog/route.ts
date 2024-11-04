@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Blog from "../../../models/blogs.models";
 import { connectDB } from "../../../utils/db";
-import Joi, { optional } from "joi";
+import Joi from "joi";
 import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
 import User from "@/models/users.models";
