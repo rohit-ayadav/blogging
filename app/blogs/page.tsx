@@ -132,14 +132,20 @@ const BlogCollection = () => {
             const newPosts = postsData.data.filter(newPost =>
                 isInitialLoad || !state.posts.some(existingPost => existingPost._id === newPost._id)
             );
+            const newStatData = {
+                totalLikes: postsData.data.reduce((acc, post) => acc + (post.likes || 0), 0),
+                totalViews: postsData.data.reduce((acc, post) => acc + (post.views || 0), 0),
+                totalBlogs: postsData.metadata.totalPosts,
+                totalUsers: statsData.totalUsers
+            }
 
             setState(prev => ({
                 ...prev,
                 posts: isInitialLoad ? newPosts : [...prev.posts, ...newPosts],
                 users: { ...prev.users },
                 loading: false,
-                metadata: postsData.metadata, // Update metadata from response
-                stats: state.category === 'all' ? statsData : prev.stats //|| state.sortBy==='trending'
+                metadata: postsData.metadata,
+                stats: (state.category === 'all' || state.sortBy === 'trending') ? state.stats : newStatData,
             }));
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -159,8 +165,8 @@ const BlogCollection = () => {
             const scrollThreshold = document.documentElement.scrollHeight - 200; // Add buffer
 
             if (
-                scrollPosition >= scrollThreshold && 
-                !state.loading && 
+                scrollPosition >= scrollThreshold &&
+                !state.loading &&
                 state.metadata.hasMore
             ) {
                 setState(prev => ({ ...prev, page: prev.page + 1 }));
@@ -174,7 +180,7 @@ const BlogCollection = () => {
         };
     }, [state.loading, state.metadata.hasMore]);
     useEffect(() => {
-        setState(prev => ({ ...prev, posts: [], page: 1 })); // Clear posts when filters change
+        setState(prev => ({ ...prev, posts: [], page: 1 })); 
         fetchData(true);
         return () => {
             debouncedSearch.cancel();
