@@ -418,6 +418,7 @@ const BlogCollection = () => {
                     users={state.users}
                     loading={state.loading}
                 />
+                
 
                 {/* Loading State */}
                 {state.loadingMore && <LoadingState message="Loading more posts..." />}
