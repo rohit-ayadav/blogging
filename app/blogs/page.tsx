@@ -44,7 +44,18 @@ class DataCache<T> {
     clear(): void {
         this.cache.clear();
     }
+
+    clearExpired(): void {
+        const now = Date.now();
+        for (const [key, entry] of this.cache.entries()) {
+            if (now - entry.timestamp > this.timeout) {
+                this.cache.delete(key);
+            }
+        }
+    }
 }
+
+
 
 const postsCache = new DataCache<any>(5); // 5 minutes cache
 const statsCache = new DataCache<StatsType>(15); // 15 minutes cache for stats
@@ -115,6 +126,16 @@ const BlogCollection = () => {
             cacheInstance.set(url, data);
         }
         return data;
+    }, []);
+
+    // In your component, call clearExpired periodically or when the search/filter changes
+    useEffect(() => {
+        const interval = setInterval(() => {
+            postsCache.clearExpired();
+            statsCache.clearExpired();
+        }, 60 * 1000); // Clear expired entries every 1 minute
+
+        return () => clearInterval(interval);
     }, []);
 
     // Fetch stats separately with its own loading state
@@ -418,7 +439,6 @@ const BlogCollection = () => {
                     users={state.users}
                     loading={state.loading}
                 />
-                
 
                 {/* Loading State */}
                 {state.loadingMore && <LoadingState message="Loading more posts..." />}
