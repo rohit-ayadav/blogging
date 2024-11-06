@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { Moon, Sun, Search, RefreshCcw, Loader2 } from 'lucide-react';
+import { Moon, Sun, Search, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,54 +13,97 @@ import debounce from 'lodash/debounce';
 import { themeClasses } from './themeClass';
 import { BlogPostType, UserType, StatsType, EmptyState, NoMorePosts, LoadingState } from './themeClass';
 
-// Cache implementation with type safety
-interface CacheEntry<T> {
-    data: T;
-    timestamp: number;
-}
-
+// Improved cache implementation with persistent storage
 class DataCache<T> {
-    private cache = new Map<string, CacheEntry<T>>();
+    private cache: Map<string, { data: T; timestamp: number }>;
     private readonly timeout: number;
+    private readonly storageKey: string;
 
-    constructor(timeoutMinutes: number) {
+    constructor(timeoutMinutes: number, storageKey: string) {
         this.timeout = timeoutMinutes * 60 * 1000;
+        this.storageKey = storageKey;
+        this.cache = new Map();
+        this.loadFromStorage();
     }
 
-    get(key: string): T | null {
-        const entry = this.cache.get(key);
-        if (!entry) return null;
-        if (Date.now() - entry.timestamp > this.timeout) {
-            this.cache.delete(key);
-            return null;
+    private loadFromStorage(): void {
+        try {
+            const stored = localStorage.getItem(this.storageKey);
+            if (stored) {
+                const data = JSON.parse(stored);
+                this.cache = new Map(Object.entries(data));
+                this.clearExpired(); // Clean up on load
+            }
+        } catch (error) {
+            console.warn('Failed to load cache from storage:', error);
+            this.cache = new Map();
         }
-        return entry.data;
+    }
+
+    private saveToStorage(): void {
+        try {
+            const data = Object.fromEntries(this.cache);
+            localStorage.setItem(this.storageKey, JSON.stringify(data));
+        } catch (error) {
+            console.warn('Failed to save cache to storage:', error);
+        }
+    }
+
+    async get(key: string, fetchFn: () => Promise<T>): Promise<T> {
+        const entry = this.cache.get(key);
+        const now = Date.now();
+
+        // Check if cache is valid
+        if (entry && now - entry.timestamp <= this.timeout) {
+            return entry.data;
+        }
+
+        // If cache is invalid or missing, fetch new data
+        try {
+            const data = await fetchFn();
+            this.set(key, data);
+            return data;
+        } catch (error) {
+            // If fetch fails and we have expired cache, return expired data as fallback
+            if (entry) {
+                console.warn('Using expired cache as fallback');
+                return entry.data;
+            }
+            throw error;
+        }
     }
 
     set(key: string, data: T): void {
         this.cache.set(key, { data, timestamp: Date.now() });
+        this.saveToStorage();
     }
 
     clear(): void {
         this.cache.clear();
+        localStorage.removeItem(this.storageKey);
     }
 
     clearExpired(): void {
         const now = Date.now();
+        let hasChanges = false;
+
         for (const [key, entry] of this.cache.entries()) {
             if (now - entry.timestamp > this.timeout) {
                 this.cache.delete(key);
+                hasChanges = true;
             }
+        }
+
+        if (hasChanges) {
+            this.saveToStorage();
         }
     }
 }
 
-
-
-const postsCache = new DataCache<any>(5); // 5 minutes cache
-const statsCache = new DataCache<StatsType>(15); // 15 minutes cache for stats
-
-
+// Initialize caches with storage keys
+const postsCache = new DataCache<any>(5, 'blog-posts-cache');
+const statsCache = new DataCache<StatsType>(15, 'blog-stats-cache');
+const usersCache = new DataCache<Record<string, UserType>>(30, 'blog-users-cache');
 
 const BlogCollection = () => {
     const [state, setState] = useState({
@@ -86,68 +129,42 @@ const BlogCollection = () => {
             hasMore: false,
             resultsPerPage: 9
         },
-        statsLoading: true
+        statsLoading: true,
+        initialized: false
     });
 
     const abortControllerRef = useRef<AbortController | null>(null);
     const { isDarkMode, toggleDarkMode } = useTheme();
     const isInitialMount = useRef(true);
 
-    // Memoized unique posts
-    const uniquePosts = useMemo(() => {
-        const postMap = new Map();
-        state.posts.forEach(post => {
-            if (!postMap.has(post._id)) {
-                postMap.set(post._id, post);
+    // Enhanced fetch with retry logic
+    const fetchWithRetry = async (url: string, options?: RequestInit, retries = 3): Promise<Response> => {
+        for (let i = 0; i < retries; i++) {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response;
+            } catch (error) {
+                if (i === retries - 1) throw error;
+                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i)));
             }
-        });
-        return Array.from(postMap.values());
-    }, [state.posts]);
-
-    // Optimized fetch with caching
-    const cachedFetch = useCallback(async <T,>(
-        url: string,
-        options?: RequestInit,
-        cacheInstance?: DataCache<T>
-    ): Promise<T> => {
-        if (cacheInstance) {
-            const cachedData = cacheInstance.get(url);
-            if (cachedData) return cachedData;
         }
+        throw new Error('Failed after retries');
+    };
 
-        const response = await fetch(url, options);
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (cacheInstance) {
-            cacheInstance.set(url, data);
-        }
-        return data;
-    }, []);
-
-    // In your component, call clearExpired qperiodically or when the search/filter changes
-    useEffect(() => {
-        const interval = setInterval(() => {
-            postsCache.clearExpired();
-            statsCache.clearExpired();
-        }, 60 * 1000); // Clear expired entries every 1 minute
-
-        return () => clearInterval(interval);
-    }, []);
-
-    // Fetch stats separately with its own loading state
+    // Improved fetch stats with cache
     const fetchStats = useCallback(async () => {
         if (!state.statsLoading) return;
 
         try {
-            const statsData = await cachedFetch<StatsType>(
-                '/api/stats',
-                { signal: abortControllerRef.current?.signal },
-                statsCache
-            );
+            const statsData = await statsCache.get('/api/stats', async () => {
+                const response = await fetchWithRetry('/api/stats', {
+                    signal: abortControllerRef.current?.signal
+                });
+                return response.json();
+            });
 
             setState(prev => ({
                 ...prev,
@@ -159,28 +176,14 @@ const BlogCollection = () => {
                 toast.error('Failed to load statistics');
             }
         }
-    }, [state.statsLoading, cachedFetch]);
+    }, [state.statsLoading]);
 
-    // Optimized search with abort controller
-    const debouncedSearch = useMemo(
-        () =>
-            debounce((searchTerm: string) => {
-                if (abortControllerRef.current) {
-                    abortControllerRef.current.abort();
-                }
-                setState(prev => ({ ...prev, page: 1, posts: [] }));
-                fetchData(true, searchTerm);
-            }, 300),
-        []
-    );
-
+    // Improved fetch data with better error handling and caching
     const fetchData = useCallback(async (isInitialLoad = true, searchOverride?: string) => {
         try {
-            // Abort any ongoing requests
             abortControllerRef.current?.abort();
             abortControllerRef.current = new AbortController();
 
-            // Update state to show loading
             setState(prev => ({
                 ...prev,
                 loading: isInitialLoad,
@@ -188,7 +191,6 @@ const BlogCollection = () => {
                 error: null
             }));
 
-            // Construct the API URL with query parameters
             const searchTerm = searchOverride ?? state.searchTerm;
             const queryParams = new URLSearchParams({
                 page: state.page.toString(),
@@ -199,44 +201,54 @@ const BlogCollection = () => {
             });
             const url = `/api/blog?${queryParams}`;
 
-            // Fetch the data, using the cache if possible
-            const postsData = await cachedFetch<{
-                data: BlogPostType[];
-                metadata: typeof state.metadata;
-                success: boolean;
-            }>(url, { signal: abortControllerRef.current.signal }, postsCache);
+            const cacheKey = url;
+            const postsData = await postsCache.get(cacheKey, async () => {
+                const response = await fetchWithRetry(url, {
+                    signal: abortControllerRef.current?.signal
+                });
+                return response.json();
+            });
 
-            // Handle errors
             if (!postsData.success) {
                 throw new Error('Failed to fetch blog posts');
             }
 
-            // Filter out existing posts for incremental loads
-            const newPosts = isInitialLoad
-                ? postsData.data
-                : postsData.data.filter(newPost =>
-                    !state.posts.some(existingPost => existingPost._id === newPost._id)
+            interface PostsData {
+                success: boolean;
+                data: BlogPostType[];
+                metadata: {
+                    currentPage: number;
+                    totalPages: number;
+                    totalPosts: number;
+                    hasMore: boolean;
+                };
+            }
+
+            const newPosts: BlogPostType[] = isInitialLoad
+                ? (postsData as PostsData).data
+                : (postsData as PostsData).data.filter((newPost: BlogPostType) =>
+                    !state.posts.some((existingPost: BlogPostType) => existingPost._id === newPost._id)
                 );
 
-            // Fetch user details for new posts
+            // Fetch user details with caching
             const userEmails = newPosts.map(post => post.createdBy);
             const uniqueEmails = Array.from(new Set(userEmails));
-            const userDetails = await Promise.all(
-                uniqueEmails.map(email =>
-                    cachedFetch<{ user: UserType }>(`/api/user?email=${email}`)
-                )
-            );
-            const newUsers = userDetails.reduce((acc, response) => {
-                if (response?.user) {
-                    acc[response.user.email] = response.user;
-                }
-                return acc;
-            }, {} as Record<string, UserType>);
+            const newUsers = await usersCache.get('users', async () => {
+                const userDetails = await Promise.all(
+                    uniqueEmails.map(email =>
+                        fetchWithRetry(`/api/user?email=${email}`).then(res => res.json())
+                    )
+                );
+                return userDetails.reduce((acc, response) => {
+                    if (response?.user) {
+                        acc[response.user.email] = response.user;
+                    }
+                    return acc;
+                }, {} as Record<string, UserType>);
+            });
 
-            // // Update stats
             fetchStats();
 
-            // Update the state
             setState(prev => ({
                 ...prev,
                 posts: isInitialLoad ? newPosts : [...prev.posts, ...newPosts],
@@ -244,6 +256,7 @@ const BlogCollection = () => {
                 loading: false,
                 loadingMore: false,
                 metadata: postsData.metadata,
+                initialized: true
             }));
         } catch (error) {
             if (error instanceof Error && error.name === 'AbortError') {
@@ -258,7 +271,15 @@ const BlogCollection = () => {
                 error: errorMessage
             }));
         }
-    }, [state.page, state.category, state.sortBy, state.searchTerm, cachedFetch, fetchStats, isInitialMount]);
+    }, [state.page, state.category, state.sortBy, state.searchTerm, fetchStats]);
+
+    // Initial data fetch
+    useEffect(() => {
+        if (!state.initialized) {
+            fetchData(true);
+        }
+    }, [state.initialized, fetchData]);
+
     // Intersection Observer for infinite scroll
     useEffect(() => {
         const options = {
@@ -298,6 +319,10 @@ const BlogCollection = () => {
             }
         };
     }, [state.category, state.sortBy]);
+
+    const debouncedSearch = useMemo(() => debounce((value: string) => {
+        fetchData(true, value);
+    }, 300), [fetchData]);
 
     const handleSearch = useCallback((value: string) => {
         setState(prev => ({ ...prev, searchTerm: value }));
@@ -430,10 +455,12 @@ const BlogCollection = () => {
                     totalUsers={state.stats.totalUsers}
                     loading={state.statsLoading}
                 />
-                
+
                 {/* Posts Section */}
                 <BlogPostGrid
-                    filteredPosts={uniquePosts}
+                    filteredPosts={Array.from(new Set(state.posts.map(post => post._id)))
+                        .map(id => state.posts.find(post => post._id === id))
+                        .filter((post): post is BlogPostType => post !== undefined)}
                     users={state.users}
                     loading={state.loading}
                 />
