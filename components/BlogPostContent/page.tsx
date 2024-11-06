@@ -18,19 +18,13 @@ interface BlogPostClientContentProps {
 }
 
 const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({ initialData, id }) => {
-    const { post, author, relatedPosts, authorPosts, likes, views, liked, isLoading, error } = useBlogPost(id, initialData);
+    const { post, author, relatedPosts, authorPosts, likes, views, liked, isLoading, error, language } = useBlogPost(id, initialData);
     const { isDarkMode } = useTheme();
 
     useEffect(() => {
         document.body.classList.toggle('dark', isDarkMode);
     }, [isDarkMode]);
 
-    // useEffect(() => {
-    //     if (typeof window !== 'undefined' && navigator.clipboard && post?.content) {
-    //         navigator.clipboard.writeText(post.content);
-    //         toast.success('Content copied to clipboard');
-    //     }
-    // }, [post]);
 
     if (error) {
         return (
@@ -51,7 +45,7 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({ initialDa
         <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
             <BlogPostHeader post={post} author={author} />
             <main className="container mx-auto px-4">
-                <BlogPostContent post={post} />
+                <BlogPostContent post={post} language={language} />
                 <BlogPostFooter post={post} likes={likes} views={views} liked={liked} id={id} />
                 <CommentSection postId={id} />
                 <RelatedPosts posts={relatedPosts} />

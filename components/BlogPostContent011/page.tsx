@@ -4,6 +4,11 @@ import { useTheme } from '@/context/ThemeContext';
 import ReactDOM from 'react-dom';
 import Tags from './tags';
 import CopyButton from './copyBtn';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkHTML from 'remark-html';
+import rehypeStringify from 'rehype-stringify';
+import rehypeParse from 'rehype-parse';
 
 interface Post {
   _id: string;
@@ -19,9 +24,10 @@ interface Post {
 
 interface BlogPostContentProps {
   post: Post;
+  language: string | null;
 }
 
-export default function BlogPostContent({ post }: BlogPostContentProps) {
+export default function BlogPostContent({ post, language = 'html' }: BlogPostContentProps) {
   const { isDarkMode } = useTheme();
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -34,7 +40,6 @@ export default function BlogPostContent({ post }: BlogPostContentProps) {
       'img', 'span', 'br', 'div', 'hr',
       'table', 'thead', 'tbody', 'tr', 'th', 'td',
       'sup', 'sub', 'details', 'summary'
-
     ]
   };
 
@@ -60,24 +65,17 @@ export default function BlogPostContent({ post }: BlogPostContentProps) {
         scrollWrapper.style.overflow = 'auto';
         wrapper.insertBefore(scrollWrapper, pre);
         scrollWrapper.appendChild(pre);
+
+        // Add copy button
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'copy-button-container';
+        pre.parentElement?.parentElement?.insertBefore(buttonContainer, pre.parentElement);
+
+        ReactDOM.render(
+          <CopyButton isDarkMode={isDarkMode} code={pre.textContent || ''} />,
+          buttonContainer
+        );
       }
-
-      const code = pre.querySelector('code');
-      if (!code) return;
-
-      // Ensure code elements maintain their formatting
-      code.style.whiteSpace = 'pre';
-      code.style.display = 'inline-block';
-      code.style.minWidth = '100%';
-
-      const buttonContainer = document.createElement('div');
-      buttonContainer.className = 'copy-button-container';
-      pre.parentElement?.parentElement?.insertBefore(buttonContainer, pre.parentElement);
-
-      ReactDOM.render(
-        <CopyButton isDarkMode={isDarkMode} code={code.textContent || ''} />,
-        buttonContainer
-      );
     });
 
     // Process links
@@ -86,6 +84,17 @@ export default function BlogPostContent({ post }: BlogPostContentProps) {
       if (!link.closest('pre')) {
         link.setAttribute('target', '_blank');
         link.setAttribute('rel', 'noopener noreferrer');
+        link.classList.add('break-words', 'sm:whitespace-normal');
+        if (link.getAttribute('href')?.startsWith('#')) {
+          const targetId = link.getAttribute('href')?.slice(1);
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetElement = contentRef.current?.querySelector(`[id="${targetId}"]`);
+            if (targetElement) {
+              targetElement.scrollIntoView({ behavior: 'smooth' });
+            }
+          });
+        }
       }
     });
 
@@ -101,103 +110,129 @@ export default function BlogPostContent({ post }: BlogPostContentProps) {
     };
   });
 
+  let sanitizedContent;
+  if (language === 'markdown') {
+    // Sanitize Markdown content
+    const processor = unified()
+      .use(remarkParse)
+      .use(remarkHTML);
 
-  // const sanitizedContent = DOMPurify.sanitize(post.content, sanitizeConfig);
-  const sanitizedContent = post.content;
+    const result = processor.processSync(post.content);
+    sanitizedContent = DOMPurify.sanitize(result.toString(), sanitizeConfig);
+  } else {
+    // Sanitize HTML content
+    const processor = unified()
+      .use(rehypeParse)
+      .use(rehypeStringify);
 
+    const result = processor.processSync(post.content);
+    sanitizedContent = DOMPurify.sanitize(result.toString(), sanitizeConfig);
+  }
 
   const proseStyles = {
     base: `
-      prose prose-lg max-w-3xl
-      mx-auto
-      ${isDarkMode ? 'prose-invert' : ''}
-      px-2 sm:px-6
-    `,
+        prose prose-lg max-w-3xl
+        mx-auto
+        ${isDarkMode ? 'prose-invert' : ''}
+        px-2 sm:px-6
+      `,
     typography: `
-      prose-headings:scroll-mt-20
-      prose-h1:text-2xl sm:prose-h1:text-4xl prose-h1:font-bold prose-h1:my-4 sm:prose-h1:my-6
-      prose-h2:text-xl sm:prose-h2:text-3xl prose-h2:font-bold prose-h2:my-3 sm:prose-h2:my-5
-      prose-h3:text-lg sm:prose-h3:text-2xl prose-h3:font-semibold prose-h3:my-2 sm:prose-h3:my-4
-      prose-p:text-base prose-p:leading-relaxed prose-p:my-2 sm:prose-p:my-4
-      prose-hr:my-6 sm:prose-hr:my-8 prose-hr:border-gray-200 dark:prose-hr:border-gray-700
-    `,
+        prose-headings:scroll-mt-20
+        prose-h1:text-2xl sm:prose-h1:text-4xl prose-h1:font-bold prose-h1:my-4 sm:prose-h1:my-6
+        prose-h2:text-xl sm:prose-h2:text-3xl prose-h2:font-bold prose-h2:my-3 sm:prose-h2:my-5
+        prose-h3:text-lg sm:prose-h3:text-2xl prose-h3:font-semibold prose-h3:my-2 sm:prose-h3:my-4
+        prose-p:text-base prose-p:leading-relaxed prose-p:my-2 sm:prose-p:my-4
+        prose-hr:my-6 sm:prose-hr:my-8 prose-hr:border-gray-200 dark:prose-hr:border-gray-700
+      `,
     lists: `
-      prose-ul:my-2 sm:prose-ul:my-4 prose-ul:list-disc prose-ul:pl-4 sm:prose-ul:pl-6
-      prose-ol:my-2 sm:prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-4 sm:prose-ol:pl-6
-      prose-li:my-1 sm:prose-li:my-2 prose-li:pl-1 sm:prose-li:pl-2
-      prose-li:marker:text-gray-500 dark:prose-li:marker:text-gray-400
-    `,
+        prose-ul:my-2 sm:prose-ul:my-4 prose-ul:list-disc prose-ul:pl-4 sm:prose-ul:pl-6
+        prose-ol:my-2 sm:prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-4 sm:prose-ol:pl-6
+        prose-li:my-1 sm:prose-li:my-2 prose-li:pl-1 sm:prose-li:pl-2
+        prose-li:marker:text-gray-500 dark:prose-li:marker:text-gray-400
+      `,
     links: `
-      prose-a:text-blue-600 dark:prose-a:text-blue-400
-      prose-a:no-underline hover:prose-a:underline
-      prose-a:font-normal
-      prose-a:transition-colors prose-a:duration-200
-    `,
+        prose-a:text-blue-600 dark:prose-a:text-blue-400
+        prose-a:no-underline hover:prose-a:underline
+        prose-a:font-normal
+        prose-a:transition-colors prose-a:duration-200
+        prose-a:break-words sm:prose-a:whitespace-normal
+      `,
     blockquotes: `
-      prose-blockquote:border-l-4 
-      prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-700
-      prose-blockquote:pl-3 sm:prose-blockquote:pl-4 
-      prose-blockquote:italic
-      prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300
-      prose-blockquote:my-4 sm:prose-blockquote:my-6
-    `,
+        prose-blockquote:border-l-4 
+        prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-700
+        prose-blockquote:pl-3 sm:prose-blockquote:pl-4 
+        prose-blockquote:italic
+        prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300
+        prose-blockquote:my-4 sm:prose-blockquote:my-6
+      `,
     tables: `
-      prose-table:w-full prose-table:my-4 sm:prose-table:my-6
-      prose-table:border prose-table:border-collapse
-      [&_table]:block [&_table]:overflow-x-auto [&_table]:max-w-full
-      [&_table]:whitespace-nowrap sm:[&_table]:whitespace-normal
-      prose-th:p-2 sm:prose-th:p-3 prose-td:p-2 sm:prose-td:p-3
-      prose-th:border prose-td:border
-      prose-th:bg-gray-50 dark:prose-th:bg-gray-800
-      prose-th:text-left
-      prose-td:border-gray-200 dark:prose-td:border-gray-700
-      prose-th:border-gray-200 dark:prose-th:border-gray-700
-      [&_th]:min-w-[8rem] [&_td]:min-w-[8rem]
-    `,
+        prose-table:w-full prose-table:my-4 sm:prose-table:my-6
+        prose-table:border prose-table:border-collapse
+        [&_table]:block [&_table]:overflow-x-auto [&_table]:max-w-full
+        [&_table]:whitespace-nowrap sm:[&_table]:whitespace-normal
+        prose-th:p-2 sm:prose-th:p-3 prose-td:p-2 sm:prose-td:p-3
+        prose-th:border prose-td:border
+        prose-th:bg-gray-50 dark:prose-th:bg-gray-800
+        prose-th:text-left
+        prose-td:border-gray-200 dark:prose-td:border-gray-700
+        prose-th:border-gray-200 dark:prose-th:border-gray-700
+        [&_th]:min-w-[8rem] [&_td]:min-w-[8rem]
+      `,
     codeBlocks: `
-      [&_.code-block-wrapper]:relative [&_.code-block-wrapper]:my-4 sm:[&_.code-block-wrapper]:my-6
-      [&_.code-block-wrapper]:rounded-lg [&_.code-block-wrapper]:shadow-md
-      [&_.code-block-wrapper]:overflow-hidden
-      [&_pre]:overflow-x-auto [&_pre]:p-4 sm:[&_pre]:p-6
-      [&_pre]:bg-gray-800 [&_pre]:min-w-full
-      [&_pre_code]:text-gray-100 [&_pre_code]:inline-block [&_pre_code]:min-w-full
-      [&_pre]:text-[14px] sm:[&_pre]:text-[15px] [&_pre]:leading-relaxed
-      [&_.copy-button-container]:absolute [&_.copy-button-container]:right-2 [&_.copy-button-container]:top-2
-    `,
+        [&_.code-block-wrapper]:relative [&_.code-block-wrapper]:my-4 sm:[&_.code-block-wrapper]:my-6
+        [&_.code-block-wrapper]:rounded-lg [&_.code-block-wrapper]:shadow-md
+        [&_.code-block-wrapper]:overflow-hidden
+        [&_pre]:overflow-x-auto [&_pre]:p-4 sm:[&_pre]:p-6
+        [&_pre]:bg-gray-800 [&_pre]:min-w-full
+        [&_pre_code]:text-gray-100 [&_pre_code]:inline-block [&_pre_code]:min-w-full
+        [&_pre]:text-[14px] sm:[&_pre]:text-[15px] [&_pre]:leading-relaxed
+        [&_.copy-button-container]:absolute [&_.copy-button-container]:right-2 [&_.copy-button-container]:top-2
+      `,
     inlineCode: `
-      [&_:not(pre)_code]:text-inherit
-      [&_:not(pre)_code]:bg-transparent
-      [&_:not(pre)_code]:font-normal
-      [&_:not(pre)_code]:before:content-['']
-      [&_:not(pre)_code]:after:content-['']
-      [&_:not(pre)_code]:whitespace-normal
-      [&_:not(pre)_code]:break-words
-      [&_:not(pre)_code]:text-blue-300
-    `,
+        [&_:not(pre)_code]:text-inherit
+        [&_:not(pre)_code]:bg-transparent
+        [&_:not(pre)_code]:font-normal
+        [&_:not(pre)_code]:before:content-['']
+        [&_:not(pre)_code]:after:content-['']
+        [&_:not(pre)_code]:whitespace-normal
+        [&_:not(pre)_code]:break-words
+        [&_:not(pre)_code]:text-blue-300
+      `,
     details: `
-      prose-details:my-2 sm:prose-details:my-4
-      prose-details:border
-      prose-details:rounded-lg
-      prose-details:p-3 sm:prose-details:p-4
-      prose-details:border-gray-200 dark:prose-details:border-gray-700
-      [&_summary]:cursor-pointer
-      [&_summary]:font-semibold
-    `,
+        prose-details:my-2 sm:prose-details:my-4
+        prose-details:border
+        prose-details:rounded-lg
+        prose-details:p-3 sm:prose-details:p-4
+        prose-details:border-gray-200 dark:prose-details:border-gray-700
+        [&_summary]:cursor-pointer
+        [&_summary]:font-semibold
+      `,
     media: `
-      prose-img:rounded-lg
-      prose-img:my-4 sm:prose-img:my-6
-      prose-img:mx-auto
-      prose-img:shadow-md
-    `,
+        prose-img:rounded-lg
+        prose-img:my-4 sm:prose-img:my-6
+        prose-img:mx-auto
+        prose-img:shadow-md
+      `,
     emphasis: `
-      prose-strong:font-semibold
-      prose-em:italic
-      prose-del:line-through
-      prose-del:text-gray-500
-      prose-ins:underline
-      prose-ins:decoration-green-500
-      prose-sup:text-xs prose-sup:top-[-0.5em]
-      prose-sub:text-xs prose-sub:bottom-[-0.25em]
+        prose-strong:font-semibold
+        prose-em:italic
+        prose-del:line-through
+        prose-del:text-gray-500
+        prose-ins:underline
+        prose-ins:decoration-green-500
+        prose-sup:text-xs prose-sup:top-[-0.5em]
+        prose-sub:text-xs prose-sub:bottom-[-0.25em]
+      `,
+    toc: `
+      prose-toc:my-4 sm:prose-toc:my-6
+      prose-toc:text-gray-700 dark:prose-toc:text-gray-300
+      prose-toc:font-bold
+      prose-toc-link:no-underline hover:prose-toc-link:underline
+      prose-toc-link:text-blue-600 dark:prose-toc-link:text-blue-400
+      prose-toc-link:block prose-toc-link:my-1
+      prose-toc-link:pl-2 prose-toc-link:py-1
+      prose-toc-link:hover:bg-gray-100 dark:prose-toc-link:hover:bg-gray-800
+      prose-toc-link:transition-colors prose-toc-link:duration-200
     `
   };
 
@@ -217,12 +252,14 @@ export default function BlogPostContent({ post }: BlogPostContentProps) {
           ${proseStyles.details}
           ${proseStyles.media}
           ${proseStyles.emphasis}
+          ${proseStyles.toc}
+          
         `}
         dangerouslySetInnerHTML={{ __html: sanitizedContent }}
       />
-      {/* <div className="max-w-3xl mx-auto px-2 sm:px-6">
+      <div className="max-w-3xl mx-auto px-2 sm:px-6">
         <Tags tags={post.tags} isDarkMode={isDarkMode} />
-      </div> */}
+      </div>
     </article>
   );
 }

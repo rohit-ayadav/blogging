@@ -17,17 +17,21 @@ async function addCategoryField() {
         await client.connect();
         console.log("Connected to MongoDB");
 
-        const result = await client.db("blogging").collection("users").updateMany(
+        const result = await client.db("blogging").collection("blogs").updateMany(
             { role: { $exists: false } },
-            { $set: { role: "user" } }
+            { $set: { language: "html" } }
         );
+        // const result = await client.db("blogging").collection("users").updateMany(
+        //     { role: { $exists: false } },
+        //     { $set: { role: "user" } }
+        // );
         // const result = await client.db("blogging").collection("blogs").updateMany(
         //   { category: { $exists: false } },
         //   { $set: { category: "Others" } }
         // );
 
         // Find and print the updated documents
-        const cursor = client.db("blogging").collection("users").find();
+        const cursor = client.db("blogging").collection("blogs").find();
         const results = await cursor.toArray();
         console.log(results);
         // console.log(results.map(blog =>blog.title + " - " + blog.category));

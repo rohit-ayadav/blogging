@@ -5,42 +5,47 @@ const blogSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: true
     },
     thumbnail: {
       type: String,
-      required: false,
+      required: false
     },
     content: {
       type: String,
-      required: true,
+      required: true
     },
     status: {
       type: String,
       enum: ["draft", "published"],
-      default: "draft",
+      default: "draft"
     },
     tags: {
       type: [String],
-      required: true,
+      required: true
     },
     createdBy: {
       type: String,
       required: false,
-      default: "anonymous",
+      default: "anonymous"
     },
     likes: {
       type: Number,
-      default: 0,
+      default: 0
     },
     views: {
       type: Number,
-      default: 0,
+      default: 0
     },
     category: {
       type: String,
-      required: false,
+      required: false
     },
+    language: {
+      type: String,
+      required: true,
+      default: "html"
+    }
   },
   { timestamps: true }
 );

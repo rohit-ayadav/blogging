@@ -31,6 +31,7 @@ type ApiResponse = {
     data?: any;
     error?: string;
     statusCode?: number;
+    // language?: string;
 };
 
 async function getPostData(id: string): Promise<ApiResponse> {
@@ -60,7 +61,8 @@ async function getPostData(id: string): Promise<ApiResponse> {
         return {
             success: true,
             data: data.data,
-            statusCode: res.status
+            statusCode: res.status,
+            // language: data.language,
         };
     } catch (error) {
         console.error('Error fetching post data:', error);

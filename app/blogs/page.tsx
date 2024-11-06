@@ -20,7 +20,7 @@ class DataCache<T> {
     private readonly storageKey: string;
 
     constructor(timeoutMinutes: number, storageKey: string) {
-        this.timeout = timeoutMinutes * 60 * 1000;
+        this.timeout = timeoutMinutes * 60 * 1000; // Convert minutes to milliseconds
         this.storageKey = storageKey;
         this.cache = new Map();
         this.loadFromStorage();
@@ -102,8 +102,8 @@ class DataCache<T> {
 
 // Initialize caches with storage keys
 const postsCache = new DataCache<any>(5, 'blog-posts-cache');
-const statsCache = new DataCache<StatsType>(15, 'blog-stats-cache');
-const usersCache = new DataCache<Record<string, UserType>>(30, 'blog-users-cache');
+const statsCache = new DataCache<StatsType>(15, 'blog-stats-cache'); // 15 minutes
+const usersCache = new DataCache<Record<string, UserType>>(300, 'blog-users-cache'); // 5 hours
 
 const BlogCollection = () => {
     const [state, setState] = useState({

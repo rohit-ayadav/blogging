@@ -8,6 +8,7 @@ import DOMPurify from "dompurify";
 import User from "@/models/users.models";
 import mongoose from "mongoose";
 import { getSessionAtHome } from "@/auth";
+import language from "react-syntax-highlighter/dist/esm/languages/hljs/1c";
 
 await connectDB();
 
@@ -16,7 +17,9 @@ const blogSchema = Joi.object({
   content: Joi.string().required(),
   status: Joi.string().valid("published", "draft").optional(),
   tags: Joi.array().items(Joi.string()).optional(),
-  cateogry: Joi.string().optional()
+  // cateogry: Joi.string().optional(),
+  // language can be html or markdown
+  language: Joi.string().valid("html", "markdown").optional()
 });
 
 export async function POST(request: NextRequest) {
@@ -38,7 +41,8 @@ export async function POST(request: NextRequest) {
     status = "published",
     tags,
     thumbnail,
-    category
+    category,
+    language
   } = body;
 
   if (!session?.user?.email) {
@@ -75,12 +79,19 @@ export async function POST(request: NextRequest) {
   if (!category) {
     category = "Others";
   }
+  if (!tags) {
+    tags = [];
+  }
+  if (!language) {
+    language = "html";
+  }
 
   const { error } = blogSchema.validate({
     title,
     content,
     status,
-    tags
+    tags,
+    language
   });
   if (error) {
     return NextResponse.json(
@@ -108,7 +119,8 @@ export async function POST(request: NextRequest) {
     createdBy: session.user.email,
     likes: 0,
     views: 0,
-    category: sanitizedCategory
+    category: sanitizedCategory,
+    language: language
   };
 
   try {
@@ -298,7 +310,6 @@ export async function DELETE(request: NextRequest) {
 
 // Detail GET request by Claude Ai
 
-
 // Define types for better type safety
 type SortOption = {
   [key: string]: 1 | -1;
@@ -317,32 +328,38 @@ export async function GET(request: Request) {
     // Extract and validate query parameters
     const { searchParams } = new URL(request.url);
     const params = validateQueryParams(searchParams);
-    
+
     // Build query object
     const query = buildQuery(params);
-    
+
     // Get sort configuration
     const sortConfig = getSortConfig(params.sortBy);
-    
+
     // Execute query with error handling
     const [data, totalCount] = await executeQuery(query, sortConfig, params);
-    
-    // Calculate pagination metadata
-    const metadata = calculatePaginationMetadata(params, totalCount, data.length);
-    
-    // Return successful response
-    return NextResponse.json({
-      message: "Blog posts retrieved successfully",
-      success: true,
-      data,
-      metadata
-    }, { 
-      status: 200,
-      headers: {
-        'Cache-Control': 'public, max-age=60, stale-while-revalidate=30'
-      }
-    });
 
+    // Calculate pagination metadata
+    const metadata = calculatePaginationMetadata(
+      params,
+      totalCount,
+      data.length
+    );
+
+    // Return successful response
+    return NextResponse.json(
+      {
+        message: "Blog posts retrieved successfully",
+        success: true,
+        data,
+        metadata
+      },
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "public, max-age=60, stale-while-revalidate=30"
+        }
+      }
+    );
   } catch (error) {
     return handleError(error);
   }
@@ -351,11 +368,7 @@ export async function GET(request: Request) {
 // Validate and sanitize query parameters
 function validateQueryParams(searchParams: URLSearchParams): QueryParams {
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const limit = clamp(
-    parseInt(searchParams.get("limit") || "10", 10),
-    1,
-    100
-  );
+  const limit = clamp(parseInt(searchParams.get("limit") || "10", 10), 1, 100);
   const category = searchParams.get("category") || "";
   const sortBy = searchParams.get("sortBy") || "newest";
   const search = searchParams.get("search") || "";
@@ -380,9 +393,9 @@ function buildQuery(params: QueryParams): mongoose.FilterQuery<typeof Blog> {
   // Add search functionality if search term is provided
   if (params.search) {
     query.$or = [
-      { title: { $regex: params.search, $options: 'i' } },
-      { content: { $regex: params.search, $options: 'i' } },
-      { tags: { $in: [new RegExp(params.search, 'i')] } }
+      { title: { $regex: params.search, $options: "i" } },
+      { content: { $regex: params.search, $options: "i" } },
+      { tags: { $in: [new RegExp(params.search, "i")] } }
     ];
   }
 
@@ -396,7 +409,8 @@ function getSortConfig(sortBy: string): SortOption {
     oldest: { createdAt: 1 },
     mostViews: { views: -1, createdAt: -1 }, // Secondary sort for equal views
     mostLikes: { likes: -1, createdAt: -1 }, // Secondary sort for equal likes
-    trending: { // Complex sort for trending posts
+    trending: {
+      // Complex sort for trending posts
       score: -1,
       createdAt: -1
     }
@@ -418,7 +432,7 @@ async function executeQuery(
     const now = new Date();
     const hoursSinceCreation = {
       $divide: [
-        { $subtract: [now, '$createdAt'] },
+        { $subtract: [now, "$createdAt"] },
         1000 * 60 * 60 // Convert to hours
       ]
     };
@@ -433,7 +447,7 @@ async function executeQuery(
         $addFields: {
           score: {
             $divide: [
-              { $add: ['$likes', { $multiply: ['$views', 0.5] }] },
+              { $add: ["$likes", { $multiply: ["$views", 0.5] }] },
               { $add: [hoursSinceCreation, 2] } // Decay factor
             ]
           }
@@ -445,10 +459,7 @@ async function executeQuery(
       { $project: { __v: 0 } }
     ];
 
-    const countPipeline = [
-      { $match: query },
-      { $count: 'total' }
-    ];
+    const countPipeline = [{ $match: query }, { $count: "total" }];
 
     const [data, countResult] = await Promise.all([
       Blog.aggregate(aggregationPipeline),
@@ -464,7 +475,7 @@ async function executeQuery(
       .sort(sortConfig)
       .skip(skip)
       .limit(params.limit)
-      .select('-__v')
+      .select("-__v")
       .lean(),
     Blog.countDocuments(query)
   ]);
@@ -493,21 +504,22 @@ function calculatePaginationMetadata(
 // Handle errors
 function handleError(error: unknown) {
   console.error("Error fetching blog posts:", error);
-  
-  const errorMessage = error instanceof Error 
-    ? error.message 
-    : "An unknown error occurred";
-  
-  const statusCode = error instanceof mongoose.Error.ValidationError 
-    ? 400 
-    : 500;
 
-  return NextResponse.json({
-    message: "Failed to retrieve blog posts",
-    success: false,
-    error: {
-      message: errorMessage,
-      code: statusCode
-    }
-  }, { status: statusCode });
+  const errorMessage =
+    error instanceof Error ? error.message : "An unknown error occurred";
+
+  const statusCode =
+    error instanceof mongoose.Error.ValidationError ? 400 : 500;
+
+  return NextResponse.json(
+    {
+      message: "Failed to retrieve blog posts",
+      success: false,
+      error: {
+        message: errorMessage,
+        code: statusCode
+      }
+    },
+    { status: statusCode }
+  );
 }

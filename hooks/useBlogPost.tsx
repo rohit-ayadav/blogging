@@ -36,6 +36,7 @@ const useBlogPost = (id: string, initialData: Post | null = null) => {
     const [views, setViews] = useState(0);
     const [liked] = useState(false);
     const [createdBy, setCreatedBy] = useState<string | null>(null);
+    const [language, setLanguage] = useState<string | null>(null);
 
     const fetchPostAndRelatedData = async () => {
         if (id) {
@@ -50,6 +51,7 @@ const useBlogPost = (id: string, initialData: Post | null = null) => {
                 setLikes(data.data.likes);
                 setViews(data.data.views);
                 setCreatedBy(data.data.createdBy);
+                setLanguage(data.language);
             } catch (error: any) {
                 toast.error(`$error.message}`);
                 router.push("/blogs");
@@ -122,6 +124,7 @@ const useBlogPost = (id: string, initialData: Post | null = null) => {
         createdBy,
         isLoading: !post,
         error: !post ? new Error("Post not found") : null,
+        language,
     };
 };
 
