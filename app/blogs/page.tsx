@@ -258,7 +258,7 @@ const BlogCollection = () => {
                 error: errorMessage
             }));
         }
-    }, [state.page, state.category, state.sortBy, state.searchTerm, cachedFetch, fetchStats]);
+    }, [state.page, state.category, state.sortBy, state.searchTerm, cachedFetch, fetchStats, isInitialMount]);
     // Intersection Observer for infinite scroll
     useEffect(() => {
         const options = {
