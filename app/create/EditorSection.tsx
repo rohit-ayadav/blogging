@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MarkdownIt from 'markdown-it';
 import MarkdownEditor from 'react-markdown-editor-lite';
 // import CustomToolbar from './customToolbar';
-import CustomToolbar from './CustomToolbar';
+import CustomToolbar from './customToolbar';
 import { useTheme } from 'next-themes';
 import 'react-quill/dist/quill.snow.css';
 import 'react-markdown-editor-lite/lib/index.css';
