@@ -253,7 +253,7 @@ export default function BlogPostContent({ post, language = 'html' }: BlogPostCon
           ${proseStyles.media}
           ${proseStyles.emphasis}
           ${proseStyles.toc}
-          
+
         `}
         dangerouslySetInnerHTML={{ __html: sanitizedContent }}
       />
