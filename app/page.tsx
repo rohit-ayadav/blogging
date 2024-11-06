@@ -59,7 +59,7 @@ const useBlogData = () => {
     const fetchStats = async () => {
 
       try {
-        const response = await fetch('/api/stats');
+        const response = await fetch('/api/stats/all');
         if (!response.ok) {
           throw new Error(`${response.status} - ${response.statusText}`);
         }
@@ -67,7 +67,7 @@ const useBlogData = () => {
         setTotalLikes(data.totalLikes);
         setTotalViews(data.totalViews);
         setTotalBlogs(data.totalBlogs);
-        setTotalUsers(parseInt(data.totalUsers + data.totalAuthors.totalBlogs));
+        setTotalUsers(parseInt(data.totalUsers));
         // toast.success(data.totalAuthors.totalBlogs);
 
       } catch (error: any) {

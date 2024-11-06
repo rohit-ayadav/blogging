@@ -156,11 +156,11 @@ const BlogCollection = () => {
 
     // Improved fetch stats with cache
     const fetchStats = useCallback(async () => {
-        if (!state.statsLoading) return;
+        // if (!state.statsLoading) return;
 
         try {
-            const statsData = await statsCache.get('/api/stats', async () => {
-                const response = await fetchWithRetry('/api/stats', {
+            const statsData = await statsCache.get(`api/stats/${state.category}`, async () => {
+                const response = await fetchWithRetry(`api/stats/${state.category}`, {
                     signal: abortControllerRef.current?.signal
                 });
                 return response.json();
@@ -176,7 +176,7 @@ const BlogCollection = () => {
                 toast.error('Failed to load statistics');
             }
         }
-    }, [state.statsLoading]);
+    }, [state.statsLoading, state.category]);
 
     // Improved fetch data with better error handling and caching
     const fetchData = useCallback(async (isInitialLoad = true, searchOverride?: string) => {
