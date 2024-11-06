@@ -128,7 +128,7 @@ const BlogCollection = () => {
         return data;
     }, []);
 
-    // In your component, call clearExpired periodically or when the search/filter changes
+    // In your component, call clearExpired qperiodically or when the search/filter changes
     useEffect(() => {
         const interval = setInterval(() => {
             postsCache.clearExpired();
@@ -174,7 +174,7 @@ const BlogCollection = () => {
         []
     );
 
-    const fetchData = useCallback(async (isInitialLoad = false, searchOverride?: string) => {
+    const fetchData = useCallback(async (isInitialLoad = true, searchOverride?: string) => {
         try {
             // Abort any ongoing requests
             abortControllerRef.current?.abort();
@@ -423,7 +423,6 @@ const BlogCollection = () => {
                 </div>
 
                 {/* Stats Section */}
-                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8"> */}
                 <DashboardGrid
                     totalBlogs={state.stats.totalBlogs}
                     totalViews={state.stats.totalViews}
@@ -431,8 +430,7 @@ const BlogCollection = () => {
                     totalUsers={state.stats.totalUsers}
                     loading={state.statsLoading}
                 />
-                {/* </div> */}
-
+                
                 {/* Posts Section */}
                 <BlogPostGrid
                     filteredPosts={uniquePosts}
