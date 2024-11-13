@@ -68,7 +68,7 @@ export default function CreateBlog() {
                 const draftData = localStorage.getItem('blogDraft');
                 if (draftData) {
                     const data: DraftData = JSON.parse(draftData);
-
+                    console.log('Draft data:', data);
                     if (Date.now() - data.timestamp < DRAFT_EXPIRY) {
                         updateState({
                             title: data.title || '',
@@ -79,11 +79,12 @@ export default function CreateBlog() {
                             category: data.category || '',
                             editorMode: data.editorMode || 'markdown'
                         });
-
-                        toast.success('Recovered your previous draft', {
-                            duration: 3000,
-                            icon: '📝'
-                        });
+                        // if draft is recovered and not expired and not equal to initial content
+                        if (data.markdownContent !== DEFAULT_CONTENT.markdown || data.htmlContent !== DEFAULT_CONTENT.html)
+                            toast.success('Recovered your previous draft', {
+                                duration: 3000,
+                                icon: '📝'
+                            });
                     } else {
                         localStorage.removeItem('blogDraft');
                     }
@@ -122,8 +123,11 @@ export default function CreateBlog() {
             }
         };
 
-        const timeoutId = setTimeout(saveDraft, 1000);
-        return () => clearTimeout(timeoutId);
+        // if data is not same as initial content, save draft
+        if (state.markdownContent !== DEFAULT_CONTENT.markdown || state.htmlContent !== DEFAULT_CONTENT.html) {
+            const timeoutId = setTimeout(saveDraft, 1000);
+            return () => clearTimeout(timeoutId);
+        }
     }, [state]);
 
     const sanitizeContent = {
