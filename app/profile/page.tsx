@@ -61,8 +61,6 @@ export default function UserProfile() {
         fetchData();
     }, [session]);
 
-
-
     const fetchBlogs = async () => {
         if (session?.user) {
             const response = await fetch(`/api/blogpost?email=${session.user.email}`);
@@ -75,7 +73,6 @@ export default function UserProfile() {
                 thumbnail: blog.thumbnail,
                 likes: blog.likes,
                 views: blog.views,
-
             })));
 
         }
@@ -241,11 +238,10 @@ export default function UserProfile() {
             await signOut();
             router.push('/');
         } catch (error) {
-            if (error instanceof Error) {
+            if (error instanceof Error)
                 console.error('Account deletion failed:', error.message);
-            } else {
+            else
                 console.error('Account deletion failed:', error);
-            }
             toast.error('Failed to delete account.');
         }
     };
@@ -571,7 +567,7 @@ export default function UserProfile() {
                                                 </DialogContent>
                                             </Dialog>
                                         </div>
-                                        {/* Log out Button above Delete Account Button */}
+
                                         <div className="pt-4">
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>

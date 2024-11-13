@@ -28,9 +28,10 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
-    // Sort by views or likes
-    blogs.sort((a, b) => b.views - a.views);
+    // Sort by views or likes or date
+    // blogs.sort((a, b) => b.views - a.views);
     // blogs.sort((a, b) => b.likes - a.likes);
+    blogs.sort((a, b) => b.createdAt - a.createdAt);
 
     return NextResponse.json({ blogs, success: true });
   } catch (error: any) {
