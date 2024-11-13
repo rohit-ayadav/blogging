@@ -1,8 +1,11 @@
+import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Tag, X } from "lucide-react";
 
-import { Toaster, toast } from 'react-hot-toast';
-
-
-// TagsSection.tsx
 interface TagsSectionProps {
     tags: string[];
     setTags: (tags: string[]) => void;
@@ -18,25 +21,32 @@ export const TagsSection = ({
     tagAutoGen,
     setTagAutoGen
 }: TagsSectionProps) => {
+    const [isLoading, setIsLoading] = useState(false);
+
     const generateTags = async () => {
         if (content.length < 50) {
             toast.error('Content should be at least 50 characters long to generate tags');
             return;
         }
 
+        setIsLoading(true);
         setTagAutoGen(true);
-        toast.promise(generateTagsFromContent(content), {
-            loading: 'Generating Tags...',
-            success: 'Tags generated successfully',
-            error: 'Failed to generate tags',
-        }).then(newTags => {
+
+        try {
+            const newTags = await generateTagsFromContent(content);
             if (newTags) {
-                setTags([...tags, ...newTags]);
+                // Filter out duplicates
+                const uniqueTags = [...new Set([...tags, ...newTags])];
+                setTags(uniqueTags);
+                toast.success('Tags generated successfully');
             }
-        }).catch(error => {
-            setTagAutoGen(false);
+        } catch (error) {
+            toast.error('Failed to generate tags');
             console.error('Error generating tags:', error);
-        });
+        } finally {
+            setIsLoading(false);
+            setTagAutoGen(false);
+        }
     };
 
     const generateTagsFromContent = async (content: string) => {
@@ -47,60 +57,89 @@ export const TagsSection = ({
         });
 
         const data = await response.json();
-        if (response.ok) return data.tags;
-        throw new Error(data.error);
+        if (!response.ok) throw new Error(data.error);
+        return data.tags;
+    };
+
+    const handleTagInput = (value: string) => {
+        const newTags = value
+            .split(/[,#\n]/)
+            .map(tag => tag.trim().toLowerCase())
+            .filter(tag => tag && !tags.includes(tag));
+
+        if (newTags.length) {
+            setTags([...tags, ...newTags]);
+        }
+    };
+
+    const removeTag = (indexToRemove: number) => {
+        setTags(tags.filter((_, index) => index !== indexToRemove));
     };
 
     return (
-        <>
-            <Toaster
-                position="top-right"
-                reverseOrder={false}
-            />
-            {!tagAutoGen && (
-                <div className="mb-5">
-                    <label htmlFor="tags" className="text-lg font-bold">Tags:</label>
-                    <p className="text-sm text-gray-500">
-                        Want to generate tags automatically?
-                        <button type="button" onClick={generateTags} className="text-blue-500 ml-1">
-                            Click here
-                        </button>
-                    </p>
-                    <input
-                        type="text"
-                        id="tags"
-                        placeholder="Enter tags separated by commas and hashes"
-                        className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
-                        onChange={(e) => setTags(
-                            e.target.value
-                                .split(/[,#\n]/)
-                                .map(tag => tag.trim())
-                                .filter(tag => tag)
+        <Card className="w-full mt-3">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-xl font-bold">Tags</CardTitle>
+                {!tagAutoGen && (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={generateTags}
+                        disabled={isLoading}
+                        className="flex items-center gap-2"
+                    >
+                        {isLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <Tag className="h-4 w-4" />
                         )}
-                    />
-                </div>
-            )}
-            {tags.length > 0 && (
-                <div className="mb-5">
-                    <label className="text-lg font-bold">Tags Preview:</label>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                        {tags.map((tag, index) => (
-                            <div key={index} className="flex items-center space-x-2">
-                                <span className="px-3 py-1 bg-gray-200 rounded-full text-sm">
-                                    {tag}
-                                </span>
-                                <button
-                                    type="button"
-                                    className="text-red-500 hover:text-red-700"
-                                    onClick={() => setTags(tags.filter((_, i) => i !== index))}
-                                >
-                                    &times;
-                                </button>
-                            </div>
-                        ))}
+                        Generate Tags
+                    </Button>
+                )}
+            </CardHeader>
+            <CardContent>
+                {!tagAutoGen && (
+                    <div className="space-y-4">
+                        <Input
+                            placeholder="Add tags (separate by comma or press enter)"
+                            className="w-full"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ',') {
+                                    e.preventDefault();
+                                    handleTagInput(e.currentTarget.value);
+                                    e.currentTarget.value = '';
+                                }
+                            }}
+                        />
                     </div>
-                </div>
-            )}
-        </>
+                )}
+
+                {tags.length > 0 && (
+                    <div className="mt-4">
+                        <p className="text-sm text-gray-500 mb-2">Current Tags:</p>
+                        <div className="flex flex-wrap gap-2">
+                            {tags.map((tag, index) => (
+                                <Badge
+                                    key={`${tag}-${index}`}
+                                    variant="secondary"
+                                    className="flex items-center gap-1 px-2 py-1"
+                                >
+                                    {tag}
+                                    <button
+                                        onClick={() => removeTag(index)}
+                                        className="ml-1 hover:text-red-500 transition-colors"
+                                        aria-label={`Remove ${tag} tag`}
+                                    >
+                                        <X className="h-3 w-3" />
+                                    </button>
+                                </Badge>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
     );
 };
+
+export default TagsSection;
