@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
         message: "Blog post created successfully",
         success: true,
         data: blogPost,
-        blogPostId
+        blogPostId : blogPostId
       },
       { status: 201 }
     );

@@ -257,9 +257,7 @@ export default function BlogPostContent({ post, language = 'html' }: BlogPostCon
         `}
         dangerouslySetInnerHTML={{ __html: sanitizedContent }}
       />
-      <div className="max-w-3xl mx-auto px-2 sm:px-6">
-        <Tags tags={post.tags} isDarkMode={isDarkMode} />
-      </div>
+      
     </article>
   );
 }

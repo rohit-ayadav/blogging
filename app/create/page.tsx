@@ -1,10 +1,9 @@
 "use client";
 // CreateBlog.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast, ToastContainer } from 'react-toastify';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTheme } from '@/context/ThemeContext';
 import { CATEGORIES } from '../component/BlogPostCard';
 import { TitleSection } from './TitleSection';
@@ -40,6 +39,37 @@ export default function CreateBlog() {
     const [blogId, setBlogId] = useState('');
     const [tagAutoGen, setTagAutoGen] = useState(false);
     const [editorMode, setEditorMode] = useState<'markdown' | 'visual' | 'html'>('markdown');
+
+    useEffect(() => {
+        const draftTitle = localStorage.getItem('draftTitle');
+        const draftThumbnail = localStorage.getItem('draftThumbnail');
+        const draftMarkdownContent = localStorage.getItem('draftMarkdownContent');
+        const draftHtmlContent = localStorage.getItem('draftHtmlContent');
+        const draftTags = JSON.parse(localStorage.getItem('draftTags') || '[]');
+        const draftCategory = localStorage.getItem('draftCategory');
+
+        if (draftTitle) setTitle(draftTitle);
+        if (draftThumbnail) setThumbnail(draftThumbnail);
+        if (draftMarkdownContent) setMarkdownContent(draftMarkdownContent);
+        if (draftHtmlContent) setHtmlContent(draftHtmlContent);
+        if (draftTags.length > 0) setTags(draftTags);
+        if (draftCategory) setCategory(draftCategory);
+        console.log('draftTags:', draftTags);
+
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('draftTitle', title);
+        localStorage.setItem('draftThumbnail', thumbnail || '');
+        localStorage.setItem('draftMarkdownContent', markdownContent);
+        localStorage.setItem('draftHtmlContent', htmlContent);
+        localStorage.setItem('draftTags', JSON.stringify(tags));
+        localStorage.setItem('draftCategory', category);
+
+        console.log('tags:', tags);
+
+    }, [title, thumbnail, markdownContent, htmlContent, tags, category]);
+
 
     const checkTitle = (title: string) => {
         if (title.length > 250) {
@@ -105,6 +135,7 @@ export default function CreateBlog() {
             if (!response.ok) throw new Error(data.message || 'Something went wrong');
 
             setBlogId(data.blogPostId);
+            console.log('Blog post created:', data);
             return data.message || 'Blog post created successfully';
         } catch (error) {
             if (error instanceof Error) {
@@ -127,7 +158,7 @@ export default function CreateBlog() {
                 },
             });
             if (message === 'Blog post created successfully') {
-                route.push(`/blog/${blogId}`);
+                route.push(`/blogs/${blogId}`);
             }
         } catch (error) {
             console.error('Error creating blog post:', error);
@@ -144,14 +175,20 @@ export default function CreateBlog() {
 
     return (
         <div className="max-w-2xl mx-auto p-5">
-            <ToastContainer />
-            {loading &&
-                <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-5 rounded shadow-lg text-center">
-                        <p className="text-lg font-semibold">Creating Blog Post...</p>
-                    </div>
-                </div>
-            }
+            <Toaster
+                position='top-right'
+                reverseOrder={false}
+                gutter={8}
+                // toastOptions={{
+                //     duration: 5000,
+                //     style: {
+                //         background: isDarkMode ? '#333' : '#fff',
+                //         color: isDarkMode ? '#fff' : '#333',
+                //         fontSize: '1.2rem',
+                //     },
+                // }}
+            />
+
             <h1 className="text-2xl mb-5">Create a New Blog Post</h1>
 
             <TitleSection title={title} setTitle={setTitle} content={(editorMode === 'markdown' ? markdownContent : htmlContent)} />
