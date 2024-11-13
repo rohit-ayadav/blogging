@@ -12,6 +12,7 @@ interface TagsSectionProps {
     content: string;
     tagAutoGen: boolean;
     setTagAutoGen: (value: boolean) => void;
+    isDarkMode?: boolean;
 }
 
 export const TagsSection = ({
@@ -30,7 +31,7 @@ export const TagsSection = ({
         }
 
         setIsLoading(true);
-        setTagAutoGen(true);
+        // setTagAutoGen(true);
 
         try {
             const newTags = await generateTagsFromContent(content);
@@ -45,7 +46,7 @@ export const TagsSection = ({
             console.error('Error generating tags:', error);
         } finally {
             setIsLoading(false);
-            setTagAutoGen(false);
+            // setTagAutoGen(false);
         }
     };
 
@@ -134,6 +135,13 @@ export const TagsSection = ({
                                     </button>
                                 </Badge>
                             ))}
+                            {/* Clear all tags  */}
+                            <button
+                                onClick={() => setTags([])}
+                                className="text-sm text-red-500 hover:underline" 
+                            >
+                                Clear all tags
+                            </button>
                         </div>
                     </div>
                 )}

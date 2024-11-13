@@ -8,6 +8,7 @@ import { Image, AlertCircle, Loader2 } from "lucide-react";
 interface ThumbnailSectionProps {
     thumbnail: string | null;
     setThumbnail: (thumbnail: string) => void;
+    isDarkMode?: boolean;
 }
 
 export const ThumbnailSection = ({

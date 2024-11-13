@@ -22,6 +22,7 @@ interface EditorSectionProps {
     editorMode: 'markdown' | 'visual' | 'html';
     setEditorMode: (mode: 'markdown' | 'visual' | 'html') => void;
     handleContentChange: (value: string) => void;
+    isDarkMode?: boolean;
 }
 
 const EditorLoadingSkeleton = () => (

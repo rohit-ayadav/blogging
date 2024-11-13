@@ -11,12 +11,13 @@ interface TitleSectionProps {
     title: string;
     setTitle: (title: string) => void;
     content: string;
+    isDarkMode?: boolean;
 }
 
 export const TitleSection = ({ title, setTitle, content }: TitleSectionProps) => {
     const [isGenerating, setIsGenerating] = useState(false);
     const MAX_LENGTH = 250;
-    
+
     const generateTitle = async () => {
         if (content.length < 50) {
             toast.error('Content should be at least 50 characters long to generate title');
@@ -24,7 +25,7 @@ export const TitleSection = ({ title, setTitle, content }: TitleSectionProps) =>
         }
 
         setIsGenerating(true);
-        
+
         toast.promise(getTitle(content), {
             loading: 'Generating Title...',
             success: 'Title generated successfully',
@@ -73,7 +74,7 @@ export const TitleSection = ({ title, setTitle, content }: TitleSectionProps) =>
                         maxLength={MAX_LENGTH}
                         className="w-full text-lg"
                     />
-                    
+
                     <div className="flex items-center justify-between text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
                             <Button
@@ -95,7 +96,7 @@ export const TitleSection = ({ title, setTitle, content }: TitleSectionProps) =>
                     </div>
 
                     {title.length > 0 && (
-                        <Progress 
+                        <Progress
                             value={characterProgress}
                             className={`h-1 ${characterProgress > 80 ? "bg-red-500" : ""}`}
                         />

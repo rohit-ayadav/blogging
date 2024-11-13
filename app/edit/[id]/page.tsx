@@ -1,323 +1,301 @@
 "use client";
-import dynamic from 'next/dynamic';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { FormEvent, MouseEvent, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Save } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false, loading: () => <p>Loading...</p> });
-import 'react-quill/dist/quill.snow.css';
-import { sanitize } from 'dompurify';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
+import { toast } from 'react-hot-toast';
+import { useTheme } from '@/context/ThemeContext';
+import { CATEGORIES } from '@/app/component/BlogPostCard';
+import { TitleSection } from '@/app/create/TitleSection';
+import { ThumbnailSection } from '@/app/create/ThumbnailSection';
+import { EditorSection } from '@/app/create/EditorSection';
+import { TagsSection } from '@/app/create/TagsSection';
+import { CategorySection } from '@/app/create/CategorySection';
+import { ActionButtons } from '@/app/create/ActionButtons';
+import DOMPurify from 'dompurify';
+import MarkdownIt from 'markdown-it';
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import TurndownService from 'turndown';
+
+
+interface DraftData {
+    title: string;
+    thumbnail: string | null;
+    markdownContent: string;
+    htmlContent: string;
+    tags: string[];
+    category: string;
+    timestamp: number;
+    editorMode: 'markdown' | 'visual' | 'html';
+}
+
+const DEFAULT_CONTENT = {
+    markdown: `# Welcome to the blog post editor\nStart writing your blog post here...`,
+    html: `<h1>Welcome to the blog post editor</h1><br><br><p>Start writing your blog post here...</p>`
+};
+
+const DRAFT_EXPIRY = 86400000; // 24 hours in milliseconds
 
 export default function EditBlog() {
-    const [title, setTitle] = useState('');
-    const [thumbnail, setThumbnail] = useState<string | null>(null);
-    const [content, setContent] = useState('');
-    const [tags, setTags] = useState<string[]>([]);
-    const [loading, setLoading] = useState(true);
-    const { data: session } = useSession();
-    const [blogId, setBlogId] = useState('');
-    const [saveStatus, setSaveStatus] = useState('');
-    const [createdBy, setCreatedBy] = useState('');
     const router = useRouter();
-
+    const { data: session } = useSession();
+    const { isDarkMode } = useTheme();
     const { id } = useParams();
 
-    useEffect(() => {
-        if (id) {
-            fetchBlogPost(id as string);
-        } else {
-            router.push('/blogs');
-        }
-    }, [id]);
+    const [state, setState] = useState({
+        isInitializing: true,
+        isLoading: false,
+        error: null as string | null,
+        title: '',
+        thumbnail: null as string | null,
+        htmlContent: DEFAULT_CONTENT.html,
+        markdownContent: DEFAULT_CONTENT.markdown,
+        tags: [] as string[],
+        category: '',
+        blogId: '',
+        createdBy: '',
+        tagAutoGen: false,
+        editorMode: 'markdown' as 'markdown' | 'visual' | 'html'
+    });
 
-    const fetchBlogPost = async (id: string) => {
-        try {
-            const response = await fetch(`/api/blog/${id}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch blog post');
+    const updateState = (updates: Partial<typeof state>) => {
+        setState(prev => ({ ...prev, ...updates }));
+    };
+
+    // Fetch blog post data
+    useEffect(() => {
+        const fetchBlogPost = async () => {
+            if (!id) {
+                router.push('/blogs');
+                return;
             }
-            const data = await response.json();
-            setTitle(data.title);
-            setContent(data.content);
-            setThumbnail(data.thumbnail);
-            setTags(data.tags);
-            setBlogId(id);
-            setCreatedBy(data.createdBy);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching blog post:', error);
-            toast.error('Failed to load blog post');
-            setLoading(false);
+
+            try {
+                const response = await fetch(`/api/blog/${id}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch blog post');
+                }
+                const data1 = await response.json();
+                const data = data1.data;
+
+                if (data.language === 'markdown') {
+                    const html = data.content;
+                    const turndownService = new TurndownService();
+                    const markdown = turndownService.turndown(html);
+                    data.content = markdown;
+                }
+                
+
+
+                updateState({
+                    title: data.title || '',
+                    thumbnail: data.thumbnail || null,
+                    markdownContent: data.language === 'markdown' ? data.content : DEFAULT_CONTENT.markdown,
+                    htmlContent: data.language === 'html' ? data.content : DEFAULT_CONTENT.html,
+                    tags: data.tags || [],
+                    category: data.category || '',
+                    blogId: id as string,
+                    createdBy: data.createdBy,
+                    editorMode: data.language === 'markdown' ? 'markdown' : 'html',
+                    isInitializing: false
+                });
+            } catch (error) {
+                console.error('Error fetching blog post:', error);
+                updateState({
+                    error: 'Failed to load blog post',
+                    isInitializing: false
+                });
+            }
+        };
+
+        fetchBlogPost();
+    }, [id, router]);
+
+    const sanitizeContent = {
+        title: (title: string) => DOMPurify.sanitize(title.slice(0, 250)),
+        tags: (tag: string) => DOMPurify.sanitize(tag),
+        content: (value: string) => {
+            if (state.editorMode === 'markdown') {
+                const md = new MarkdownIt({ html: true });
+                return DOMPurify.sanitize(md.render(value));
+            }
+            return DOMPurify.sanitize(value);
         }
     };
 
-    const checkTitle = (title: string) => {
-        if (title?.length > 250) {
-            throw new Error('Title should not exceed 250 characters');
-        }
-        return sanitize(title);
-    }
+    const validateForm = () => {
+        if (!state.title) return 'Title is required';
+        if (!state.htmlContent && !state.markdownContent) return 'Content is required';
+        if (!state.category) return 'Category is required';
+        if (state.tags.length < 1) return 'At least one tag is required';
+        return null;
+    };
 
-    const checkTags = (tag: string) => {
-        if (tag?.length > 50) {
-            throw new Error('Tag should not exceed 50 characters');
-        }
-        return sanitize(tag);
-    }
-
-    const updateBlogPost = async (isDraft: boolean) => {
-        if (!title) {
-            throw new Error('Title is required');
+    const handleSave = async (isDraft: boolean) => {
+        const validationError = validateForm();
+        if (validationError && !isDraft) {
+            toast.error(validationError);
+            return;
         }
 
-        if (!content) {
-            throw new Error('Content is required');
+        // Check authorization
+        if (session?.user?.email !== state.createdBy) {
+            toast.error('You are not authorized to edit this blog post');
+            return;
         }
-        const checkedTitle = checkTitle(title);
-        const checkedTags = tags.map(tag => checkTags(tag));
-        const blogPostData = {
-            title: checkedTitle,
-            content,
-            thumbnail: thumbnail || null,
-            tags: checkedTags,
-            status: isDraft ? 'draft' : 'published',
-        };
-        const email = session?.user?.email;
-        if (email !== createdBy) {
-            throw new Error('You are not authorized to edit this blog post');
-        }
+
+        updateState({ isLoading: true });
 
         try {
-            const response = await fetch(`/api/blog/${blogId}`, {
+            const blogPostData = {
+                title: sanitizeContent.title(state.title),
+                content: sanitizeContent.content(
+                    state.editorMode === 'markdown' ? state.markdownContent : state.htmlContent
+                ),
+                thumbnail: state.thumbnail,
+                tags: state.tags.map(sanitizeContent.tags),
+                category: state.category,
+                status: isDraft ? 'draft' : 'published',
+                language: state.editorMode === 'markdown' ? 'markdown' : 'html',
+            };
+
+            const response = await fetch(`/api/blog/${state.blogId}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(blogPostData),
             });
 
             const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Failed to update blog post');
 
-            if (!response.ok) {
-                throw new Error(data.message || 'Something went wrong');
+            if (!isDraft) {
+                toast.success('Blog post updated successfully');
+                router.push(`/blogs/${state.blogId}`);
+            } else {
+                toast.success('Draft saved successfully');
             }
-
-            return data.message || 'Blog post updated successfully';
-        } catch (error: any) {
-            throw new Error(error.message);
-        }
-    };
-
-    const handleSubmit = async (e: MouseEvent<HTMLButtonElement> | FormEvent<HTMLFormElement>, isDraft: boolean) => {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            const message = await toast.promise(updateBlogPost(isDraft), {
-                pending: 'Updating Blog Post...',
-                success: 'Blog post updated successfully',
-                error: {
-                    render({ data }) {
-                        return <div>{(data as Error).message}</div>;
-                    },
-                },
-            });
-            setSaveStatus(message);
-            router.push(`/blogs/${blogId}`);
         } catch (error) {
-            console.error('Submission Error:', error);
+            toast.error(error instanceof Error ? error.message : 'An unknown error occurred');
         } finally {
-            setLoading(false);
+            updateState({ isLoading: false });
         }
     };
 
-    const handleSave = () => {
-        toast.promise(updateBlogPost(true), {
-            pending: 'Saving Draft...',
-            success: 'Draft saved successfully',
-            error: 'Failed to save draft',
-        });
-    };
-
-    const modules = {
-        toolbar: {
-            container: '#toolbar',
-        },
-        history: {
-            delay: 2000,
-            maxStack: 500,
-            userOnly: true
-        },
-    };
-
-    const formats = [
-        'header', 'font', 'size',
-        'bold', 'italic', 'underline', 'strike', 'blockquote',
-        'list', 'bullet', 'indent',
-        'link', 'image', 'video',
-        'color', 'background', 'align', 'script', 'code-block'
-    ];
-
-    if (loading) {
-        return <div className="text-center mt-10">Loading...</div>;
+    if (state.isInitializing) {
+        return (
+            <div className={cn(
+                "flex items-center justify-center min-h-[60vh]",
+                isDarkMode ? "bg-gray-900" : "bg-white"
+            )}>
+                <div className="text-center space-y-4">
+                    <Loader2 className={cn(
+                        "h-8 w-8 animate-spin mx-auto",
+                        isDarkMode ? "text-gray-300" : "text-primary"
+                    )} />
+                    <p className={cn(
+                        "text-lg",
+                        isDarkMode ? "text-gray-300" : "text-muted-foreground"
+                    )}>Loading editor...</p>
+                </div>
+            </div>
+        );
     }
 
     return (
-        <div className="max-w-2xl mx-auto p-5">
-            <ToastContainer />
-            <h1 className="text-2xl mb-5">Edit Blog Post</h1>
-            <form onSubmit={(e) => handleSubmit(e, false)}>
-                <div className="mb-5">
-                    <label htmlFor="title" className="text-lg font-bold">Blog Title:</label>
-                    <input
-                        type="text"
-                        id="title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Enter the blog title"
-                        className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
-                    />
-                </div>
-                {title?.length > 200 && (
-                    <p className="text-red-500 text-sm">Count Character: {title?.length}/250</p>
-                )}
+        <ScrollArea className={cn(
+            "h-[calc(100vh-4rem)] px-4",
+            isDarkMode ? "bg-gray-900" : "bg-white"
+        )}>
+            <div className="max-w-3xl mx-auto py-8 space-y-6">
+                <div className="flex items-center justify-between">
+                    <h1 className={cn(
+                        "text-3xl font-bold tracking-tight",
+                        isDarkMode ? "text-white" : "text-gray-900"
+                    )}>
+                        Edit Blog Post
+                    </h1>
 
-                <div className="mb-5">
-                    <label htmlFor="thumbnail" className="text-lg font-bold">Thumbnail Image:</label>
-                    <input
-                        type="text"
-                        id="thumbnail"
-                        value={thumbnail || ''}
-                        onChange={(e) => setThumbnail(e.target.value)}
-                        placeholder="Enter the thumbnail image link"
-                        className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
-                    />
-                    <p className="text-sm text-gray-500">You can use any image link from the web</p>
                 </div>
-                {thumbnail && (
-                    <div className="mb-5">
-                        <p className="text-lg font-bold">Thumbnail Preview:</p>
-                        <img src={thumbnail} alt="Thumbnail" className="w-full h-48 object-cover rounded" />
-                    </div>
-                )}
-
-                <div className="mb-5">
-                    <label className="text-lg font-bold">Content:</label>
-                    <CustomToolbar />
-                    <ReactQuill
-                        value={content}
-                        onChange={setContent}
-                        modules={modules}
-                        formats={formats}
-                        className='bg-white p-5 mt-1 rounded border border-gray-300'
-                    />
+                <div className="flex items-center justify-between">
+                    {state.error && (
+                        <Alert variant="destructive" className={cn(
+                            "mt-4",
+                            isDarkMode && "bg-red-900 border-red-800"
+                        )}>
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription>{state.error}</AlertDescription>
+                            <button
+                                onClick={() => window.location.reload()}
+                                className={cn(
+                                    "ml-auto text-sm font-medium underline",
+                                    isDarkMode ? "text-gray-300" : "text-primary"
+                                )}
+                            >
+                                Refresh
+                            </button>
+                        </Alert>
+                    )}
                 </div>
 
-                <div className="mb-5">
-                    <label htmlFor="tags" className="text-lg font-bold">Tags:</label>
-                    <input
-                        type="text"
-                        id="tags"
-                        value={tags?.join(', ')}
-                        onChange={(e) => setTags(e.target.value.split(',').map(tag => tag.trim()))}
-                        placeholder="Enter tags separated by commas"
-                        className="w-full p-2 mt-1 text-lg rounded border border-gray-300"
-                    />
-                </div>
-                {tags?.length > 0 && (
-                    <div className="mb-5">
-                        <label className="text-lg font-bold">Tags Preview:</label>
-                        <div className="flex flex-wrap gap-2 mt-1">
-                            {tags.map((tag, index) => (
-                                <div key={index} className="flex items-center space-x-2">
-                                    <span className="px-3 py-1 bg-gray-200 rounded-full text-sm">
-                                        {tag}
-                                    </span>
-                                    <button
-                                        type="button"
-                                        className="text-red-500 hover:text-red-700"
-                                        onClick={() => setTags(tags.filter((_, i) => i !== index))}
-                                    >
-                                        &times;
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                <Card className={cn(
+                    isDarkMode && "bg-gray-800 border-gray-700"
+                )}>
+                    <CardContent className={cn(
+                        "space-y-6 pt-6",
+                        isDarkMode && "text-gray-100"
+                    )}>
+                        <TitleSection
+                            title={state.title}
+                            setTitle={(title) => updateState({ title })}
+                            content={state.editorMode === 'markdown' ? state.markdownContent : state.htmlContent}
+                            isDarkMode={isDarkMode}
+                        />
 
-                <div className="flex justify-between mt-20">
-                    <Button
-                        type="button"
-                        onClick={handleSave}
-                        className="flex items-center space-x-2 bg-yellow-500 text-white rounded cursor-pointer"
-                    >
-                        <Save size={16} />
-                        <span>Save Draft</span>
-                    </Button>
-                    <button
-                        type="submit"
-                        className="px-4 py-2 bg-green-500 text-white rounded cursor-pointer"
-                    >
-                        Update
-                    </button>
-                </div>
-            </form>
-            {saveStatus && <p className="mt-4 text-green-500">{saveStatus}</p>}
-        </div>
+                        <ThumbnailSection
+                            thumbnail={state.thumbnail}
+                            setThumbnail={(thumbnail) => updateState({ thumbnail })}
+                            isDarkMode={isDarkMode}
+                        />
+
+                        <EditorSection
+                            content={state.editorMode === 'markdown' ? state.markdownContent : state.htmlContent}
+                            editorMode={state.editorMode}
+                            setEditorMode={(editorMode) => updateState({ editorMode })}
+                            handleContentChange={(content) => updateState({
+                                [state.editorMode === 'markdown' ? 'markdownContent' : 'htmlContent']: content
+                            })}
+                            isDarkMode={isDarkMode}
+                        />
+
+                        <TagsSection
+                            tags={state.tags}
+                            setTags={(tags) => updateState({ tags })}
+                            content={state.editorMode === 'markdown' ? state.markdownContent : state.htmlContent}
+                            tagAutoGen={state.tagAutoGen}
+                            setTagAutoGen={(tagAutoGen) => updateState({ tagAutoGen })}
+                            isDarkMode={isDarkMode}
+                        />
+
+                        <CategorySection
+                            category={state.category}
+                            setCategory={(category) => updateState({ category })}
+                            categories={CATEGORIES}
+                            isDarkMode={isDarkMode}
+                        />
+
+                        <ActionButtons
+                            loading={state.isLoading}
+                            handleSave={() => handleSave(true)}
+                            handleSubmit={() => handleSave(false)}
+                            isDarkMode={isDarkMode}
+                            mode="edit"
+                        />
+                    </CardContent>
+                </Card>
+            </div>
+        </ScrollArea>
     );
 }
-
-
-const CustomToolbar = () => (
-    <div id="toolbar">
-        <select className="ql-header" defaultValue={""} onChange={e => e.persist()}>
-            <option value="1">Heading 1</option>
-            <option value="2">Heading 2</option>
-            <option value="3">Heading 3</option>
-            <option value="4">Heading 4</option>
-            <option value="5">Heading 5</option>
-            <option value="6">Heading 6</option>
-            <option value="">Normal</option>
-        </select>
-        <select className="ql-font" defaultValue="sans-serif">
-            <option value="sans-serif">Sans Serif</option>
-            <option value="serif">Serif</option>
-            <option value="monospace">Monospace</option>
-
-        </select>
-        <select className="ql-size" defaultValue="medium">
-            <option value="small">Small</option>
-            <option value="medium">Medium</option>
-            <option value="large">Large</option>
-            <option value="huge">Huge</option>
-
-        </select>
-        <button className="ql-bold" />
-        <button className="ql-italic" />
-        <button className="ql-underline" />
-        <button className="ql-strike" />
-        <select className="ql-color" />
-        <select className="ql-background" />
-        <button className="ql-link" />
-        <button className="ql-image" />
-        <button className="ql-video" />
-        <button className="ql-formula" />
-        <button className="ql-code-block" />
-        <button className="ql-blockquote" />
-        <button className="ql-list" value="ordered" />
-        <button className="ql-list" value="bullet" />
-        <button className="ql-indent" value="-1" />
-        <button className="ql-indent" value="+1" />
-        <select className="ql-align" />
-        <button className="ql-script" value="sub" />
-        <button className="ql-script" value="super" />
-        <button className="ql-clean" />
-        <button className="ql-undo" />
-        <button className="ql-redo" />
-        <button className="ql-history" />
-        <button className="ql-remove" />
-    </div>
-);

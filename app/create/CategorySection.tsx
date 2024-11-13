@@ -14,6 +14,7 @@ interface CategorySectionProps {
     category: string;
     setCategory: (category: string) => void;
     categories: Array<{ value: string; label: string; }>;
+    isDarkMode?: boolean;
 }
 
 export const CategorySection = ({

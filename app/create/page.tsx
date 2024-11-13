@@ -1,9 +1,8 @@
 "use client";
-
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 import { useTheme } from '@/context/ThemeContext';
 import { CATEGORIES } from '../component/BlogPostCard';
 import { TitleSection } from './TitleSection';
@@ -12,11 +11,15 @@ import { EditorSection } from './EditorSection';
 import { TagsSection } from './TagsSection';
 import { CategorySection } from './CategorySection';
 import { ActionButtons } from './ActionButtons';
-import { Toaster } from 'react-hot-toast';
 import DOMPurify from 'dompurify';
 import MarkdownIt from 'markdown-it';
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { resolve } from 'path';
 
-// Define interfaces for better type safety
 interface DraftData {
     title: string;
     thumbnail: string | null;
@@ -30,27 +33,34 @@ interface DraftData {
 
 const DEFAULT_CONTENT = {
     markdown: `# Welcome to the blog post editor\nStart writing your blog post here...`,
-    html: `<h1>Welcome to the blog post editor</h1><p>Start writing your blog post here...</p>`
+    html: `<h1>Welcome to the blog post editor</h1><br><br><p>Start writing your blog post here...</p>`
 };
 
+const DRAFT_EXPIRY = 86400000; // 24 hours in milliseconds
+
 export default function CreateBlog() {
-    const route = useRouter();
+    const router = useRouter();
     const { data: session } = useSession();
     const { isDarkMode } = useTheme();
 
-    // Initial loading state
-    const [isInitializing, setIsInitializing] = useState(true);
+    const [state, setState] = useState({
+        isInitializing: true,
+        isLoading: false,
+        error: null as string | null,
+        title: '',
+        thumbnail: null as string | null,
+        htmlContent: DEFAULT_CONTENT.html,
+        markdownContent: DEFAULT_CONTENT.markdown,
+        tags: [] as string[],
+        category: '',
+        blogId: '',
+        tagAutoGen: false,
+        editorMode: 'markdown' as 'markdown' | 'visual' | 'html'
+    });
 
-    const [title, setTitle] = useState('');
-    const [thumbnail, setThumbnail] = useState<string | null>(null);
-    const [htmlContent, setHtmlContent] = useState(DEFAULT_CONTENT.html);
-    const [markdownContent, setMarkdownContent] = useState(DEFAULT_CONTENT.markdown);
-    const [tags, setTags] = useState<string[]>([]);
-    const [category, setCategory] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [blogId, setBlogId] = useState('');
-    const [tagAutoGen, setTagAutoGen] = useState(false);
-    const [editorMode, setEditorMode] = useState<'markdown' | 'visual' | 'html'>('markdown');
+    const updateState = (updates: Partial<typeof state>) => {
+        setState(prev => ({ ...prev, ...updates }));
+    };
 
     // Load draft data
     useEffect(() => {
@@ -60,130 +70,105 @@ export default function CreateBlog() {
                 if (draftData) {
                     const data: DraftData = JSON.parse(draftData);
 
-                    // Check if draft is still valid (less than 24 hours old)
-                    if (Date.now() - data.timestamp < 86400000) {
-                        setTitle(data.title || '');
-                        setThumbnail(data.thumbnail || null);
-                        setMarkdownContent(data.markdownContent || DEFAULT_CONTENT.markdown);
-                        setHtmlContent(data.htmlContent || DEFAULT_CONTENT.html);
-                        setTags(data.tags || []);
-                        setCategory(data.category || '');
-                        setEditorMode(data.editorMode || 'markdown');
+                    if (Date.now() - data.timestamp < DRAFT_EXPIRY) {
+                        updateState({
+                            title: data.title || '',
+                            thumbnail: data.thumbnail || null,
+                            markdownContent: data.markdownContent || DEFAULT_CONTENT.markdown,
+                            htmlContent: data.htmlContent || DEFAULT_CONTENT.html,
+                            tags: data.tags || [],
+                            category: data.category || '',
+                            editorMode: data.editorMode || 'markdown'
+                        });
 
-                        // Notify user about recovered draft
-                        toast.info('Recovered your previous draft', {
-                            position: 'top-right',
-                            autoClose: 3000
+                        toast.success('Recovered your previous draft', {
+                            duration: 3000,
+                            icon: '📝'
                         });
                     } else {
-                        // Clear expired draft
                         localStorage.removeItem('blogDraft');
                     }
                 }
             } catch (error) {
                 console.error('Error loading draft:', error);
-                toast.error('Error loading draft. Starting with empty editor.');
+                updateState({ error: 'Error loading draft' });
             } finally {
-                setIsInitializing(false);
+                updateState({ isInitializing: false });
             }
         };
 
-        // Delay draft loading slightly to ensure smooth component mounting
-        const timeoutId = setTimeout(loadDraft, 100);
-        return () => clearTimeout(timeoutId);
+        setTimeout(loadDraft, 100);
     }, []);
 
     // Save draft data
     useEffect(() => {
-        // Don't save while initializing
-        if (isInitializing) return;
+        if (state.isInitializing) return;
 
         const saveDraft = () => {
             try {
                 const draftData: DraftData = {
-                    title,
-                    thumbnail,
-                    markdownContent,
-                    htmlContent,
-                    tags,
-                    category,
+                    title: state.title,
+                    thumbnail: state.thumbnail,
+                    markdownContent: state.markdownContent,
+                    htmlContent: state.htmlContent,
+                    tags: state.tags,
+                    category: state.category,
                     timestamp: Date.now(),
-                    editorMode
+                    editorMode: state.editorMode
                 };
 
                 localStorage.setItem('blogDraft', JSON.stringify(draftData));
-                console.log('Draft saved:', draftData);
             } catch (error) {
                 console.error('Error saving draft:', error);
             }
         };
 
-        // Debounce draft saving to prevent excessive writes
         const timeoutId = setTimeout(saveDraft, 1000);
         return () => clearTimeout(timeoutId);
-    }, [title, thumbnail, markdownContent, htmlContent, tags, category, editorMode, isInitializing]);
+    }, [state]);
 
-    // Clear draft on successful publish
-    const clearDraft = () => {
-        try {
-            localStorage.removeItem('blogDraft');
-        } catch (error) {
-            console.error('Error clearing draft:', error);
+    const sanitizeContent = {
+        title: (title: string) => DOMPurify.sanitize(title.slice(0, 250)),
+        tags: (tag: string) => DOMPurify.sanitize(tag),
+        content: (value: string) => {
+            if (state.editorMode === 'markdown') {
+                const md = new MarkdownIt({ html: true });
+                return DOMPurify.sanitize(md.render(value));
+            }
+            return DOMPurify.sanitize(value);
         }
     };
 
-    const checkTitle = (title: string) => {
-        if (title.length > 250) {
-            return DOMPurify.sanitize(title.slice(0, 250));
-        }
-        return DOMPurify.sanitize(title);
+    const validateForm = () => {
+        if (!state.title) return 'Title is required';
+        if (!state.htmlContent && !state.markdownContent) return 'Content is required';
+        if (!state.category) return 'Category is required';
+        if (state.tags.length < 1) return 'At least one tag is required';
+        return null;
     };
 
-    const checkTags = (tag: string) => {
-        return DOMPurify.sanitize(tag);
-    };
-
-    const checkContent = (value: string) => {
-        if (editorMode === 'markdown') {
-            const md = new MarkdownIt({ html: true });
-            const content = md.render(value);
-            return DOMPurify.sanitize(content);
-        }
-        return DOMPurify.sanitize(value);
-    };
-
-    const createBlogPost = async (isDraft: boolean) => {
-        if (!title) {
-            toast.error('Title is required');
-            return;
-        }
-        if (!htmlContent || !markdownContent) {
-            toast.error('Content is required');
-            return;
-        }
-        if (!category) {
-            toast.error('Category is required');
-            return;
-        }
-        if (tags.length < 1) {
-            toast.error('At least one tag is required');
+    const handleSave = async () => {
+        const validationError = validateForm();
+        if (validationError) {
+            toast.error(validationError);
             return;
         }
 
-        const checkedTitle = checkTitle(title);
-        const checkedTags = tags.map(tag => checkTags(tag));
-
-        const blogPostData = {
-            title: checkedTitle,
-            content: checkContent(editorMode === 'markdown' ? markdownContent : htmlContent),
-            thumbnail,
-            tags: checkedTags,
-            category,
-            status: isDraft ? 'draft' : 'published',
-            language: editorMode === 'markdown' ? 'markdown' : 'html',
-        };
+        updateState({ isLoading: true });
 
         try {
+            const blogPostData = {
+                title: sanitizeContent.title(state.title),
+                content: sanitizeContent.content(
+                    state.editorMode === 'markdown' ? state.markdownContent : state.htmlContent
+                ),
+                thumbnail: state.thumbnail,
+                tags: state.tags.map(sanitizeContent.tags),
+                category: state.category,
+                status: 'published',
+                language: state.editorMode === 'markdown' ? 'markdown' : 'html',
+            };
+
             const response = await fetch('/api/blog', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -191,109 +176,132 @@ export default function CreateBlog() {
             });
 
             const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'Something went wrong');
+            if (!response.ok) throw new Error(data.message || 'Failed to create blog post');
 
-            setBlogId(data.blogPostId);
+            updateState({ blogId: data.blogPostId });
 
-            // Clear draft on successful publish
-            if (!isDraft) {
-                clearDraft();
-            }
+            localStorage.removeItem('blogDraft');
+            toast.success('Blog post created successfully');
+            router.push(`/blogs/${data.blogPostId}`);
 
-            return data.message || 'Blog post created successfully';
         } catch (error) {
-            if (error instanceof Error) {
-                throw new Error(error.message);
-            } else {
-                throw new Error('An unknown error occurred');
-            }
-        }
-    };
-
-    const handleSave = async (isDraft: boolean) => {
-        setLoading(true);
-        try {
-            const message = await toast.promise(createBlogPost(isDraft), {
-                pending: 'Creating Blog Post...',
-                success: 'Blog post created successfully',
-                error: {
-                    render({ data }) {
-                        return <div>{(data as Error).message}</div>;
-                    },
-                },
-            });
-            if (message === 'Blog post created successfully') {
-                route.push(`/blogs/${blogId}`);
-            }
-        } catch (error) {
-            console.error('Error creating blog post:', error);
+            toast.error(error instanceof Error ? error.message : 'An unknown error occurred');
         } finally {
-            setLoading(false);
+            updateState({ isLoading: false });
         }
     };
 
-    const handleContentChange = (value: string) => {
-        if (editorMode === 'markdown') {
-            setMarkdownContent(value);
-        } else {
-            setHtmlContent(value);
-        }
+    const handleSaveDraft = () => {
+        toast.success('Draft saved successfully', {
+            icon: '📝',
+            duration: 1000,
+        });
+
+        setTimeout(() => {
+            toast.success('Drafts are saved locally and will be available for 24 hours', {
+                icon: '🕒',
+                duration: 1500,
+            });
+        }, 3000);
     };
 
-    if (isInitializing) {
+    if (state.isInitializing) {
         return (
-            <div className="max-w-2xl mx-auto p-5 flex items-center justify-center min-h-[400px]">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-lg">Loading editor...</p>
+            <div className={cn(
+                "flex items-center justify-center min-h-[60vh]",
+                isDarkMode ? "bg-gray-900" : "bg-white"
+            )}>
+                <div className="text-center space-y-4">
+                    <Loader2 className={cn(
+                        "h-8 w-8 animate-spin mx-auto",
+                        isDarkMode ? "text-gray-300" : "text-primary"
+                    )} />
+                    <p className={cn(
+                        "text-lg",
+                        isDarkMode ? "text-gray-300" : "text-muted-foreground"
+                    )}>Loading editor...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="max-w-2xl mx-auto p-5">
-            <Toaster
-                position="top-right"
-                reverseOrder={false}
-                gutter={8}
-            />
-            <ToastContainer />
+        <ScrollArea className={cn(
+            "h-[calc(100vh-4rem)] px-4",
+            isDarkMode ? "bg-gray-900" : "bg-white"
+        )}>
+            <div className="max-w-3xl mx-auto py-8 space-y-6">
+                <div className="flex items-center justify-between">
+                    <h1 className={cn(
+                        "text-3xl font-bold tracking-tight",
+                        isDarkMode ? "text-white" : "text-gray-900"
+                    )}>Create Blog Post</h1>
+                    {state.error && (
+                        <Alert variant="destructive" className={cn(
+                            "mt-4",
+                            isDarkMode && "bg-red-900 border-red-800"
+                        )}>
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription>{state.error}</AlertDescription>
+                        </Alert>
+                    )}
+                </div>
 
-            <h1 className="text-2xl mb-5">Create a New Blog Post</h1>
+                <Card className={cn(
+                    isDarkMode && "bg-gray-800 border-gray-700"
+                )}>
+                    <CardContent className={cn(
+                        "space-y-6 pt-6",
+                        isDarkMode && "text-gray-100"
+                    )}>
+                        <TitleSection
+                            title={state.title}
+                            setTitle={(title) => updateState({ title })}
+                            content={state.editorMode === 'markdown' ? state.markdownContent : state.htmlContent}
+                            isDarkMode={isDarkMode}
+                        />
 
-            <TitleSection
-                title={title}
-                setTitle={setTitle}
-                content={(editorMode === 'markdown' ? markdownContent : htmlContent)}
-            />
-            <ThumbnailSection
-                thumbnail={thumbnail}
-                setThumbnail={setThumbnail}
-            />
-            <EditorSection
-                content={(editorMode === 'markdown' ? markdownContent : htmlContent)}
-                editorMode={editorMode}
-                setEditorMode={setEditorMode}
-                handleContentChange={handleContentChange}
-            />
-            <TagsSection
-                tags={tags}
-                setTags={setTags}
-                content={(editorMode === 'markdown' ? markdownContent : htmlContent)}
-                tagAutoGen={tagAutoGen}
-                setTagAutoGen={setTagAutoGen}
-            />
-            <CategorySection
-                category={category}
-                setCategory={setCategory}
-                categories={CATEGORIES}
-            />
-            <ActionButtons
-                loading={loading}
-                handleSave={() => handleSave(true)}
-                handleSubmit={() => handleSave(false)}
-            />
-        </div>
+                        <ThumbnailSection
+                            thumbnail={state.thumbnail}
+                            setThumbnail={(thumbnail) => updateState({ thumbnail })}
+                            isDarkMode={isDarkMode}
+                        />
+
+                        <EditorSection
+                            content={state.editorMode === 'markdown' ? state.markdownContent : state.htmlContent}
+                            editorMode={state.editorMode}
+                            setEditorMode={(editorMode) => updateState({ editorMode })}
+                            handleContentChange={(content) => updateState({
+                                [state.editorMode === 'markdown' ? 'markdownContent' : 'htmlContent']: content
+                            })}
+                            isDarkMode={isDarkMode}
+                        />
+
+                        <TagsSection
+                            tags={state.tags}
+                            setTags={(tags) => updateState({ tags })}
+                            content={state.editorMode === 'markdown' ? state.markdownContent : state.htmlContent}
+                            tagAutoGen={state.tagAutoGen}
+                            setTagAutoGen={(tagAutoGen) => updateState({ tagAutoGen })}
+                            isDarkMode={isDarkMode}
+                        />
+
+                        <CategorySection
+                            category={state.category}
+                            setCategory={(category) => updateState({ category })}
+                            categories={CATEGORIES}
+                            isDarkMode={isDarkMode}
+                        />
+
+                        <ActionButtons
+                            loading={state.isLoading}
+                            handleSave={() => handleSaveDraft()}
+                            handleSubmit={() => handleSave()}
+                            isDarkMode={isDarkMode}
+                        />
+                    </CardContent>
+                </Card>
+            </div>
+        </ScrollArea>
     );
 }
