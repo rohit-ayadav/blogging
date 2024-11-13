@@ -55,13 +55,20 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
         toast.promise(postComment(), {
             loading: 'Posting comment...',
             success: 'Comment posted successfully.',
-            error: 'Error posting comment.',
+            error: (err) => `Error: ${err.message}`
         });
     }
 
     const postComment = async () => {
-        if (!session || !content) {
-            throw new Error('Please login and enter a comment.');
+        if (!session) {
+            await signIn();
+            return;
+        }
+        if (!content) {
+            throw new Error('Please enter a comment.');
+        }
+        if (!session.user?.name || !session.user?.email) {
+            throw new Error('Please update your profile to comment.');
         }
 
         try {

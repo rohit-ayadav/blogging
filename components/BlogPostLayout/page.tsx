@@ -42,8 +42,8 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({ children, post }) => {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
-                <Link href="/" className="text-sm text-gray-500 dark:text-gray-400 hover:underline">Home/</Link>
-                <Link href="/blogs" className="text-sm text-gray-500 dark:text-gray-400 hover:underline">Blog/</Link>
+                <Link href="/" className="text-sm text-gray-500 dark:text-gray-400 hover:underline">Home / </Link>
+                <Link href="/blogs" className="text-sm text-gray-500 dark:text-gray-400 hover:underline">Blog /</Link>
                 <Link href={`/blogs/${post?._id}`} className="text-sm text-gray-500 dark:text-gray-400 hover:underline"> {post?.title}</Link>
               </div>
             </div>
