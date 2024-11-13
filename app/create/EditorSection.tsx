@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import MarkdownIt from 'markdown-it';
 import MarkdownEditor from 'react-markdown-editor-lite';
-import CustomToolbar from '@/app/create/CustomToolbar';
+import CustomToolbar from '@/app/create/customToolbar';
 import { useTheme } from 'next-themes';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
