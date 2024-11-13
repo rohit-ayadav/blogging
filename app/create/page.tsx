@@ -80,11 +80,11 @@ export default function CreateBlog() {
                             editorMode: data.editorMode || 'markdown'
                         });
                         // if draft is recovered and not expired and not equal to initial content
-                        if (data.markdownContent !== DEFAULT_CONTENT.markdown || data.htmlContent !== DEFAULT_CONTENT.html)
-                            toast.success('Recovered your previous draft', {
-                                duration: 3000,
-                                icon: '📝'
-                            });
+                        // if (data.markdownContent !== DEFAULT_CONTENT.markdown || data.htmlContent !== DEFAULT_CONTENT.html)
+                        //     toast.success('Recovered your previous draft', {
+                        //         duration: 3000,
+                        //         icon: '📝'
+                        //     });
                     } else {
                         localStorage.removeItem('blogDraft');
                     }
