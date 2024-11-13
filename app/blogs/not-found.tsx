@@ -1,7 +1,9 @@
 // app/blogs/not-found.tsx
+import React from 'react';
+
 export default function NotFound() {
     return (
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="min-h-[60vh] flex items-center justify-center">
             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 max-w-2xl w-full">
                 <div className="flex">
                     <div>

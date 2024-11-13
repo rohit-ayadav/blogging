@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 
 // Error message components
 const ErrorMessage = ({ message }: { message: string }) => (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-[60vh] flex items-center justify-center">
         <div className="bg-red-50 border-l-4 border-red-500 p-4 max-w-2xl w-full">
             <div className="flex">
                 <div>
@@ -89,7 +89,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     const title = postData?.title || 'Next.js Blog Post';
     const thumbnailUrl = postData?.thumbnail || '/default-thumbnail.png';
     const description = postData?.content.replace(/<[^>]*>?/gm, '').substring(0, 200);
-        
+
     return {
         title: title,
         description: description,
@@ -112,7 +112,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export default async function IndividualBlogPost({ params }: { params: { id: string } }) {
     const response = await getPostData(params.id);
 
-    
+
     if (!response.success) {
         switch (response.statusCode) {
             case 404:
