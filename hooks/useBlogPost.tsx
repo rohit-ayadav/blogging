@@ -90,7 +90,7 @@ const useBlogPost = (id: string, initialData: Post | null = null) => {
             }
             try {
                 const relatedPostsResponse = await fetch(
-                    `/api/blog?tags=${data.data.tags.join(",")}&limit=3`
+                    `/api/blog?tags=${data.data.tags.join(",")}&limit=4`
                 );
                 if (!relatedPostsResponse.ok) {
                     throw new Error(
