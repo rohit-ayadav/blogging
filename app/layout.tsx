@@ -46,6 +46,44 @@ export async function generateMetadata({
   return {
     title,
     description,
+    manifest: "/manifest.json",
+    themeColor: "#000000",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "black",
+      title: "Blog Website",
+    },
+    icons: {
+      icon: [
+        { url: "/icons/icon-72x72.png", sizes: "72x72", type: "image/png" },
+        { url: "/icons/icon-96x96.png", sizes: "96x96", type: "image/png" },
+        { url: "/icons/icon-128x128.png", sizes: "128x128", type: "image/png" },
+        { url: "/icons/icon-144x144.png", sizes: "144x144", type: "image/png" },
+        { url: "/icons/icon-152x152.png", sizes: "152x152", type: "image/png" },
+        { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+        { url: "/icons/icon-384x384.png", sizes: "384x384", type: "image/png" },
+        { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+      ],
+
+      apple: [
+        { url: "/icons/icon-152x152.png", sizes: "152x152", type: "image/png" },
+        { url: "/icons/icon-180x180.png", sizes: "180x180", type: "image/png" },
+        { url: "/icons/icon-167x167.png", sizes: "167x167", type: "image/png" },
+      ],
+      shortcut: ["/icons/icon-192x192.png"],
+    },
+    applicationName: "Blog Website",
+    viewport: {
+      width: "device-width",
+      initialScale: 1,
+      maximumScale: 1,
+      minimumScale: 1,
+      userScalable: false,
+      viewportFit: "cover",
+    },
+    formatDetection: {
+      telephone: false,
+    },
     openGraph: {
       title,
       description,
@@ -59,12 +97,15 @@ export async function generateMetadata({
           alt: title,
         },
       ],
+      siteName: "Blog Website",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
       images: [imageUrl],
+      site: "@rohit.ayadav",
+      creator: "@rohit.ayadav",
     },
     alternates: {
       canonical: fullUrl,
@@ -72,6 +113,24 @@ export async function generateMetadata({
     robots: {
       index: true,
       follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+    verification: {
+      // google: "your-google-site-verification",
+    },
+    category: "blogging",
+    other: {
+      "apple-mobile-web-app-capable": "yes",
+      "mobile-web-app-capable": "yes",
+      "msapplication-TileColor": "#000000",
+      "msapplication-TileImage": "/icons/icon-144x144.png",
+      "msapplication-config": "/browserconfig.xml",
     },
   };
 }

@@ -53,7 +53,14 @@ const useBlogData = () => {
   const [totalBlogs, setTotalBlogs] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
 
-
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => console.log('Service Worker registered:', registration))
+        .catch((err) => console.log('Service Worker registration failed:', err));
+    }
+  }, []);
 
   useEffect(() => {
     const fetchStats = async () => {
