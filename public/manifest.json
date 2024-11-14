@@ -98,7 +98,7 @@
             "name": "Admin Dashboard",
             "short_name": "Admin",
             "description": "Manage the blog website",
-            "url": "/admin",
+            "url": "/dashboard/admin",
             "icons": [
                 {
                     "src": "/icons/admin-96x96.png",
