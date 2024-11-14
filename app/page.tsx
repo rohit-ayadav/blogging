@@ -10,7 +10,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import CountUp from 'react-countup';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
-import { set } from 'mongoose';
 
 
 interface Post {
