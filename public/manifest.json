@@ -101,7 +101,7 @@
             "url": "/dashboard/admin",
             "icons": [
                 {
-                    "src": "/icons/admin-96x96.png",
+                    "src": "/icons/admin-96x96.png?revision=1",
                     "sizes": "96x96"
                 }
             ]
