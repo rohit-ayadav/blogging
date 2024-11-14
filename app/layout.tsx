@@ -46,7 +46,8 @@ export async function generateMetadata({
   return {
     title,
     description,
-    manifest: "/manifest.json",
+    // Manifest
+    manifest: "/manifest.json?v=1",
     themeColor: "#000000",
     appleWebApp: {
       capable: true,

@@ -1,6 +1,6 @@
 {
-    "name": "Blog Website",
-    "short_name": "BlogWeb",
+    "name": "Dev Bloggers",
+    "short_name": "Dev Bloggers",
     "description": "A modern platform for reading, creating, and sharing blogs across various topics",
     "start_url": "/blogs",
     "display": "standalone",
@@ -62,7 +62,7 @@
             "name": "Create New Blog",
             "short_name": "New Blog",
             "description": "Start writing a new blog post",
-            "url": "/create-blog",
+            "url": "/create",
             "icons": [
                 {
                     "src": "/icons/create-96x96.png",
@@ -71,13 +71,37 @@
             ]
         },
         {
-            "name": "My Blogs",
-            "short_name": "My Blogs",
-            "description": "View your blog posts",
-            "url": "/my-blogs",
+            "name": "My Profile",
+            "short_name": "My Profile",
+            "description": "View and edit your profile",
+            "url": "/profile",
             "icons": [
                 {
-                    "src": "/icons/blog-96x96.png",
+                    "src": "/icons/profile-96x96.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Contact Us",
+            "short_name": "Contact",
+            "description": "Get in touch with the blog website team",
+            "url": "/contacts",
+            "icons": [
+                {
+                    "src": "/icons/create-96x96.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Admin Dashboard",
+            "short_name": "Admin",
+            "description": "Manage the blog website",
+            "url": "/admin",
+            "icons": [
+                {
+                    "src": "/icons/admin-96x96.png",
                     "sizes": "96x96"
                 }
             ]
@@ -86,7 +110,14 @@
     "categories": [
         "productivity",
         "social",
-        "lifestyle"
+        "lifestyle",
+        "news",
+        "tech",
+        "education",
+        "entertainment",
+        "sports",
+        "health",
+        "travel"
     ],
     "screenshots": [
         {

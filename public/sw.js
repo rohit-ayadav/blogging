@@ -2,17 +2,17 @@ const CACHE_NAME = 'blog-website-v1';
 const STATIC_CACHE_NAME = 'static-v1';
 const DYNAMIC_CACHE_NAME = 'dynamic-v1';
 
-
+// Resources to cache immediately
 const STATIC_ASSETS = [
     '/blogs',
-    '/offline',
+    '/offline',  // Create an offline fallback page
     '/icons/icon-192x192.png',
     '/icons/icon-512x512.png',
     '/styles/globals.css',
-
+    // Add other critical CSS/JS files
 ];
 
-
+// Install event - cache static assets
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(STATIC_CACHE_NAME)
@@ -24,7 +24,7 @@ self.addEventListener('install', (event) => {
     );
 });
 
-
+// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys()
@@ -42,22 +42,22 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-
+// Helper function to check if request is for an API route
 const isApiRequest = (url) => {
     return url.includes('/api/');
 };
 
-
+// Helper function to check if request is for an image
 const isImageRequest = (url) => {
     return url.match(/\.(jpg|jpeg|png|gif|svg)$/);
 };
 
-
+// Fetch event - handle requests with different strategies
 self.addEventListener('fetch', (event) => {
-
+    // Skip cross-origin requests
     if (!event.request.url.startsWith(self.location.origin)) return;
 
-
+    // API requests - Network First with timeout fallback
     if (isApiRequest(event.request.url)) {
         event.respondWith(
             Promise.race([
@@ -81,7 +81,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-
+    // Image requests - Cache First with network fallback
     if (isImageRequest(event.request.url)) {
         event.respondWith(
             caches.match(event.request)
@@ -95,14 +95,14 @@ self.addEventListener('fetch', (event) => {
                         });
                 })
                 .catch(() => {
-
-                    return caches.match('/icons/placeholder.png');
+                    // Return a placeholder image or fallback
+                    return caches.match('/default-thumbnail.png');
                 })
         );
         return;
     }
 
-
+    // HTML pages - Network First with cache fallback
     if (event.request.mode === 'navigate') {
         event.respondWith(
             fetch(event.request)
@@ -122,7 +122,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-
+    // Default - Stale While Revalidate
     event.respondWith(
         caches.match(event.request)
             .then(cachedResponse => {
@@ -138,7 +138,7 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
-
+// Handle push notifications
 self.addEventListener('push', (event) => {
     const options = {
         body: event.data.text(),
@@ -146,7 +146,7 @@ self.addEventListener('push', (event) => {
         badge: '/icons/badge-72x72.png',
         vibrate: [100, 50, 100],
         data: {
-            url: '/blogs'
+            url: '/blogs'  // Direct to blogs page when notification is clicked
         }
     };
 
@@ -155,7 +155,7 @@ self.addEventListener('push', (event) => {
     );
 });
 
-
+// Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
     event.waitUntil(
