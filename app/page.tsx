@@ -54,7 +54,6 @@ const useBlogData = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  usePushClient();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -153,7 +152,9 @@ const HomePage = () => {
   const { isDarkMode } = useTheme();
   const router = useRouter();
   const { loading, error, posts, users, totalBlogs, totalUsers, totalLikes, totalViews } = useBlogData();
-
+  
+  usePushClient();
+  
   useEffect(() => {
     document.body.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);

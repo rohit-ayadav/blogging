@@ -1,6 +1,6 @@
-const CACHE_NAME = 'blog-website-v1';
-const STATIC_CACHE_NAME = 'static-v1';
-const DYNAMIC_CACHE_NAME = 'dynamic-v1';
+const CACHE_NAME = 'blog-website-v2';
+const STATIC_CACHE_NAME = 'static-v2';
+const DYNAMIC_CACHE_NAME = 'dynamic-v2';
 
 // Resources to cache immediately
 const STATIC_ASSETS = [
@@ -14,16 +14,16 @@ const STATIC_ASSETS = [
 ];
 
 // Install event - cache static assets
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(STATIC_CACHE_NAME)
-            .then(cache => {
-                console.log('Caching static assets');
-                return cache.addAll(STATIC_ASSETS);
-            })
-            .then(() => self.skipWaiting())
-    );
-});
+// self.addEventListener('install', (event) => {
+//     event.waitUntil(
+//         caches.open(STATIC_CACHE_NAME)
+//             .then(cache => {
+//                 console.log('Caching static assets');
+//                 return cache.addAll(STATIC_ASSETS);
+//             })
+//             .then(() => self.skipWaiting())
+//     );
+// });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
@@ -178,4 +178,10 @@ self.addEventListener('notificationclick', (event) => {
             })
     );
 });
+
+self.addEventListener('push', (event) => {
+    console.log('Push received:', event.data?.text());
+    alert('Push received:', event.data?.text());
+});
+
 
