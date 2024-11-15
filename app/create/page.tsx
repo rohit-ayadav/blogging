@@ -180,7 +180,7 @@ export default function CreateBlog() {
             localStorage.removeItem('blogDraft');
             toast.success('Blog post created successfully');
             router.push(`/blogs/${data.blogPostId}`);
-            
+
 
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'An unknown error occurred');

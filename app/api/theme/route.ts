@@ -4,9 +4,9 @@ import { connectDB } from "@/utils/db";
 import { getSessionAtHome } from "@/auth";
 
 await connectDB();
-const session = await getSessionAtHome();
 
 export async function POST(request: NextRequest) {
+  const session = await getSessionAtHome();
   const { theme } = await request.json();
   if (!theme) {
     return NextResponse.json(
@@ -80,6 +80,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const session = await getSessionAtHome();
   if (!session) {
     return NextResponse.json(
       {
