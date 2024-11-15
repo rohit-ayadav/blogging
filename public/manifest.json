@@ -1,12 +1,19 @@
 {
+    "id": "com.devbloggers.app",
     "name": "Dev Bloggers",
     "short_name": "Dev Bloggers",
-    "description": "A modern platform for reading, creating, and sharing blogs across various topics",
-    "start_url": "/blogs",
+    "description": "Your go-to platform for tech blogs, coding tutorials, and developer insights. Read, create, and share knowledge with the global dev community.",
+    "start_url": "/?source=pwa",
+    "scope": "/",
     "display": "standalone",
+    "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
     "background_color": "#ffffff",
-    "theme_color": "#000000",
+    "theme_color": "#0f172a",
     "orientation": "any",
+    "launch_handler": {
+        "client_mode": ["focus-existing", "auto"]
+    },
+    "handle_links": "preferred",
     "icons": [
         {
             "src": "/icons/android-icon-72x72.png",
@@ -30,7 +37,7 @@
             "src": "/icons/android-icon-144x144.png",
             "sizes": "144x144",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "any maskable monochrome"
         },
         {
             "src": "/icons/icon-152x152.png",
@@ -57,86 +64,110 @@
             "purpose": "any maskable"
         }
     ],
-    "shortcuts": [
-        {
-            "name": "Create New Blog",
-            "short_name": "New Blog",
-            "description": "Start writing a new blog post",
-            "url": "/create",
-            "icons": [
-                {
-                    "src": "/icons/create-96x96.png",
-                    "sizes": "96x96"
-                }
-            ]
-        },
-        {
-            "name": "My Profile",
-            "short_name": "My Profile",
-            "description": "View and edit your profile",
-            "url": "/profile",
-            "icons": [
-                {
-                    "src": "/icons/profile-96x96.png",
-                    "sizes": "96x96"
-                }
-            ]
-        },
-        {
-            "name": "Contact Us",
-            "short_name": "Contact",
-            "description": "Get in touch with the blog website team",
-            "url": "/contacts",
-            "icons": [
-                {
-                    "src": "/icons/create-96x96.png",
-                    "sizes": "96x96"
-                }
-            ]
-        },
-        {
-            "name": "Admin Dashboard",
-            "short_name": "Admin",
-            "description": "Manage the blog website",
-            "url": "/dashboard/admin",
-            "icons": [
-                {
-                    "src": "/icons/admin-96x96.png?revision=1",
-                    "sizes": "96x96"
-                }
-            ]
-        }
-    ],
-    "categories": [
-        "productivity",
-        "social",
-        "lifestyle",
-        "news",
-        "tech",
-        "education",
-        "entertainment",
-        "sports",
-        "health",
-        "travel"
-    ],
     "screenshots": [
         {
             "src": "/screenshots/home-1280x720.png",
             "sizes": "1280x720",
             "type": "image/png",
             "platform": "wide",
-            "label": "Homescreen of Blog Website"
+            "label": "Discover trending developer stories and insights",
+            "form_factor": "wide"
         },
         {
             "src": "/screenshots/editor-1280x720.png",
             "sizes": "1280x720",
             "type": "image/png",
             "platform": "wide",
-            "label": "Blog Editor Interface"
+            "label": "Write and edit blogs with our powerful markdown editor",
+            "form_factor": "wide"
+        },
+        {
+            "src": "/screenshots/mobile-home-750x1334.png",
+            "sizes": "750x1334",
+            "type": "image/png",
+            "platform": "narrow",
+            "label": "Access your favorite tech blogs on the go",
+            "form_factor": "narrow"
+        },
+        {
+            "src": "/screenshots/mobile-editor-750x1334.png",
+            "sizes": "750x1334",
+            "type": "image/png",
+            "platform": "narrow",
+            "label": "Create content anywhere with our mobile-friendly editor",
+            "form_factor": "narrow"
         }
+    ],
+    "shortcuts": [
+        {
+            "name": "Create New Blog",
+            "short_name": "New Blog",
+            "description": "Start writing a new blog post",
+            "url": "/create?source=shortcut",
+            "icons": [
+                {
+                    "src": "/icons/create-96x96.png",
+                    "sizes": "96x96",
+                    "purpose": "any"
+                }
+            ]
+        },
+        {
+            "name": "My Profile",
+            "short_name": "Profile",
+            "description": "View and edit your profile",
+            "url": "/profile?source=shortcut",
+            "icons": [
+                {
+                    "src": "/icons/profile-96x96.png",
+                    "sizes": "96x96",
+                    "purpose": "any"
+                }
+            ]
+        },
+        {
+            "name": "Bookmarked Blogs",
+            "short_name": "Bookmarks",
+            "description": "Access your saved articles",
+            "url": "/bookmarks?source=shortcut",
+            "icons": [
+                {
+                    "src": "/icons/bookmark-96x96.png",
+                    "sizes": "96x96",
+                    "purpose": "any"
+                }
+            ]
+        }
+    ],
+    "categories": [
+        "education",
+        "productivity",
+        "developer-tools",
+        "social",
+        "tech"
     ],
     "lang": "en",
     "dir": "ltr",
     "prefer_related_applications": false,
+    "related_applications": [],
+    "share_target": {
+        "action": "/share-target",
+        "method": "GET",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url"
+        }
+    },
+    "protocol_handlers": [
+        {
+            "protocol": "web+devblog",
+            "url": "/blog?id=%s"
+        }
+    ],
+    "edge_side_panel": {
+        "preferred_width": 400
+    },
+    "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
     "gcm_sender_id": "103953800507"
 }

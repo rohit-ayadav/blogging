@@ -1,281 +1,322 @@
-// Service Worker for Blog Website
-const CACHE_NAME = 'blog-website-v2';
-const STATIC_CACHE_NAME = 'static-v2';
-const DYNAMIC_CACHE_NAME = 'dynamic-v2';
+// Service Worker Configuration
+const CONFIG = {
+    version: '3.0.0',
+    caches: {
+        static: 'static-cache-v3',
+        dynamic: 'dynamic-cache-v3',
+        pages: 'pages-cache-v3',
+        images: 'images-cache-v3',
+        api: 'api-cache-v3'
+    },
+    strategies: {
+        api: {
+            timeout: 3000,
+            maxAge: 5 * 60 * 1000 // 5 minutes
+        },
+        images: {
+            maxEntries: 100,
+            maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
+        }
+    }
+};
 
 const STATIC_ASSETS = [
-    // '/',  // Add root path
-    // '/blogs',
     '/offline',
-    // '/dashboard',  // Fixed paths (removed dots)
     '/login',
     '/create',
-    // '/dashboard/admin',
-    // '/profile',
-    // '/default-thumbnail.png',  // Add default image to static assets
+    '/manifest.json',
+    '/css/main.css',
+    '/js/app.js',
     '/icons/android-icon-192x192.png',
-    '/icons/android-icon-72x72.png'
+    '/icons/android-icon-72x72.png',
+    '/icons/favicon.ico',
+    '/default-thumbnail.png'
 ];
 
-// Install event - cache static assets
-self.addEventListener('install', (event) => {
+// Cache management helper class
+class CacheManager {
+    static async deleteOldCaches() {
+        const cacheNames = await caches.keys();
+        const validCaches = Object.values(CONFIG.caches);
+
+        return Promise.all(
+            cacheNames
+                .filter(name => !validCaches.includes(name))
+                .map(name => {
+                    console.log(`Deleting old cache: ${name}`);
+                    return caches.delete(name);
+                })
+        );
+    }
+
+    static async limitCacheSize(cacheName, maxItems) {
+        const cache = await caches.open(cacheName);
+        const keys = await cache.keys();
+
+        if (keys.length > maxItems) {
+            await Promise.all(
+                keys.slice(0, keys.length - maxItems).map(key => cache.delete(key))
+            );
+        }
+    }
+
+    static async cacheWithExpiry(cacheName, request, response) {
+        const cache = await caches.open(cacheName);
+        const now = Date.now();
+        const clonedResponse = response.clone();
+
+        const metadata = {
+            url: request.url,
+            timestamp: now,
+            ttl: CONFIG.strategies.api.maxAge
+        };
+
+        const modifiedResponse = new Response(clonedResponse.body, {
+            ...clonedResponse,
+            headers: new Headers({
+                ...Object.fromEntries(clonedResponse.headers.entries()),
+                'sw-cache-metadata': JSON.stringify(metadata)
+            })
+        });
+
+        await cache.put(request, modifiedResponse);
+    }
+
+    static async isResponseValid(response) {
+        if (!response) return false;
+
+        const metadata = response.headers.get('sw-cache-metadata');
+        if (!metadata) return true;
+
+        const { timestamp, ttl } = JSON.parse(metadata);
+        return Date.now() - timestamp < ttl;
+    }
+}
+
+// Request handler class
+class RequestHandler {
+    static isApiRequest(url) {
+        return url.includes('/api/') || url.includes('/graphql');
+    }
+
+    static isImageRequest(url) {
+        return url.match(/\.(jpe?g|png|gif|svg|webp|avif)$/i);
+    }
+
+    static isHTMLRequest(request) {
+        return request.mode === 'navigate' ||
+            request.headers.get('accept')?.includes('text/html');
+    }
+
+    static async handleAPIRequest(event) {
+        try {
+            const networkPromise = fetch(event.request.clone());
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Network timeout')), CONFIG.strategies.api.timeout)
+            );
+
+            const response = await Promise.race([networkPromise, timeoutPromise]);
+
+            if (response.ok) {
+                await CacheManager.cacheWithExpiry(CONFIG.caches.api, event.request, response.clone());
+                return response;
+            }
+            throw new Error('Network response was not ok');
+        } catch (error) {
+            console.error('API request failed:', error);
+            const cachedResponse = await caches.match(event.request);
+
+            if (await CacheManager.isResponseValid(cachedResponse)) {
+                return cachedResponse;
+            }
+
+            return Response.json(
+                { error: 'Network error, please try again later' },
+                { status: 503 }
+            );
+        }
+    }
+
+    static async handleImageRequest(event) {
+        const cache = await caches.open(CONFIG.caches.images);
+        const cachedResponse = await cache.match(event.request);
+
+        if (cachedResponse) {
+            return cachedResponse;
+        }
+
+        try {
+            const response = await fetch(event.request);
+            if (response.ok) {
+                await cache.put(event.request, response.clone());
+                await CacheManager.limitCacheSize(
+                    CONFIG.caches.images,
+                    CONFIG.strategies.images.maxEntries
+                );
+                return response;
+            }
+            throw new Error('Network response was not ok');
+        } catch (error) {
+            console.error('Image fetch failed:', error);
+            return cache.match('/default-thumbnail.png');
+        }
+    }
+
+    static async handleHTMLRequest(event) {
+        try {
+            const response = await fetch(event.request);
+            if (response.ok) {
+                const cache = await caches.open(CONFIG.caches.pages);
+                await cache.put(event.request, response.clone());
+                return response;
+            }
+            throw new Error('Network response was not ok');
+        } catch (error) {
+            const cache = await caches.open(CONFIG.caches.pages);
+            const cachedResponse = await cache.match(event.request);
+            return cachedResponse || cache.match('/offline');
+        }
+    }
+}
+
+// Push Notification Handler class
+class NotificationHandler {
+    static async handlePush(event) {
+        if (!event.data) return;
+
+        try {
+            const data = event.data.json();
+            const options = this.createNotificationOptions(data);
+
+            await self.registration.showNotification(data.title || 'New Update', options);
+        } catch (error) {
+            console.error('Push notification error:', error);
+            await this.showFallbackNotification();
+        }
+    }
+
+    static createNotificationOptions(data) {
+        return {
+            body: data.body,
+            icon: data.icon || '/icons/android-icon-192x192.png',
+            badge: '/icons/android-icon-72x72.png',
+            image: data.image,
+            vibrate: [100, 50, 100],
+            tag: data.tag || 'default',
+            data: {
+                url: data.url || '/dashboard',
+                timestamp: Date.now(),
+                ...data.data
+            },
+            actions: [
+                { action: 'open', title: '📱 Open' },
+                { action: 'close', title: '❌ Dismiss' }
+            ],
+            requireInteraction: data.requireInteraction || false,
+            renotify: data.renotify || false,
+            silent: data.silent || false
+        };
+    }
+
+    static async showFallbackNotification() {
+        await self.registration.showNotification('New Update', {
+            body: 'Check your application for updates',
+            icon: '/icons/android-icon-192x192.png'
+        });
+    }
+
+    static async handleNotificationClick(event) {
+        event.notification.close();
+
+        const urlToOpen = event.notification.data?.url || '/dashboard';
+
+        const windowClients = await clients.matchAll({
+            type: 'window',
+            includeUncontrolled: true
+        });
+
+        const existingClient = windowClients.find(client =>
+            client.url === urlToOpen || client.url.endsWith(urlToOpen)
+        );
+
+        if (existingClient) {
+            return existingClient.focus();
+        }
+
+        if (event.action === 'close') return;
+
+        return clients.openWindow(urlToOpen);
+    }
+}
+
+// Event Listeners
+self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(STATIC_CACHE_NAME)
-            .then(cache => {
-                console.log('Caching static assets');
-                return cache.addAll(STATIC_ASSETS);
-            })
-            .catch(error => {
-                console.error('Failed to cache static assets:', error);
-            })
+        caches.open(CONFIG.caches.static)
+            .then(cache => cache.addAll(STATIC_ASSETS))
             .then(() => self.skipWaiting())
     );
 });
 
-// Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
     event.waitUntil(
-        caches.keys()
-            .then(keys => {
-                return Promise.all(
-                    keys.filter(key => {
-                        return key !== STATIC_CACHE_NAME && key !== DYNAMIC_CACHE_NAME;
-                    }).map(key => {
-                        console.log('Deleting old cache', key);
-                        return caches.delete(key);
-                    })
-                );
-            })
-            .catch(error => {
-                console.error('Failed to delete old caches:', error);
-            })
-            .then(() => self.clients.claim())
+        Promise.all([
+            CacheManager.deleteOldCaches(),
+            self.clients.claim()
+        ])
     );
 });
 
-// Helper function to check if request is for an API route
-const isApiRequest = (url) => {
-    return url.includes('/api/');
-};
+self.addEventListener('fetch', event => {
+    const url = new URL(event.request.url);
 
-// Helper function to check if request is for an image
-const isImageRequest = (url) => {
-    return url.match(/\.(jpe?g|png|gif|svg|webp)$/i);  // Added webp and made case insensitive
-};
-
-// Helper function to handle network timeout
-const timeoutPromise = (ms) => {
-    return new Promise((_, reject) =>
-        setTimeout(() => reject(new Error(`Request timeout after ${ms}ms`)), ms)
-    );
-};
-
-// Fetch event - handle requests with different strategies
-self.addEventListener('fetch', (event) => {
-    // Skip cross-origin requests
-    if (!event.request.url.startsWith(self.location.origin)) return;
-
-    // API requests - Network First with timeout fallback
-    if (isApiRequest(event.request.url)) {
-        event.respondWith(
-            Promise.race([
-                fetch(event.request.clone()),
-                timeoutPromise(3000)
-            ])
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    const clonedResponse = response.clone();
-                    caches.open(DYNAMIC_CACHE_NAME)
-                        .then(cache => cache.put(event.request, clonedResponse))
-                        .catch(error => console.error('Cache put error:', error));
-                    return response;
-                })
-                .catch(async (error) => {
-                    console.error('API request failed:', error);
-                    const cachedResponse = await caches.match(event.request);
-                    return cachedResponse || caches.match('/offline');
-                })
-        );
+    // Skip non-GET requests and cross-origin requests
+    if (event.request.method !== 'GET' || !url.origin.includes(self.location.origin)) {
         return;
     }
 
-    // Image requests - Cache First with network fallback
-    if (isImageRequest(event.request.url)) {
+    if (RequestHandler.isApiRequest(url.pathname)) {
+        event.respondWith(RequestHandler.handleAPIRequest(event));
+    } else if (RequestHandler.isImageRequest(url.pathname)) {
+        event.respondWith(RequestHandler.handleImageRequest(event));
+    } else if (RequestHandler.isHTMLRequest(event.request)) {
+        event.respondWith(RequestHandler.handleHTMLRequest(event));
+    } else {
+        // Default Stale-While-Revalidate strategy for other assets
         event.respondWith(
             caches.match(event.request)
                 .then(cachedResponse => {
-                    if (cachedResponse) return cachedResponse;
-
-                    return fetch(event.request)
+                    const fetchPromise = fetch(event.request)
                         .then(response => {
-                            if (!response.ok) throw new Error('Network response was not ok');
-                            const clonedResponse = response.clone();
-                            caches.open(DYNAMIC_CACHE_NAME)
-                                .then(cache => cache.put(event.request, clonedResponse))
-                                .catch(error => console.error('Cache put error:', error));
+                            if (response.ok) {
+                                caches.open(CONFIG.caches.dynamic)
+                                    .then(cache => cache.put(event.request, response.clone()));
+                            }
                             return response;
                         });
+                    return cachedResponse || fetchPromise;
                 })
-                // .catch(() => {
-                //     return caches.match('/default-thumbnail.png');
-                // })
-        );
-        return;
-    }
-
-    // HTML pages - Network First with cache fallback
-    if (event.request.mode === 'navigate') {
-        event.respondWith(
-            fetch(event.request)
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    const clonedResponse = response.clone();
-                    caches.open(DYNAMIC_CACHE_NAME)
-                        .then(cache => cache.put(event.request, clonedResponse))
-                        .catch(error => console.error('Cache put error:', error));
-                    return response;
-                })
-                .catch(async () => {
-                    const cachedResponse = await caches.match(event.request);
-                    return cachedResponse || caches.match('/offline');
-                })
-        );
-        return;
-    }
-
-    // Default - Stale While Revalidate
-    event.respondWith(
-        caches.match(event.request)
-            .then(cachedResponse => {
-                const fetchPromise = fetch(event.request)
-                    .then(response => {
-                        if (!response.ok) throw new Error('Network response was not ok');
-                        const clonedResponse = response.clone();
-                        caches.open(DYNAMIC_CACHE_NAME)
-                            .then(cache => cache.put(event.request, clonedResponse))
-                            .catch(error => console.error('Cache put error:', error));
-                        return response;
-                    })
-                    .catch(error => {
-                        console.error('Fetch failed:', error);
-                        return cachedResponse;
-                    });
-
-                return cachedResponse || fetchPromise;
-            })
-    );
-});
-
-// Enhanced Push Notification Handling
-self.addEventListener('push', (event) => {
-    if (!event.data) {
-        console.warn('Push event received but no data');
-        return;
-    }
-
-    try {
-        const data = event.data.json();
-        if (!data.title) {
-            throw new Error('Notification must have a title');
-        }
-
-        const defaultOptions = {
-            icon: '/icons/android-icon-192x192.png',
-            badge: '/icons/android-icon-72x72.png',
-            vibrate: [100, 50, 100],
-            actions: [
-                { action: 'open', title: 'Open App' },
-                { action: 'close', title: 'Dismiss' }
-            ],
-            dir: 'auto',
-            timestamp: Date.now()
-        };
-
-        const options = {
-            ...defaultOptions,
-            ...data,
-            data: {
-                ...data.data,
-                url: data.url || '/dashboard',
-                image: data.image || '/icons/android-icon-192x192.png'
-            }
-        };
-
-        event.waitUntil(
-            self.registration.showNotification(data.title, options)
-                .catch(error => {
-                    console.error('Failed to show notification:', error);
-                    // Fallback to basic notification
-                    return self.registration.showNotification('New Update', {
-                        body: 'Check your application for updates',
-                        icon: defaultOptions.icon
-                    });
-                })
-        );
-    } catch (error) {
-        console.error('Error processing push notification:', error);
-        event.waitUntil(
-            self.registration.showNotification('New Update', {
-                body: 'Check your application for updates',
-                icon: '/icons/android-icon-192x192.png'
-            })
         );
     }
 });
 
-// Enhanced Notification Click Handler
-self.addEventListener('notificationclick', (event) => {
-    event.notification.close();
-
-    const handleAction = () => {
-        const action = event.action;
-        const data = event.notification.data || {};
-        const targetUrl = data.url || '/dashboard';
-
-        switch (action) {
-            case 'open':
-                return clients.openWindow(targetUrl);
-            case 'close':
-                return Promise.resolve();
-            default:
-                return clients.openWindow(targetUrl);
-        }
-    };
-
-    event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true })
-            .then(windowClients => {
-                const matchingClient = windowClients.find(client =>
-                    client.url === event.notification.data?.url
-                );
-
-                if (matchingClient) {
-                    return matchingClient.focus();
-                }
-                return handleAction();
-            })
-            .catch(error => {
-                console.error('Error handling notification click:', error);
-                return handleAction();
-            })
-    );
+self.addEventListener('push', event => {
+    event.waitUntil(NotificationHandler.handlePush(event));
 });
 
-// Subscription change handler
-self.addEventListener('pushsubscriptionchange', (event) => {
+self.addEventListener('notificationclick', event => {
+    event.waitUntil(NotificationHandler.handleNotificationClick(event));
+});
+
+self.addEventListener('pushsubscriptionchange', event => {
     event.waitUntil(
         self.registration.pushManager.subscribe(event.oldSubscription.options)
-            .then((subscription) => {
+            .then(subscription => {
                 return fetch('/api/update-subscription', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(subscription)
                 });
-            })
-            .catch(error => {
-                console.error('Failed to update push subscription:', error);
             })
     );
 });
