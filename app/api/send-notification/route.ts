@@ -55,6 +55,14 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
   try {
     const subscriptions = await Notification.find({});
+    // check if there are any subscriptions
+    if (!subscriptions.length) {
+      return NextResponse.json(
+        { message: "No subscriptions found", success: false },
+        { status: 404 }
+      );
+    }
+
     const results: NotificationResult[] = [];
 
     // Send notifications concurrently
