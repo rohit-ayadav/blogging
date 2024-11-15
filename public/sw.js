@@ -197,7 +197,7 @@ self.addEventListener('push', (event) => {
             data: {
                 ...data.data,
                 url: data.url || '/dashboard',
-                image: data.image || '/default-thumbnail.png'
+                image: data.image || '/icons/android-icon-192x192.png'
             }
         };
 
