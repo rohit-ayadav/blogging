@@ -224,11 +224,14 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                     </button>
 
                     {/* <Link href={`/blogs/${post._id}`} className="w-full"> */}
-                    <Link href={`/blogs/${post.slug}`} className="w-full">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="
+                    {/* <Link href={`/blogs/${post.slug}`} className="w-full"> */}
+                    if (post.slug && post.slug !== 'undefined') {
+                        <Link href={`/blogs/${post.slug}`} passHref>
+
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="
                                 group 
                                 w-full 
                                 hover:bg-blue-500 hover:text-white 
@@ -238,11 +241,32 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                                 transition-all duration-300 
                                 rounded-full
                             "
-                        >
-                            Read More
-                            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                        </Button>
-                    </Link>
+                            >
+                                Read More
+                                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                            </Button>
+                        </Link>
+                    } else {
+                        <Link href={`/blogs/${post._id}`} passHref>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="
+                                group 
+                                w-full 
+                                hover:bg-blue-500 hover:text-white 
+                                dark:hover:bg-blue-600 
+                                text-gray-800 dark:text-gray-200 
+                                border-gray-300 dark:border-gray-600 
+                                transition-all duration-300 
+                                rounded-full
+                            "
+                            >
+                                Read More
+                                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                            </Button>
+                        </Link>
+                    }
                 </div>
             </CardFooter>
         </Card>
