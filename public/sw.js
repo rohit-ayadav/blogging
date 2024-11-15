@@ -5,11 +5,12 @@ const DYNAMIC_CACHE_NAME = 'dynamic-v1';
 // Resources to cache immediately
 const STATIC_ASSETS = [
     '/blogs',
-    '/offline',  // Create an offline fallback page
-    '/icons/icon-192x192.png',
-    '/icons/icon-512x512.png',
-    '/styles/globals.css',
-    // Add other critical CSS/JS files
+    '/offline',
+    './dashboard',
+    './login',
+    './create',
+    './dashboard/admin',
+    './profile',
 ];
 
 // Install event - cache static assets
@@ -139,23 +140,28 @@ self.addEventListener('fetch', (event) => {
 });
 
 // Handle push notifications
+
 self.addEventListener('push', (event) => {
+    const data = event.data.json();
     const options = {
-        body: event.data.text(),
-        icon: '/icons/icon-192x192.png',
+        body: data.body,
+        icon: data.thumbnail || '/icons/icon-192x192.png',
         badge: '/icons/badge-72x72.png',
         vibrate: [100, 50, 100],
+        actions: [
+            { action: 'read', title: 'Read Now' },
+            { action: 'dismiss', title: 'Dismiss' }
+        ],
         data: {
-            url: '/blogs'  // Direct to blogs page when notification is clicked
+            url: data.url
         }
     };
 
     event.waitUntil(
-        self.registration.showNotification('Blog Website', options)
+        self.registration.showNotification(data.title, options)
     );
 });
 
-// Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
     event.waitUntil(
@@ -163,10 +169,13 @@ self.addEventListener('notificationclick', (event) => {
             .then(windowClients => {
                 if (windowClients.length > 0) {
                     windowClients[0].focus();
-                    windowClients[0].navigate(event.notification.data.url);
+                    if (event.action === 'read') {
+                        windowClients[0].navigate(event.notification.data.url);
+                    }
                 } else {
                     clients.openWindow(event.notification.data.url);
                 }
             })
     );
 });
+

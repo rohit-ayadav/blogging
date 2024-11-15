@@ -79,12 +79,6 @@ export default function CreateBlog() {
                             category: data.category || '',
                             editorMode: data.editorMode || 'markdown'
                         });
-                        // if draft is recovered and not expired and not equal to initial content
-                        // if (data.markdownContent !== DEFAULT_CONTENT.markdown || data.htmlContent !== DEFAULT_CONTENT.html)
-                        //     toast.success('Recovered your previous draft', {
-                        //         duration: 3000,
-                        //         icon: '📝'
-                        //     });
                     } else {
                         localStorage.removeItem('blogDraft');
                     }
@@ -186,6 +180,7 @@ export default function CreateBlog() {
             localStorage.removeItem('blogDraft');
             toast.success('Blog post created successfully');
             router.push(`/blogs/${data.blogPostId}`);
+            
 
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'An unknown error occurred');

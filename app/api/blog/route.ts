@@ -8,7 +8,8 @@ import DOMPurify from "dompurify";
 import User from "@/models/users.models";
 import mongoose from "mongoose";
 import { getSessionAtHome } from "@/auth";
-import language from "react-syntax-highlighter/dist/esm/languages/hljs/1c";
+import webpush from "web-push";
+import Notification from "@/models/notification.models";
 
 await connectDB();
 
@@ -135,12 +136,22 @@ export async function POST(request: NextRequest) {
       }
     );
 
+    // Send notification to all
+    const subscriptions = await Notification.find({});
+    const payload = {
+      title: "New Blog Post",
+      message: `A new blog post "${sanitizedTitle}" has been published`
+    };
+    for (const { subscription } of subscriptions) {
+      await webpush.sendNotification(subscription, JSON.stringify(payload));
+    }
+    console.log("Notification sent");
     return NextResponse.json(
       {
         message: "Blog post created successfully",
         success: true,
         data: blogPost,
-        blogPostId : blogPostId
+        blogPostId: blogPostId
       },
       { status: 201 }
     );

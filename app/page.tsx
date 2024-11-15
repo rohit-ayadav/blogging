@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import CountUp from 'react-countup';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
+import { usePushClient } from '@/hooks/push-client';
 
 
 interface Post {
@@ -51,15 +52,9 @@ const useBlogData = () => {
   const [totalViews, setTotalViews] = useState(0);
   const [totalBlogs, setTotalBlogs] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/sw.js')
-        .then((registration) => console.log('Service Worker registered:', registration))
-        .catch((err) => console.log('Service Worker registration failed:', err));
-    }
-  }, []);
+  usePushClient();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -174,7 +169,7 @@ const HomePage = () => {
             <Button size="lg" variant={isDarkMode ? "outline" : "secondary"} onClick={() => router.push('https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t')}>
               Join the Community
             </Button>
-            <Button size="lg" variant={isDarkMode ? "outline" : "secondary"} onClick={() => router.push('/blogs')}>
+            <Button size="lg" variant={isDarkMode ? "outline" : "secondary"} onClick={() => { router.push('/blogs') }}>
               Explore Blogs
             </Button>
           </div>

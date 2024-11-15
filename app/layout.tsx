@@ -48,7 +48,7 @@ export async function generateMetadata({
     description,
     // Manifest
     manifest: "/manifest.json?v=1",
-    themeColor: "#000000",
+    // themeColor: "#000000",
     appleWebApp: {
       capable: true,
       statusBarStyle: "black",
@@ -79,14 +79,14 @@ export async function generateMetadata({
       shortcut: ["/icons/android-chrome-192x192.png"],
     },
     applicationName: "Blog Website",
-    viewport: {
-      width: "device-width",
-      initialScale: 1,
-      maximumScale: 1,
-      minimumScale: 1,
-      userScalable: false,
-      viewportFit: "cover",
-    },
+    // viewport: {
+    //   width: "device-width",
+    //   initialScale: 1,
+    //   maximumScale: 1,
+    //   minimumScale: 1,
+    //   userScalable: false,
+    //   viewportFit: "cover",
+    // },
     formatDetection: {
       telephone: false,
     },
