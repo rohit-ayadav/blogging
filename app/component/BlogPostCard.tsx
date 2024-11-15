@@ -6,33 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar, Eye, ImageIcon, ThumbsUp, User } from 'lucide-react';
 import { ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardTitle, CardHeader } from '@/components/ui/card';
+import { UserType, BlogPostType } from '@/types/blogs-types';
 
-interface BlogPostType {
-    _id: string;
-    title: string;
-    createdAt: string;
-    tags?: string[];
-    content: string;
-    createdBy: string;
-    thumbnail?: string;
-    views?: number;
-    likes?: number;
-    bio?: string;
-    category: string;
-}
-
-interface UserType {
-    email: string;
-    name: string;
-    image: string;
-    bio: string;
-    follower: number;
-    following: number;
-    noOfBlogs: number;
-    createdAt: string;
-    updatedAt: string;
-    theme: string;
-}
 
 const getCategoryColor = (category: string): { bg: string; text: string; border: string } => {
     const colors: { [key: string]: { bg: string; text: string; border: string } } = {
@@ -128,7 +103,7 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                 )}
                 {/* Improved Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                
+
                 {/* Category Badge with Enhanced Styling */}
                 <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
                     <span className={`
@@ -142,7 +117,7 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                         {post.category}
                     </span>
                 </div>
-                
+
                 {/* Title and Metadata with Improved Typography */}
                 <div className="absolute bottom-4 left-4 right-4 text-white">
                     <CardTitle className="
@@ -155,7 +130,7 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                     ">
                         {post.title}
                     </CardTitle>
-                    
+
                     {/* Enhanced Metadata Section */}
                     <div className="flex items-center justify-between text-gray-100 text-sm">
                         <div className="flex items-center space-x-2">
@@ -203,9 +178,9 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                         ring-2 ring-offset-2 
                         ring-blue-100 dark:ring-blue-900
                     ">
-                        <AvatarImage 
-                            src={user?.image} 
-                            alt={user?.name} 
+                        <AvatarImage
+                            src={user?.image}
+                            alt={user?.name}
                             className="object-cover"
                         />
                         <AvatarFallback>
@@ -229,7 +204,7 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                             navigator.clipboard.writeText(
                                 `${post.title}\nRead here: ${window.location.origin}/blogs/${post._id}\n\n`
                             );
-                            toast.success('Blog link copied!', { 
+                            toast.success('Blog link copied!', {
                                 icon: '📋',
                                 style: {
                                     borderRadius: '10px',
@@ -248,7 +223,8 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                         <FaClipboard className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                     </button>
 
-                    <Link href={`/blogs/${post._id}`} className="w-full">
+                    {/* <Link href={`/blogs/${post._id}`} className="w-full"> */}
+                    <Link href={`/blogs/${post.slug}`} className="w-full">
                         <Button
                             variant="outline"
                             size="sm"

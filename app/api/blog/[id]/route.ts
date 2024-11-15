@@ -2,8 +2,15 @@ import { connectDB } from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
 import Blog from "@/models/blogs.models";
 import { getSessionAtHome } from "@/auth";
+import { isValidObjectId } from "mongoose";
 
 await connectDB();
+
+const isValidSlug = (slug: string) => {
+  // check if the slug is valid or not , having lowercase, no special character and white space in starting, middle or end
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
+}
+
 
 export async function GET(request: NextRequest) {
   const id = request.nextUrl.pathname.split("/").pop();
@@ -22,17 +29,30 @@ export async function GET(request: NextRequest) {
     const blogs = await Blog.find({ createdBy: authorId });
     return NextResponse.json({ data: blogs, success: true });
   }
-  // if not valid id return 400
-  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+  // if not valid id or slug return 404 
+  let isSlug = false;
+  if (!isValidObjectId(id)) {
+    isSlug = isValidSlug(id);
+  }
+  if (!isValidObjectId(id) && !isSlug) {
     return NextResponse.json(
       {
-        message: "Invalid Blog ID",
+        message: "Invalid Blog ID or Slug",
         success: false
       },
-      { status: 400 }
+      { status: 404 }
     );
   }
-  const blog = await Blog.findById(id);
+
+  console.log("id", id);
+  let blog;
+  if (isSlug) {
+    blog = await Blog.findOne({slug: id});
+  }
+  else {
+    blog = await Blog.findById(id);
+  }
+  
   if (!blog) {
     return NextResponse.json(
       {

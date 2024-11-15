@@ -11,8 +11,8 @@ import { useTheme } from '@/context/ThemeContext';
 import { CATEGORIES } from '../component/BlogPostCard';
 import debounce from 'lodash/debounce';
 import { themeClasses } from './themeClass';
-import { BlogPostType, UserType, StatsType, EmptyState, NoMorePosts, LoadingState } from './themeClass';
-import webpush from 'web-push';
+import { EmptyState, NoMorePosts, LoadingState } from './themeClass';
+import { StatsType, BlogPostType, UserType } from '@/types/blogs-types';
 
 
 

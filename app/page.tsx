@@ -11,6 +11,7 @@ import CountUp from 'react-countup';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import { usePushClient } from '@/hooks/push-client';
+import { BlogPostType, UserType } from '@/types/blogs-types';
 
 
 interface Post {
@@ -25,28 +26,10 @@ interface Post {
   bio?: string;
 }
 
-interface UserType {
-  email: string;
-  name: string;
-  bio: string;
-  image: string;
-  role: string;
-  createdAt: string;
-  updatedAt: string;
-  _id: string;
-}
-
-interface Total {
-  blogs: number;
-  likes: number;
-  views: number;
-  users: number;
-}
-
 const useBlogData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<BlogPostType[]>([]);
   const [users, setUsers] = useState({});
   const [totalLikes, setTotalLikes] = useState(0);
   const [totalViews, setTotalViews] = useState(0);

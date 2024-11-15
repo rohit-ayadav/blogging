@@ -51,14 +51,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const {
+  let {
     title,
     content,
     status = "published",
     tags = [],
     thumbnail = "",
     category = "Others",
-    language = "html"
+    language = "html",
+    slug
   } = body;
 
   if (!content) {
@@ -98,6 +99,13 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
+  if (!slug) {
+    slug = title
+      .trim() // Remove leading and trailing spaces
+      .replace(/\s+/g, "-") // Replace spaces with hyphens
+      .replace(/[^a-zA-Z0-9-]/g, "") // Remove special characters
+      .toLowerCase(); // Convert to lowercase
+  }
 
   const { window } = new JSDOM("");
   const purify = DOMPurify(window);
@@ -116,14 +124,21 @@ export async function POST(request: NextRequest) {
     likes: 0,
     views: 0,
     category: sanitizedCategory,
-    language: language
+    language: language,
+    slug
   };
 
   try {
+    // check if slug already exists
+    const existingBlog = await Blog.findOne({ slug });
+    if (existingBlog) slug = `${slug}-${Date.now()}`;
+
+    // Save blog post
     const newBlogPost = new Blog(blogPost);
     await newBlogPost.save();
     const blogPostId = newBlogPost._id;
 
+    // Increment blog count for user
     await User.findOneAndUpdate(
       { email: session.user.email },
       {
@@ -131,7 +146,7 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    // Send notification to all
+    // Send notifications to subscribers
     const subscriptions = await Notification.find({});
     if (subscriptions.length) {
       const payload = {
@@ -147,6 +162,7 @@ export async function POST(request: NextRequest) {
         ]
       };
 
+      // Send notifications to all subscriptions
       const notificationPromises = subscriptions.map(({ subscription }) =>
         webpush
           .sendNotification(subscription, JSON.stringify(payload))
@@ -459,7 +475,7 @@ async function executeQuery(
     const hoursSinceCreation = {
       $divide: [
         { $subtract: [now, "$createdAt"] },
-        1000 * 60 * 60 // Convert to hours
+        1000 * 60 * 60 // Convert milliseconds to hours equivalent to 1 hour
       ]
     };
 

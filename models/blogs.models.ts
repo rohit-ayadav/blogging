@@ -45,6 +45,11 @@ const blogSchema = new mongoose.Schema(
       type: String,
       required: true,
       default: "html"
+    },
+    slug: {
+      type: String,
+      required: true,
+      unique: true
     }
   },
   { timestamps: true }

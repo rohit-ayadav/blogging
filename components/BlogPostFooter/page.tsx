@@ -1,113 +1,234 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { FaHeart } from "react-icons/fa";
-
-interface Post {
-  _id: string;
-  title: string;
-  thumbnail?: string;
-  createdAt: string;
-  content: string;
-  tags: string[];
-  createdBy: string;
-  likes: number;
-  bio?: string;
-}
-
-import { Heart, Eye } from 'lucide-react';
+import { Heart, Eye, Share2 } from 'lucide-react';
 import { HeartFilledIcon } from '@radix-ui/react-icons';
 import { SiWhatsapp, SiFacebook, SiX, SiLinkedin } from 'react-icons/si';
-import { RiHeart3Fill } from 'react-icons/ri';
-import { set } from 'mongoose';
+import { toast } from 'react-hot-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
+import { BlogPostType } from '@/types/blogs-types';
+
 
 interface BlogPostFooterProps {
-  post: Post;
+  post: BlogPostType;
   likes: number;
   views: number;
   liked: boolean;
   id: string;
+  className?: string;
 }
 
-const BlogPostFooter = ({ post, likes, views, liked, id }: BlogPostFooterProps) => {
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
-  const [isDarkMode, setIsDarkMode] = React.useState(false);
-  const [no_of_likes, setNoOfLikes] = React.useState(0);
-  const [isLiked, setIsLiked] = React.useState(false);
+interface ShareOption {
+  name: string;
+  icon: React.ReactNode;
+  color: string;
+  getShareUrl: (url: string, title: string) => string;
+}
+
+const BlogPostFooter = ({
+  post,
+  likes: initialLikes,
+  views,
+  liked: initialLiked,
+  id,
+  className
+}: BlogPostFooterProps) => {
+  const [likes, setLikes] = useState(initialLikes);
+  const [isLiked, setIsLiked] = useState(initialLiked);
+  const [isLoading, setIsLoading] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
 
   useEffect(() => {
-    setNoOfLikes(post.likes);
-  }, []);
+    setShareUrl(window.location.href);
+    setLikes(post?.likes ?? initialLikes);
+  }, [post?.likes, initialLikes]);
+
+  const shareOptions: ShareOption[] = [
+    {
+      name: 'WhatsApp',
+      icon: <SiWhatsapp className="h-4 w-4" />,
+      color: 'hover:text-green-500',
+      getShareUrl: (url, title) =>
+        `https://wa.me/?text=${encodeURIComponent(`📖 ${title}\n\n👉 ${url}`)}`,
+    },
+    {
+      name: 'Facebook',
+      icon: <SiFacebook className="h-4 w-4" />,
+      color: 'hover:text-blue-600',
+      getShareUrl: (url) =>
+        `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+    },
+    {
+      name: 'Twitter',
+      icon: <SiX className="h-4 w-4" />,
+      color: 'hover:text-gray-800',
+      getShareUrl: (url, title) =>
+        `https://twitter.com/intent/tweet?url=${url}&text=${encodeURIComponent(title)}`,
+    },
+    {
+      name: 'LinkedIn',
+      icon: <SiLinkedin className="h-4 w-4" />,
+      color: 'hover:text-blue-700',
+      getShareUrl: (url, title) =>
+        `https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${encodeURIComponent(title)}`,
+    },
+  ];
 
   const handleLike = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    if (isLoading) return;
 
-    if (isLiked) {
-      setNoOfLikes(no_of_likes - 1);
-      setIsLiked(!isLiked);
-      try {
-        const response = await fetch(`/api/blog/${id}/dislike`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok) {
-          setNoOfLikes(no_of_likes + 1);
-          setIsLiked(!isLiked);
-          throw new Error(`${response.status} - ${response.statusText}`);
-        }
-      } catch (error) {
-        console.error("Error:", error);
+    setIsLoading(true);
+    const endpoint = isLiked ? 'dislike' : 'like';
+    const newLikesCount = isLiked ? likes - 1 : likes + 1;
+
+    // Optimistic update
+    setLikes(newLikesCount);
+    setIsLiked(!isLiked);
+
+    try {
+      const response = await fetch(`/api/blog/${id}/${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        // Revert changes if request fails
+        setLikes(likes);
+        setIsLiked(isLiked);
+        throw new Error(`Failed to ${endpoint} post`);
       }
-    } else {
-      setNoOfLikes(no_of_likes + 1);
-      setIsLiked(!isLiked);
-      try {
-        const response = await fetch(`/api/blog/${id}/like`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok) {
-          setNoOfLikes(no_of_likes - 1);
-          setIsLiked(!isLiked);
-          throw new Error(`${response.status} - ${response.statusText}`);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-      setIsLiked(!isLiked);
+    } catch (error) {
+      toast.error(`Failed to ${isLiked ? 'unlike' : 'like'} the post. Please try again.`);
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleShare = (option: ShareOption) => {
+    try {
+      window.open(option.getShareUrl(shareUrl, post.title), '_blank');
+    } catch (error) {
+      toast.error(`Failed to share on ${option.name}`);
+    }
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('Link copied to clipboard!');
+    } catch (error) {
+      toast.error('Failed to copy link');
     }
   };
 
   return (
-    <div className="flex flex-col md:flex-row justify-between items-center m-8 mt-10">
-      <div className="flex items-center space-x-2">
-        <Button variant="outline" onClick={handleLike}>
-          {isLiked ? <HeartFilledIcon color='red' className="h-4 w-4 mr-2" /> : <Heart className="h-4 w-4 mr-2" />}
-          Like ({no_of_likes})
-        </Button>
-        <Button variant="outline">
-          <Eye className="h-4 w-4 mr-2" />
-          View ({views})
-        </Button>
+    <div className={cn(
+      "flex flex-col sm:flex-row justify-between items-center gap-4 p-4 border-t",
+      className
+    )}>
+      <div className="flex items-center gap-3">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLike}
+                disabled={isLoading}
+                className={cn(
+                  "transition-all",
+                  isLiked && "text-red-500 hover:text-red-600"
+                )}
+              >
+                {isLiked ? (
+                  <HeartFilledIcon className="h-5 w-5 mr-2" />
+                ) : (
+                  <Heart className="h-5 w-5 mr-2" />
+                )}
+                <span className="font-medium">{likes}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{isLiked ? 'Unlike' : 'Like'} this post</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <Eye className="h-5 w-5 mr-2" />
+                <span className="font-medium">{views}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Total views</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
-      <div className="flex items-center space-x-2 mt-4 md:mt-0">
-        <span>Share:</span>
-        {/* Check out this amazing post:  */}
-        <Button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("👉 " + post.title + " " + shareUrl)}`, '_blank')} variant="outline">
-          <SiWhatsapp className="h-4 w-4" />
-        </Button>
-        <Button onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank')} variant="outline">
-          <SiFacebook className="h-4 w-4" />
-        </Button>
-        <Button onClick={() => window.open(`https://twitter.com/intent/tweet?url=${shareUrl}&text=${encodeURIComponent(post.title)}`, '_blank')} variant="outline">
-          <SiX className="h-4 w-4" />
-        </Button>
-        <Button onClick={() => window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${encodeURIComponent(post.title)}`, '_blank')} variant="outline">
-          <SiLinkedin size={16} />
-        </Button>
+
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground mr-2">Share:</span>
+        <div className="flex items-center gap-1">
+          {shareOptions.map((option) => (
+            <TooltipProvider key={option.name}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleShare(option)}
+                    className={cn("transition-colors", option.color)}
+                  >
+                    {option.icon}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Share on {option.name}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <Share2 className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={copyToClipboard}>
+                Copy link
+              </DropdownMenuItem>
+              {shareOptions.map((option) => (
+                <DropdownMenuItem
+                  key={option.name}
+                  onClick={() => handleShare(option)}
+                >
+                  <span className={cn("mr-2", option.color)}>{option.icon}</span>
+                  Share on {option.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </div>
   );

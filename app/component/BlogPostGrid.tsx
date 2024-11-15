@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ImageIcon, Loader2 } from 'lucide-react';
 import { BlogPostCard, SkeletonCard } from './BlogPostCard';
-import { BlogPostType, UserType } from '@/app/blogs/themeClass';
+import { BlogPostType, UserType } from '@/types/blogs-types';
 interface BlogPostGridProps {
     loading: boolean;
     filteredPosts: BlogPostType[];

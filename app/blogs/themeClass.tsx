@@ -33,39 +33,9 @@ const themeClasses: (isDarkMode: boolean) => ThemeClasses = (isDarkMode: boolean
     return themeClasses;
 };
 
-type BlogPostType = {
-    _id: string;
-    title: string;
-    createdAt: string;
-    tags?: string[];
-    content: string;
-    createdBy: string;
-    thumbnail?: string;
-    views?: number;
-    likes?: number;
-    category: string;
-    score?: number;
-};
 
-type UserType = {
-    email: string;
-    name: string;
-    image: string;
-    bio: string;
-    follower: number;
-    following: number;
-    noOfBlogs: number;
-    createdAt: string;
-    updatedAt: string;
-    theme: string;
-};
 
-type StatsType = {
-    totalLikes: number;
-    totalViews: number;
-    totalBlogs: number;
-    totalUsers: number;
-};
+
 
 // Loading state component
 const LoadingState = ({ message }: { message: string }) => (
@@ -102,4 +72,3 @@ const EmptyState = () => (
 
 
 export { themeClasses, LoadingState, NoMorePosts, EmptyState };
-export type { BlogPostType, UserType, StatsType };

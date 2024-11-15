@@ -3,13 +3,6 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import CountUp from 'react-countup';
 import { useTheme } from '@/context/ThemeContext';
 
-interface BlogPostType {
-    _id: string;
-    title: string;
-    content: string;
-    views: number;
-    likes: number;
-}
 interface DashboardGridProps {
     totalBlogs: number;
     totalViews: number;

@@ -3,35 +3,14 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { BlogPostType, Author } from "@/types/blogs-types";
 
-interface Post {
-    _id: string;
-    title: string;
-    thumbnail?: string;
-    createdAt: string;
-    content: string;
-    tags: string[];
-    createdBy: string;
-    likes: number;
-    views: number;
-    bio?: string;
-}
-
-interface Author {
-    name: string;
-    image: string;
-    bio?: string;
-    _id: string;
-    likes: number;
-    views: number;
-}
-
-const useBlogPost = (id: string, initialData: Post | null = null) => {
+const useBlogPost = (id: string, initialData: BlogPostType | null = null) => {
     const router = useRouter();
-    const [post, setPost] = useState<Post | null>(initialData);
+    const [post, setPost] = useState<BlogPostType | null>(initialData);
     const [author, setAuthor] = useState<Author | null>(null);
-    const [authorPosts, setAuthorPosts] = useState<Post[]>([]);
-    const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
+    const [authorPosts, setAuthorPosts] = useState<BlogPostType[]>([]);
+    const [relatedPosts, setRelatedPosts] = useState<BlogPostType[]>([]);
     const [likes, setLikes] = useState(0);
     const [views, setViews] = useState(0);
     const [liked] = useState(false);
@@ -53,7 +32,7 @@ const useBlogPost = (id: string, initialData: Post | null = null) => {
                 setCreatedBy(data.data.createdBy);
                 setLanguage(data.language);
             } catch (error: any) {
-                toast.error(`$error.message}`);
+                toast.error(`${error.message}`);
                 router.push("/blogs");
             }
             try {
@@ -83,7 +62,7 @@ const useBlogPost = (id: string, initialData: Post | null = null) => {
                 }
                 const authorPostsData = await authorPostsResponse.json();
                 setAuthorPosts(
-                    authorPostsData.blogs.filter((p: Post) => p._id !== id)
+                    authorPostsData.blogs.filter((p: BlogPostType) => p._id !== id)
                 );
             } catch (error: any) {
                 toast.error(error.message);
@@ -99,7 +78,7 @@ const useBlogPost = (id: string, initialData: Post | null = null) => {
                 }
                 const relatedPostsData = await relatedPostsResponse.json();
                 setRelatedPosts(
-                    relatedPostsData.data.filter((p: Post) => p._id !== id)
+                    relatedPostsData.data.filter((p: BlogPostType) => p._id !== id)
                 );
             } catch (error: any) {
                 // toast.error("An error occurred while fetching blog post data");
