@@ -102,8 +102,11 @@ async function enablePushNotifications() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        title: "Test Notification",
-        message: "If you see this, notifications are working!"
+        title: "Thanks for subscribing!",
+        message: "You will now receive notifications for new posts.",
+        image: "/icons/android-chrome-192x192.png",
+        url: "/blogs",
+        subscription: data.subscription
       })
     });
     console.log("Test notification sent successfully");

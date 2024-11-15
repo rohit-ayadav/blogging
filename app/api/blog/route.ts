@@ -13,19 +13,24 @@ import Notification from "@/models/notification.models";
 
 await connectDB();
 
+webpush.setVapidDetails(
+  "mailto:rohitkuyada@gmail.com",
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "",
+  process.env.VAPID_PRIVATE_KEY || ""
+);
+
 const blogSchema = Joi.object({
   title: Joi.string().required(),
   content: Joi.string().required(),
   status: Joi.string().valid("published", "draft").optional(),
   tags: Joi.array().items(Joi.string()).optional(),
-  // cateogry: Joi.string().optional(),
-  // language can be html or markdown
   language: Joi.string().valid("html", "markdown").optional()
 });
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const session = await getSessionAtHome();
+
   if (!session) {
     return NextResponse.json(
       {
@@ -36,16 +41,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let {
-    title,
-    content,
-    status = "published",
-    tags,
-    thumbnail,
-    category,
-    language
-  } = body;
-
   if (!session?.user?.email) {
     return NextResponse.json(
       {
@@ -55,6 +50,17 @@ export async function POST(request: NextRequest) {
       { status: 401 }
     );
   }
+
+  const {
+    title,
+    content,
+    status = "published",
+    tags = [],
+    thumbnail = "",
+    category = "Others",
+    language = "html"
+  } = body;
+
   if (!content) {
     return NextResponse.json(
       {
@@ -74,18 +80,6 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  if (!thumbnail) {
-    thumbnail = "";
-  }
-  if (!category) {
-    category = "Others";
-  }
-  if (!tags) {
-    tags = [];
-  }
-  if (!language) {
-    language = "html";
-  }
 
   const { error } = blogSchema.validate({
     title,
@@ -94,6 +88,7 @@ export async function POST(request: NextRequest) {
     tags,
     language
   });
+
   if (error) {
     return NextResponse.json(
       {
@@ -138,14 +133,34 @@ export async function POST(request: NextRequest) {
 
     // Send notification to all
     const subscriptions = await Notification.find({});
-    const payload = {
-      title: "New Blog Post",
-      message: `A new blog post "${sanitizedTitle}" has been published`
-    };
-    for (const { subscription } of subscriptions) {
-      await webpush.sendNotification(subscription, JSON.stringify(payload));
+    if (subscriptions.length) {
+      const payload = {
+        title: "New Blog Post",
+        body: `A new blog post "${blogPost.title}" has been published`,
+        icon: blogPost.thumbnail,
+        data: {
+          url: `/blog/${newBlogPost._id}`
+        },
+        actions: [
+          { action: "open", title: "Open" },
+          { action: "close", title: "Dismiss" }
+        ]
+      };
+
+      const notificationPromises = subscriptions.map(({ subscription }) =>
+        webpush
+          .sendNotification(subscription, JSON.stringify(payload))
+          .catch((error) => {
+            console.error("Error sending notification:", error);
+          })
+      );
+
+      await Promise.all(notificationPromises);
+      console.log("Notifications sent successfully");
+    } else {
+      console.log("No active subscriptions found");
     }
-    console.log("Notification sent");
+
     return NextResponse.json(
       {
         message: "Blog post created successfully",

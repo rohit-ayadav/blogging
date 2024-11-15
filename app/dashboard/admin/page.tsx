@@ -15,6 +15,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { set } from 'mongoose';
 import ContactFormPage from './ContactFormPage';
 import NewsLetterPage from './NewsLetterPage';
+import NotificationTest from '@/components/NotificationTest/page';
 
 const PostManagement = lazy(() => import('./PostManagement'));
 const CategoryOverview = lazy(() => import('./CategoryOverview'));
@@ -454,6 +455,9 @@ const OptimizedAdminDashboard = () => {
 
                     <TabsContent value="contact">
                         <ContactFormPage data={contactUsDataPage} />
+                    </TabsContent>
+                    <TabsContent value="notification">
+                        <NotificationTest />
                     </TabsContent>
                 </Tabs>
             </ErrorBoundary>

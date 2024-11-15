@@ -29,6 +29,9 @@ const EditorLoadingSkeleton = () => (
     <div className="space-y-4">
         <Skeleton className="h-8 w-full" />
         <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-64 w-full" />
+
     </div>
 );
 
