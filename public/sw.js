@@ -12,7 +12,7 @@ const STATIC_ASSETS = [
     '/create',
     // '/dashboard/admin',
     // '/profile',
-    '/default-thumbnail.png',  // Add default image to static assets
+    // '/default-thumbnail.png',  // Add default image to static assets
     '/icons/android-icon-192x192.png',
     '/icons/android-icon-72x72.png'
 ];
@@ -116,9 +116,9 @@ self.addEventListener('fetch', (event) => {
                             return response;
                         });
                 })
-                .catch(() => {
-                    return caches.match('/default-thumbnail.png');
-                })
+                // .catch(() => {
+                //     return caches.match('/default-thumbnail.png');
+                // })
         );
         return;
     }
