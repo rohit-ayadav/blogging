@@ -4,7 +4,65 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { z } from 'zod';
 
+// Types for API responses
+interface NotificationResult {
+    success: boolean;
+    endpoint: string;
+    error?: string;
+    timestamp: number;
+}
 
+interface ErrorBreakdown {
+    [key: string]: {
+        count: number;
+        endpoints: string[];
+    };
+}
+
+interface NotificationStatistics {
+    totalDevices: number;
+    successfulDeliveries: number;
+    failedDeliveries: number;
+    deliveryRate: string;
+    processingTime: string;
+    errorBreakdown: ErrorBreakdown;
+}
+
+interface NotificationResponse {
+    message: string;
+    success: boolean;
+    statistics: NotificationStatistics;
+    details: NotificationResult[];
+    metadata: {
+        sender: string;
+        timestamp: string;
+        notificationType: string;
+    };
+}
+
+interface GlobalStatistics {
+    totalSubscriptions: number;
+    activeSubscriptions: number;
+    totalSuccesses: number;
+    totalFailures: number;
+    averageSuccessRate: number;
+}
+
+// Custom URL validator that allows empty strings
+const urlSchema = z.string().refine(
+    (value) => {
+        if (!value) return true; // Allow empty strings
+        try {
+            new URL(value);
+            return true;
+        } catch {
+            return false;
+        }
+    },
+    { message: "Invalid URL format" }
+);
+
+// Zod schemas
 const NotificationActionSchema = z.object({
     action: z.string().min(1, "Action is required"),
     title: z.string().min(1, "Title is required")
@@ -13,37 +71,35 @@ const NotificationActionSchema = z.object({
 const NotificationSchema = z.object({
     title: z.string().min(1, "Title is required"),
     message: z.string().min(1, "Message is required"),
-    image: z.string().url().optional(),
-    icon: z.string().url().optional(),
-    badge: z.string().url().optional(),
-    tag: z.string().optional(),
-    timestamp: z.number().optional(),
-    vibrate: z.boolean().optional(),
-    renotify: z.boolean().optional(),
-    requireInteraction: z.boolean().optional(),
-    silent: z.boolean().optional(),
-    actions: z.array(NotificationActionSchema).optional(),
-    url: z.string().url().optional(),
-    data: z.record(z.any()).optional(),
-    ttl: z.number().min(0).optional(), // Time To Live in seconds
-    urgency: z.enum(["very-low", "low", "normal", "high"]).optional(),
-    topic: z.string().optional()
+    image: urlSchema,
+    icon: urlSchema,
+    badge: urlSchema,
+    tag: z.string(),
+    timestamp: z.number(),
+    vibrate: z.boolean(),
+    renotify: z.boolean(),
+    requireInteraction: z.boolean(),
+    silent: z.boolean(),
+    actions: z.array(NotificationActionSchema),
+    url: urlSchema,
+    ttl: z.number().min(0),
+    urgency: z.enum(["very-low", "low", "normal", "high"]),
+    topic: z.string()
+}).transform((data) => {
+    const cleaned = { ...data };
+    (['image', 'icon', 'badge', 'url'] as (keyof typeof cleaned)[]).forEach((field) => {
+        if (!cleaned[field]) {
+            delete cleaned[field];
+        }
+    });
+    return cleaned;
 });
 
-interface Statistics {
-    activeSubscriptions: number;
-    averageSuccessRate: number;
-    totalDevices: number;
-    successfulDeliveries: number;
-    failedDeliveries: number;
-    deliveryRate: number;
-    processingTime: string;
-}
-
 const NotificationAdminPanel = () => {
-    const [status, setStatus] = useState('');
-    const [error, setError] = useState('');
-    const [statistics, setStatistics] = useState<Statistics | null>(null);
+    const [status, setStatus] = useState<string>('');
+    const [error, setError] = useState<string>('');
+    const [statistics, setStatistics] = useState<GlobalStatistics | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [notification, setNotification] = useState({
         title: 'Test Notification',
         message: 'If you see this, notifications are working!',
@@ -55,11 +111,10 @@ const NotificationAdminPanel = () => {
         requireInteraction: false,
         renotify: false,
         silent: false,
-        // url: 'https://blogging-one-omega.vercel.app/blogs',
         url: '',
-        timestamp: new Date().getTime(),
-        urgency: 'normal',
-        ttl: 86400, // 24 hours in seconds
+        timestamp: Date.now(),
+        urgency: 'normal' as const,
+        ttl: 86400,
         topic: '',
         actions: [
             { action: 'open', title: 'Open App' },
@@ -67,144 +122,102 @@ const NotificationAdminPanel = () => {
         ]
     });
 
-    // Fetch statistics on component mount
     useEffect(() => {
         fetchStatistics();
     }, []);
 
     const fetchStatistics = async () => {
         try {
-            const response = await fetch('/api/send-notification', {
-                method: 'GET'
-            });
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                const data = await response.json();
-                if (data.success) {
-                    setStatistics(data.statistics);
-                }
-            } else {
-                console.error('Unexpected content type:', contentType);
+            const response = await fetch('/api/send-notification');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            if (data.success && data.statistics) {
+                setStatistics(data.statistics);
             }
         } catch (err) {
             console.error('Error fetching statistics:', err);
+            setError(err instanceof Error ? err.message : 'Failed to fetch statistics');
         }
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement;
+    const handleInputChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    ) => {
+        const { name, value, type } = e.target;
+        const checked = (e.target as HTMLInputElement).checked;
+
         setNotification(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
     };
 
-    const validateNotification = () => {
-        if (!notification.title.trim()) {
-            setError('Title is required');
-            return false;
-        }
-        if (!notification.message.trim()) {
-            setError('Message is required');
-            return false;
-        }
-        if (notification.image && !isValidUrl(notification.image)) {
-            setError('Invalid image URL');
-            return false;
-        }
-        if (notification.icon && !isValidUrl(notification.icon)) {
-            setError('Invalid icon URL');
-            return false;
-        }
-        if (notification.badge && !isValidUrl(notification.badge)) {
-            setError('Invalid badge URL');
-            return false;
-        }
+    const formatNotificationResults = (response: NotificationResponse): string => {
+        const { statistics, metadata, details } = response;
 
-        if (notification.actions) {
-            for (const action of notification.actions) {
-                const result = NotificationActionSchema.safeParse(action);
-                if (!result.success) {
-                    setError(result.error.errors[0].message);
-                    return false;
-                }
-            }
-        }
-        return true;
-    };
+        return `Delivery Statistics:
+• Total Devices: ${statistics.totalDevices}
+• Successful: ${statistics.successfulDeliveries}
+• Failed: ${statistics.failedDeliveries}
+• Delivery Rate: ${statistics.deliveryRate}
+• Processing Time: ${statistics.processingTime}
 
+Metadata:
+• Sender: ${metadata.sender}
+• Timestamp: ${metadata.timestamp}
+• Type: ${metadata.notificationType}
 
+Detailed Results:
+${details.map(d => `• ${d.success ? '✅' : '❌'} ${d.endpoint}
+  ${d.error ? `Error: ${d.error}` : ''}
+  Time: ${new Date(d.timestamp).toLocaleString()}`).join('\n')}
 
-    const isValidUrl = (string: string): boolean => {
-        try {
-            new URL(string);
-            return true;
-        } catch (_) {
-            return false;
-        }
+${statistics.errorBreakdown && Object.keys(statistics.errorBreakdown).length > 0 ? `
+Error Breakdown:
+${Object.entries(statistics.errorBreakdown).map(([error, data]) =>
+            `• ${error}: ${data.count} occurrences`
+        ).join('\n')}` : ''}`;
     };
 
     const sendNotification = async () => {
         setError('');
         setStatus('');
-
-        if (!validateNotification()) {
-            return;
-        }
-
-        // validate notification with schema
-        const result = NotificationSchema.safeParse(notification);
-        if (!result.success) {
-            setError(result.error.errors[0].message);
-            return;
-        }
-
+        setIsLoading(true);
 
         try {
-            setStatus('Sending notification...');
+            // Validate notification data
+            const validationResult = NotificationSchema.safeParse(notification);
+            if (!validationResult.success) {
+                throw new Error(validationResult.error.errors[0].message);
+            }
+
+            // Send only the validated and transformed data
+            const validatedData = validationResult.data;
+
             const response = await fetch('/api/send-notification', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(notification),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(validatedData),
             });
 
-            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result: NotificationResponse = await response.json();
 
             if (!result.success) {
                 throw new Error(result.message || 'Failed to send notification');
             }
 
-            setStatus('Notification sent successfully!');
-            // Display detailed statistics
-            const stats = result.statistics;
-            setStatus(prev => `${prev}\n\nDelivery Statistics:
-• Total Devices: ${stats.totalDevices}
-• Successful: ${stats.successfulDeliveries}
-• Failed: ${stats.failedDeliveries}
-• Delivery Rate: ${stats.deliveryRate}
-• Processing Time: ${stats.processingTime}
-• Average Success Rate: ${stats.averageSuccessRate * 100}%
-• Error Breakdown: ${stats.errorBreakdown.join(', ')}
-\n\nMetadata:
-• Sender: ${result.metadata.sender}
-• Timestamp: ${result.metadata.timestamp}
-• Notification Type: ${result.metadata.notificationType}
-
-
-• Additional Details:
-${result.details.map((d: any) => `\n\n• ${d.success ? '✅' : '❌'} Endpoint: ${d.endpoint}
-    • Timestamp: (${d.timestamp})`).join('\n')}
-`);
-            // Refresh statistics after sending
-            fetchStatistics();
+            setStatus(formatNotificationResults(result));
+            await fetchStatistics(); // Refresh statistics after successful send
         } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message || 'Failed to send notification');
-            } else {
-                setError('Failed to send notification');
-            }
+            setError(err instanceof Error ? err.message : 'Failed to send notification');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -219,12 +232,20 @@ ${result.details.map((d: any) => `\n\n• ${d.success ? '✅' : '❌'} Endpoint:
                     <div className="text-sm text-gray-600 mt-2 space-y-1">
                         <div className="flex items-center gap-1">
                             <Info className="h-4 w-4" />
-                            Active Subscriptions: {statistics.activeSubscriptions}
+                            <span>Active Subscriptions: {statistics.activeSubscriptions}</span>
                         </div>
-                        <div>Success Rate: {(statistics.averageSuccessRate * 100).toFixed(1)}%</div>
+                        <div className="flex items-center gap-1">
+                            <Info className="h-4 w-4" />
+                            <span>Success Rate: {(statistics.averageSuccessRate * 100).toFixed(1)}%</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <Info className="h-4 w-4" />
+                            <span>Total Sent: {statistics.totalSuccesses + statistics.totalFailures}</span>
+                        </div>
                     </div>
                 )}
             </CardHeader>
+
             <CardContent className="space-y-4">
                 {/* Basic Information */}
                 <div className="space-y-4">
@@ -250,7 +271,6 @@ ${result.details.map((d: any) => `\n\n• ${d.success ? '✅' : '❌'} Endpoint:
                             rows={3}
                             placeholder="Notification Message"
                         />
-
                     </div>
                 </div>
 
@@ -258,7 +278,7 @@ ${result.details.map((d: any) => `\n\n• ${d.success ? '✅' : '❌'} Endpoint:
                 <div className="space-y-4 border-t pt-4">
                     <h3 className="flex items-center gap-2 text-lg font-medium">
                         <ImageIcon className="h-5 w-5" />
-                        <label className="block text-sm font-medium">Message</label>
+                        Media
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
@@ -393,40 +413,21 @@ ${result.details.map((d: any) => `\n\n• ${d.success ? '✅' : '❌'} Endpoint:
                     </div>
                 </div>
 
-                {/* Timestamp */}
-                <div className="border-t pt-4">
-                    <div className="flex items-center gap-2">
-                        <Clock className="h-5 w-5" />
-                        <label className="block text-sm font-medium">Schedule Time</label>
-                    </div>
-                    <input
-                        type="datetime-local"
-                        name="timestamp"
-                        value={new Date(notification.timestamp).toISOString().slice(0, 16)}
-                        onChange={(e) => handleInputChange({
-                            target: {
-                                name: 'timestamp',
-                                value: new Date(e.target.value).getTime().toString()
-                            }
-                        } as unknown as React.ChangeEvent<HTMLInputElement>)}
-                        className="w-full p-2 border rounded mt-2"
-                    />
-                </div>
-
                 {/* Submit Button */}
                 <div className="border-t pt-4">
                     <button
                         onClick={sendNotification}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                        disabled={isLoading}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:bg-blue-300"
                     >
                         <Send className="h-4 w-4" />
-                        Send Notification
+                        {isLoading ? 'Sending...' : 'Send Notification'}
                     </button>
                 </div>
 
                 {/* Status and Error Display */}
                 {status && (
-                    <pre className="bg-gray-100 p-4 rounded whitespace-pre-wrap text-sm">
+                    <pre className="bg-gray-100 p-4 rounded whitespace-pre-wrap text-sm overflow-x-auto">
                         {status}
                     </pre>
                 )}

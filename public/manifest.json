@@ -1,20 +1,35 @@
 {
     "id": "com.devbloggers.app",
     "name": "Dev Bloggers",
-    "short_name": "Dev Bloggers",
-    "description": "Your go-to platform for tech blogs, coding tutorials, and developer insights. Read, create, and share knowledge with the global dev community.",
-    "start_url": "/?source=pwa",
+    "short_name": "DevBlog",
+    "description": "Your go-to platform for tech blogs, coding tutorials, and developer insights. Join the global dev community to read, write, and share knowledge.",
+    "start_url": "/blogs",
     "scope": "/",
     "display": "standalone",
-    "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+    "display_override": [
+        "window-controls-overlay"
+    ],
     "background_color": "#ffffff",
     "theme_color": "#0f172a",
-    "orientation": "any",
+    "orientation": "natural",
     "launch_handler": {
-        "client_mode": ["focus-existing", "auto"]
+        "client_mode": [
+            "focus-existing",
+            "auto"
+        ]
     },
     "handle_links": "preferred",
     "icons": [
+        {
+            "src": "/icons/favicon-16x16.png",
+            "sizes": "16x16",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/favicon-32x32.png",
+            "sizes": "32x32",
+            "type": "image/png"
+        },
         {
             "src": "/icons/android-icon-72x72.png",
             "sizes": "72x72",
@@ -37,7 +52,7 @@
             "src": "/icons/android-icon-144x144.png",
             "sizes": "144x144",
             "type": "image/png",
-            "purpose": "any maskable monochrome"
+            "purpose": "any maskable"
         },
         {
             "src": "/icons/icon-152x152.png",
@@ -66,75 +81,68 @@
     ],
     "screenshots": [
         {
-            "src": "/screenshots/home-1280x720.png",
+            "src": "/screenshots/desktop-home.webp",
             "sizes": "1280x720",
-            "type": "image/png",
-            "platform": "wide",
-            "label": "Discover trending developer stories and insights",
-            "form_factor": "wide"
+            "type": "image/webp",
+            "form_factor": "wide",
+            "label": "Home page - Discover trending developer stories"
         },
         {
-            "src": "/screenshots/editor-1280x720.png",
+            "src": "/screenshots/desktop-editor.webp",
             "sizes": "1280x720",
-            "type": "image/png",
-            "platform": "wide",
-            "label": "Write and edit blogs with our powerful markdown editor",
-            "form_factor": "wide"
+            "type": "image/webp",
+            "form_factor": "wide",
+            "label": "Rich markdown editor for writing blogs"
         },
         {
-            "src": "/screenshots/mobile-home-750x1334.png",
+            "src": "/screenshots/mobile-home.webp",
             "sizes": "750x1334",
-            "type": "image/png",
-            "platform": "narrow",
-            "label": "Access your favorite tech blogs on the go",
-            "form_factor": "narrow"
+            "type": "image/webp",
+            "form_factor": "narrow",
+            "label": "Mobile home feed with trending posts"
         },
         {
-            "src": "/screenshots/mobile-editor-750x1334.png",
+            "src": "/screenshots/mobile-editor.webp",
             "sizes": "750x1334",
-            "type": "image/png",
-            "platform": "narrow",
-            "label": "Create content anywhere with our mobile-friendly editor",
-            "form_factor": "narrow"
+            "type": "image/webp",
+            "form_factor": "narrow",
+            "label": "Mobile-optimized blog editor"
         }
     ],
     "shortcuts": [
         {
-            "name": "Create New Blog",
-            "short_name": "New Blog",
+            "name": "New Blog Post",
+            "short_name": "Write",
             "description": "Start writing a new blog post",
-            "url": "/create?source=shortcut",
+            "url": "/create?source=pwa",
             "icons": [
                 {
                     "src": "/icons/create-96x96.png",
-                    "sizes": "96x96",
-                    "purpose": "any"
+                    "sizes": "96x96"
                 }
             ]
         },
         {
             "name": "My Profile",
             "short_name": "Profile",
-            "description": "View and edit your profile",
-            "url": "/profile?source=shortcut",
+            "description": "View your profile dashboard",
+            "url": "/dashboard?source=pwa",
             "icons": [
                 {
                     "src": "/icons/profile-96x96.png",
-                    "sizes": "96x96",
-                    "purpose": "any"
+                    "sizes": "96x96"
                 }
             ]
         },
         {
-            "name": "Bookmarked Blogs",
-            "short_name": "Bookmarks",
-            "description": "Access your saved articles",
-            "url": "/bookmarks?source=shortcut",
+            "name": "All Blogs",
+            "short_name": "Blogs",
+            "description": "Browse all blog posts",
+            "url": "/blogs?source=pwa",
             "icons": [
                 {
-                    "src": "/icons/bookmark-96x96.png",
-                    "sizes": "96x96",
-                    "purpose": "any"
+                    "src": "/icons/blogs-96x96.png",
+                    "sizes": "96x96"
                 }
             ]
         }
@@ -143,31 +151,38 @@
         "education",
         "productivity",
         "developer-tools",
-        "social",
-        "tech"
+        "social"
     ],
-    "lang": "en",
-    "dir": "ltr",
-    "prefer_related_applications": false,
-    "related_applications": [],
     "share_target": {
-        "action": "/share-target",
-        "method": "GET",
+        "action": "/api/share",
+        "method": "POST",
+        "enctype": "multipart/form-data",
         "params": {
             "title": "title",
             "text": "text",
-            "url": "url"
+            "url": "url",
+            "files": [
+                {
+                    "name": "images",
+                    "accept": [
+                        "image/*"
+                    ]
+                }
+            ]
         }
     },
     "protocol_handlers": [
         {
             "protocol": "web+devblog",
-            "url": "/blog?id=%s"
+            "url": "/blogs/%s"
         }
     ],
     "edge_side_panel": {
         "preferred_width": 400
     },
+    "lang": "en",
+    "dir": "ltr",
+    "prefer_related_applications": false,
     "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
     "gcm_sender_id": "103953800507"
 }

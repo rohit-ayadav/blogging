@@ -1,39 +1,39 @@
-// Service Worker Configuration
+// Configuration
 const CONFIG = {
-    version: '3.0.0',
+    version: '1.0.0',
     caches: {
-        static: 'static-cache-v3',
-        dynamic: 'dynamic-cache-v3',
-        pages: 'pages-cache-v3',
-        images: 'images-cache-v3',
-        api: 'api-cache-v3'
+        static: 'static-cache-v1',
+        dynamic: 'dynamic-cache-v1',
+        pages: 'pages-cache-v1',
+        images: 'images-cache-v1',
+        api: 'api-cache-v1'
     },
     strategies: {
         api: {
-            timeout: 3000,
-            maxAge: 5 * 60 * 1000 // 5 minutes
+            timeout: 5000,
+            maxAge: 10 * 60 * 1000 // 10 minutes
         },
         images: {
-            maxEntries: 100,
+            maxEntries: 150,
             maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
         }
     }
 };
 
+// Assets to cache on install
 const STATIC_ASSETS = [
+    '/',
+    '/about',
+    '/contacts',
+    '/services',
     '/offline',
-    '/login',
-    '/create',
     '/manifest.json',
-    '/css/main.css',
-    '/js/app.js',
+    '/favicon.ico',
     '/icons/android-icon-192x192.png',
-    '/icons/android-icon-72x72.png',
-    '/icons/favicon.ico',
-    '/default-thumbnail.png'
+    '/icons/android-icon-512x512.png'
 ];
 
-// Cache management helper class
+// Cache Management
 class CacheManager {
     static async deleteOldCaches() {
         const cacheNames = await caches.keys();
@@ -42,10 +42,7 @@ class CacheManager {
         return Promise.all(
             cacheNames
                 .filter(name => !validCaches.includes(name))
-                .map(name => {
-                    console.log(`Deleting old cache: ${name}`);
-                    return caches.delete(name);
-                })
+                .map(name => caches.delete(name))
         );
     }
 
@@ -85,15 +82,19 @@ class CacheManager {
     static async isResponseValid(response) {
         if (!response) return false;
 
-        const metadata = response.headers.get('sw-cache-metadata');
-        if (!metadata) return true;
+        try {
+            const metadata = response.headers.get('sw-cache-metadata');
+            if (!metadata) return true;
 
-        const { timestamp, ttl } = JSON.parse(metadata);
-        return Date.now() - timestamp < ttl;
+            const { timestamp, ttl } = JSON.parse(metadata);
+            return Date.now() - timestamp < ttl;
+        } catch {
+            return false;
+        }
     }
 }
 
-// Request handler class
+// Request Handling
 class RequestHandler {
     static isApiRequest(url) {
         return url.includes('/api/') || url.includes('/graphql');
@@ -123,7 +124,6 @@ class RequestHandler {
             }
             throw new Error('Network response was not ok');
         } catch (error) {
-            console.error('API request failed:', error);
             const cachedResponse = await caches.match(event.request);
 
             if (await CacheManager.isResponseValid(cachedResponse)) {
@@ -157,8 +157,7 @@ class RequestHandler {
             }
             throw new Error('Network response was not ok');
         } catch (error) {
-            console.error('Image fetch failed:', error);
-            return cache.match('/default-thumbnail.png');
+            return cache.match('/icons/default-image.png');
         }
     }
 
@@ -172,14 +171,13 @@ class RequestHandler {
             }
             throw new Error('Network response was not ok');
         } catch (error) {
-            const cache = await caches.open(CONFIG.caches.pages);
-            const cachedResponse = await cache.match(event.request);
-            // return cachedResponse || cache.match('/offline');
+            const cachedResponse = await caches.match(event.request);
+            return cachedResponse || caches.match('/offline');
         }
     }
 }
 
-// Push Notification Handler class
+// Notification Handler
 class NotificationHandler {
     static async handlePush(event) {
         if (!event.data) return;
@@ -188,7 +186,7 @@ class NotificationHandler {
             const data = event.data.json();
             const options = this.createNotificationOptions(data);
 
-            await self.registration.showNotification(data.title || 'New Update', options);
+            await self.registration.showNotification(data.title, options);
         } catch (error) {
             console.error('Push notification error:', error);
             await this.showFallbackNotification();
@@ -197,30 +195,33 @@ class NotificationHandler {
 
     static createNotificationOptions(data) {
         return {
-            body: data.body,
+            body: data.message,
             icon: data.icon || '/icons/android-icon-192x192.png',
-            badge: '/icons/android-icon-72x72.png',
+            badge: data.badge || '/icons/android-icon-72x72.png',
             image: data.image,
-            vibrate: [100, 50, 100],
             tag: data.tag || 'default',
-            data: {
-                url: data.url || '/dashboard',
-                timestamp: Date.now(),
-                ...data.data
-            },
-            actions: [
+            timestamp: data.timestamp || Date.now(),
+            vibrate: data.vibrate ? [100, 50, 100] : undefined,
+            renotify: data.renotify || false,
+            requireInteraction: data.requireInteraction || false,
+            silent: data.silent || false,
+            actions: data.actions || [
                 { action: 'open', title: '📱 Open' },
                 { action: 'close', title: '❌ Dismiss' }
             ],
-            requireInteraction: data.requireInteraction || false,
-            renotify: data.renotify || false,
-            silent: data.silent || false
+            data: {
+                url: data.url || '/',
+                ttl: data.ttl || 86400,
+                urgency: data.urgency || 'normal',
+                topic: data.topic,
+                ...data.data
+            }
         };
     }
 
     static async showFallbackNotification() {
         await self.registration.showNotification('New Update', {
-            body: 'Check your application for updates',
+            body: 'There\'s new content available.',
             icon: '/icons/android-icon-192x192.png'
         });
     }
@@ -228,33 +229,38 @@ class NotificationHandler {
     static async handleNotificationClick(event) {
         event.notification.close();
 
-        const urlToOpen = event.notification.data?.url || '/dashboard';
+        if (event.action === 'close') return;
+
+        const urlToOpen = event.notification.data?.url || '/';
 
         const windowClients = await clients.matchAll({
             type: 'window',
             includeUncontrolled: true
         });
 
+        // Focus existing tab if available
         const existingClient = windowClients.find(client =>
             client.url === urlToOpen || client.url.endsWith(urlToOpen)
         );
 
         if (existingClient) {
-            return existingClient.focus();
+            await existingClient.focus();
+            return;
         }
 
-        if (event.action === 'close') return;
-
-        return clients.openWindow(urlToOpen);
+        // Open new window/tab
+        await clients.openWindow(urlToOpen);
     }
 }
 
 // Event Listeners
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CONFIG.caches.static)
-            .then(cache => cache.addAll(STATIC_ASSETS))
-            .then(() => self.skipWaiting())
+        Promise.all([
+            caches.open(CONFIG.caches.static)
+                .then(cache => cache.addAll(STATIC_ASSETS)),
+            self.skipWaiting()
+        ])
     );
 });
 
@@ -271,7 +277,7 @@ self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
     // Skip non-GET requests and cross-origin requests
-    if (event.request.method !== 'GET' || !url.origin.includes(self.location.origin)) {
+    if (event.request.method !== 'GET' || url.origin !== self.location.origin) {
         return;
     }
 
@@ -282,7 +288,7 @@ self.addEventListener('fetch', event => {
     } else if (RequestHandler.isHTMLRequest(event.request)) {
         event.respondWith(RequestHandler.handleHTMLRequest(event));
     } else {
-        // Default Stale-While-Revalidate strategy for other assets
+        // Default Stale-While-Revalidate strategy
         event.respondWith(
             caches.match(event.request)
                 .then(cachedResponse => {
@@ -312,7 +318,7 @@ self.addEventListener('pushsubscriptionchange', event => {
     event.waitUntil(
         self.registration.pushManager.subscribe(event.oldSubscription.options)
             .then(subscription => {
-                return fetch('/api/update-subscription', {
+                return fetch('/api/subscribe-notification', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(subscription)

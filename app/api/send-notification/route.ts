@@ -136,10 +136,9 @@ export async function POST(req: NextRequest) {
 
           await webpush.sendNotification(subscription, payload, options);
 
-          // Update subscription success status
           await Notification.findByIdAndUpdate(_id, {
             lastSuccess: new Date(),
-            successCount: { $inc: 1 }
+            $inc: { successCount: 1 }, 
           });
 
           results.push({
@@ -154,19 +153,20 @@ export async function POST(req: NextRequest) {
           const errorMessage =
             error instanceof Error ? error.message : "Unknown error";
 
-          // Handle expired or invalid subscriptions
-          if (
-            error instanceof webpush.WebPushError &&
-            error.statusCode === 410
-          ) {
-            await Notification.findByIdAndUpdate(_id, { active: false });
-          } else {
-            await Notification.findByIdAndUpdate(_id, {
-              lastFailure: new Date(),
-              failureCount: { $inc: 1 }
-            });
-          }
-
+            if (
+              error instanceof webpush.WebPushError &&
+              error.statusCode === 410
+            ) {
+              // Mark the subscription as inactive if it's expired or invalid
+              await Notification.findByIdAndUpdate(_id, { active: false });
+            } else {
+              // Handle other errors by recording the failure timestamp and incrementing failure count
+              await Notification.findByIdAndUpdate(_id, {
+                lastFailure: new Date(),
+                $inc: { failureCount: 1 }, // Corrected $inc usage
+              });
+            }
+            
           results.push({
             success: false,
             subscription,

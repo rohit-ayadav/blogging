@@ -10,8 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import CountUp from 'react-countup';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
-import { usePushClient } from '@/hooks/push-client';
 import { BlogPostType, UserType } from '@/types/blogs-types';
+import { usePushNotifications } from '@/hooks/push-client';
 
 
 interface Post {
@@ -35,7 +35,7 @@ const useBlogData = () => {
   const [totalViews, setTotalViews] = useState(0);
   const [totalBlogs, setTotalBlogs] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
-  const [isSubscribed, setIsSubscribed] = useState(false);
+
 
 
   useEffect(() => {
@@ -135,9 +135,26 @@ const HomePage = () => {
   const { isDarkMode } = useTheme();
   const router = useRouter();
   const { loading, error, posts, users, totalBlogs, totalUsers, totalLikes, totalViews } = useBlogData();
-  
-  usePushClient();
-  
+  const {
+    isSupported,
+    isSubscribed,
+    errors,
+    subscribe,
+    unsubscribe,
+    sendNotification
+  } = usePushNotifications();
+
+  useEffect(() => {
+    // Subscribe to push notifications
+    if (isSupported && !isSubscribed) {
+      subscribe();
+      if (errors) {
+        console.error(errors);
+      }
+
+    }
+  }, [isSupported, isSubscribed]);
+
   useEffect(() => {
     document.body.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);

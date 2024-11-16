@@ -52,7 +52,7 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
     return () => document.removeEventListener('touchstart', handleTouch);
   }, [isMobile]);
 
-  const handleCodeCopy = async (code: string) => {
+  const handleCodeCopy = async (code: string): Promise<void> => {
     await navigator.clipboard.writeText(code);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
