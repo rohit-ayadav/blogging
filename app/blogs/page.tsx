@@ -28,6 +28,8 @@ class DataCache<T> {
 
     private loadFromStorage(): void {
         try {
+            // Load cache from local storage on client side
+            if (typeof window === 'undefined') return;
             const stored = localStorage.getItem(this.storageKey);
             if (stored) {
                 const data = JSON.parse(stored);
