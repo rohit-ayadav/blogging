@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { BlogPostType, Author } from '@/types/blogs-types';
-import { Calendar, ArrowRight, BookOpen, User } from 'lucide-react';
+import { Calendar, ArrowRight, User } from 'lucide-react';
 import LoadingSkeleton from '../LoadingComponent';
 
 interface AuthorPostsProps {

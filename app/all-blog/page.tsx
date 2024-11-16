@@ -82,7 +82,7 @@ const BlogListing = () => {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p>{post.content.slice(0, 50)}...</p>
+                            {/* <p>{post.content.slice(0, 50)}...</p> */}
                             <p>Created by: {post.createdBy}</p>
                             <p>Created at: {formatDate(post.createdAt)}</p>
                             <p>Category: {post.category}</p>
