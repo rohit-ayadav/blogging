@@ -101,10 +101,9 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                         <ImageIcon className="h-16 w-16 text-gray-400 dark:text-gray-500 opacity-50" />
                     </div>
                 )}
-                {/* Improved Gradient Overlay */}
+                
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-                {/* Category Badge with Enhanced Styling */}
                 <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
                     <span className={`
                         inline-flex items-center px-3 py-1 rounded-full 
@@ -118,7 +117,6 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                     </span>
                 </div>
 
-                {/* Title and Metadata with Improved Typography */}
                 <div className="absolute bottom-4 left-4 right-4 text-white">
                     <CardTitle className="
                         text-2xl font-bold 
@@ -131,7 +129,6 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                         {post.title}
                     </CardTitle>
 
-                    {/* Enhanced Metadata Section */}
                     <div className="flex items-center justify-between text-gray-100 text-sm">
                         <div className="flex items-center space-x-2">
                             <FaCalendarAlt className="h-4 w-4 opacity-80" />
@@ -151,7 +148,6 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                 </div>
             </div>
 
-            {/* Content Preview Section */}
             <CardContent className="flex-grow p-6">
                 <p className="
                     line-clamp-4 
@@ -163,7 +159,6 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                 </p>
             </CardContent>
 
-            {/* Footer Section with Enhanced User and Action Layout */}
             <CardFooter className="
                 flex flex-col sm:flex-row 
                 justify-between 
@@ -225,13 +220,12 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
 
                     {/* <Link href={`/blogs/${post._id}`} className="w-full"> */}
                     {/* <Link href={`/blogs/${post.slug}`} className="w-full"> */}
-                    if (post.slug && post.slug !== 'undefined') {
-                        <Link href={`/blogs/${post.slug}`} passHref>
+                    <Link href={`/blogs/${post.slug}`} passHref>
 
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="
                                 group 
                                 w-full 
                                 hover:bg-blue-500 hover:text-white 
@@ -241,32 +235,11 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                                 transition-all duration-300 
                                 rounded-full
                             "
-                            >
-                                Read More
-                                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                            </Button>
-                        </Link>
-                    } else {
-                        <Link href={`/blogs/${post._id}`} passHref>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="
-                                group 
-                                w-full 
-                                hover:bg-blue-500 hover:text-white 
-                                dark:hover:bg-blue-600 
-                                text-gray-800 dark:text-gray-200 
-                                border-gray-300 dark:border-gray-600 
-                                transition-all duration-300 
-                                rounded-full
-                            "
-                            >
-                                Read More
-                                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                            </Button>
-                        </Link>
-                    }
+                        >
+                            Read More
+                            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                        </Button>
+                    </Link>
                 </div>
             </CardFooter>
         </Card>
@@ -292,19 +265,5 @@ const SkeletonCard = () => (
         </CardFooter>
     </Card>
 );
-const CATEGORIES = [
-    { value: "all", label: "All Categories" },
-    { value: "DSA", label: "DSA" },
-    { value: "Job Posting", label: "Job Posting" },
-    { value: "WebDev", label: "Web Development" },
-    { value: "AI", label: "Artificial Intelligence" },
-    { value: "ML", label: "Machine Learning" },
-    { value: "Skill Development", label: "Skill Development" },
-    { value: "Resume and Cover Letter Guidance", label: "Resume & Cover Letter" },
-    { value: "Interview Preparation", label: "Interview Prep" },
-    { value: "Tech-news", label: "Tech News" },
-    { value: "Internship", label: "Internship" },
-    { value: "Others", label: "Others" }
-];
 
-export { BlogPostCard, SkeletonCard, CATEGORIES };
+export { BlogPostCard, SkeletonCard };

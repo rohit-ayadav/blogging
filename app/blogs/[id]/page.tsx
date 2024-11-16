@@ -128,7 +128,7 @@ export default async function IndividualBlogPost({ params }: { params: { id: str
 
 
     return (
-        <BlogPostLayout post={response.data}>
+        <BlogPostLayout post={response.data} id={params.id}>
             <BlogPostClientContent initialData={response.data} id={params.id} />
         </BlogPostLayout>
     );

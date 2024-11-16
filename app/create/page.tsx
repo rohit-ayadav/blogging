@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { useTheme } from '@/context/ThemeContext';
-import { CATEGORIES } from '@/app/component/BlogPostCard';
+import { CATEGORIES } from '@/types/blogs-types';
 import { TitleSection } from '@/app/create/TitleSection';
 import { ThumbnailSection } from '@/app/create/ThumbnailSection';
 import { EditorSection } from '@/app/create/EditorSection';

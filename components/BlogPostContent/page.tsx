@@ -1,5 +1,4 @@
 "use client";
-
 import React, { Suspense } from 'react';
 import useBlogPost from '../../hooks/useBlogPost';
 import BlogPostHeader from '../BlogPostHeader/page';
@@ -52,61 +51,43 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({ initialDa
         );
     }
 
-    if (isLoading) {
+    if (!post || !author || isLoading) {
         return <LoadingSkeleton />;
-    }
-
-    if (!post || !author) {
-        return (
-            <div className="flex justify-center items-center min-h-[60vh] px-2">
-                <Alert>
-                    <AlertDescription>
-                        Blog post or author information not found.
-                    </AlertDescription>
-                </Alert>
-            </div>
-        );
     }
 
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
             <BlogPostHeader post={post} author={author} />
-            <article className="mx-auto">
-                <Suspense fallback={<LoadingSkeleton />}>
-                    <BlogPostContent post={post} language={language} />
-                </Suspense>
-                <BlogPostFooter
-                    post={post}
-                    likes={likes}
-                    views={views}
-                    liked={liked}
-                    id={id}
-                />
-            </article>
 
-            <div className="mt-8 space-y-8">
-                <Suspense fallback={<SectionSkeleton />}>
-                    <CommentSection postId={id} />
-                </Suspense>
-
-                <Suspense fallback={<SectionSkeleton />}>
-                    <RelatedPosts posts={relatedPosts} />
-                </Suspense>
-
-                <div className="px-2">
-                    <NewsLetter />
+            <div className="container mx-auto px-4">
+                <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+                    <div className="lg:col-span-12">
+                        <article>
+                            <Suspense fallback={<LoadingSkeleton />}>
+                                <BlogPostContent post={post} />
+                            </Suspense>
+                            <BlogPostFooter
+                                post={post}
+                                likes={likes}
+                                views={views}
+                                liked={liked}
+                                id={id}
+                            />
+                        </article>
+                        <div className="mt-8">
+                            <Suspense fallback={<SectionSkeleton />}>
+                                <CommentSection postId={id} />
+                            </Suspense>
+                        </div>
+                    </div>
                 </div>
-
-                <Suspense fallback={<SectionSkeleton />}>
-                    <AuthorPosts author={author} posts={authorPosts} />
-                </Suspense>
             </div>
         </div>
     );
 };
 
 const LoadingSkeleton = () => (
-    <div className="px-2">
+    <div className="space-y-4 px-4">
         <Skeleton className="h-8 w-full mb-4" />
         <Skeleton className="h-4 w-3/4 mb-6" />
         <div className="space-y-3">
@@ -118,7 +99,7 @@ const LoadingSkeleton = () => (
 );
 
 const SectionSkeleton = () => (
-    <div className="space-y-4 px-2">
+    <div className="space-y-4 px-4">
         <Skeleton className="h-6 w-32" />
         <div className="space-y-3">
             {Array(3).fill(null).map((_, i) => (

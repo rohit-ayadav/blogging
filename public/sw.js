@@ -174,7 +174,7 @@ class RequestHandler {
         } catch (error) {
             const cache = await caches.open(CONFIG.caches.pages);
             const cachedResponse = await cache.match(event.request);
-            return cachedResponse || cache.match('/offline');
+            // return cachedResponse || cache.match('/offline');
         }
     }
 }

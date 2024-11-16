@@ -4,7 +4,6 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { useTheme } from '@/context/ThemeContext';
-import { CATEGORIES } from '@/app/component/BlogPostCard';
 import { TitleSection } from '@/app/create/TitleSection';
 import { ThumbnailSection } from '@/app/create/ThumbnailSection';
 import { EditorSection } from '@/app/create/EditorSection';
@@ -19,6 +18,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import TurndownService from 'turndown';
+import { CATEGORIES } from '@/types/blogs-types';
 
 
 interface DraftData {
@@ -87,7 +87,7 @@ export default function EditBlog() {
                     const markdown = turndownService.turndown(html);
                     data.content = markdown;
                 }
-                
+
 
 
                 updateState({

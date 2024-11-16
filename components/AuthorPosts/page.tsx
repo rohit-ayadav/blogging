@@ -1,24 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BlogPostType, Author } from '@/types/blogs-types';
-import { Calendar, ArrowRight, BookOpen } from 'lucide-react';
+import { Calendar, ArrowRight, BookOpen, User } from 'lucide-react';
+import LoadingSkeleton from '../LoadingComponent';
 
 interface AuthorPostsProps {
-    author: Author;
+    author: Author | null;
     posts: BlogPostType[];
 }
 
 const AuthorPosts = ({ author, posts }: AuthorPostsProps) => {
-    if (posts.length === 0) {
-        return (
-            <Card className="mb-8 mt-6 text-center p-8">
-                <div className="flex flex-col items-center gap-4 text-gray-500 dark:text-gray-400">
-                    <BookOpen className="h-12 w-12" />
-                    <p className="text-lg">No posts found from this author yet</p>
-                </div>
-            </Card>
-        );
+    if (!author || !posts || !posts.length) {
+        return <LoadingSkeleton />;
     }
 
     const formatDate = (dateString: string) => {
@@ -37,59 +30,79 @@ const AuthorPosts = ({ author, posts }: AuthorPostsProps) => {
     };
 
     return (
-        <Card className="mb-8 mt-6 overflow-hidden border-0 shadow-md dark:bg-gray-800/50">
-            <CardHeader className="border-b bg-gray-50/50 dark:bg-gray-800">
-                <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
-                    More from {author?.name}
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {posts.slice(0, 3).map((post) => (
-                        <Link
-                            href={`/blogs/${post._id}`}
-                            key={post._id}
-                            className="group block"
-                        >
-                            <article className="h-full flex flex-col border dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 bg-white dark:bg-gray-800">
-                                {post.thumbnail && (
-                                    <div className="relative w-full pt-[56.25%] overflow-hidden bg-gray-100 dark:bg-gray-700">
-                                        <img
-                                            src={post.thumbnail}
-                                            alt=""
-                                            className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
-                                        />
-                                    </div>
-                                )}
-
-                                <div className="flex flex-col flex-grow p-4">
-                                    <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
-                                        <Calendar className="h-4 w-4" />
-                                        <time dateTime={post.createdAt}>
-                                            {formatDate(post.createdAt)}
-                                        </time>
-                                    </div>
-
-                                    <h3 className="font-semibold text-lg mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
-                                        {post.title}
-                                    </h3>
-
-                                    <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3 mb-4">
-                                        {stripHtml(post.content)}
-                                    </p>
-
-                                    <div className="mt-auto flex items-center text-sm font-medium text-blue-600 dark:text-blue-400">
-                                        Read more
-                                        <ArrowRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
-                                    </div>
-                                </div>
-                            </article>
-                        </Link>
-                    ))}
+        <div className="space-y-4">
+            {/* Author Header */}
+            <div className="flex items-center gap-3 mb-4">
+                <div className="flex-shrink-0">
+                    {author?.image ? (
+                        <img
+                            src={author.image}
+                            alt={author.name}
+                            className="w-10 h-10 rounded-full object-cover"
+                        />
+                    ) : (
+                        <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                            <User className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                        </div>
+                    )}
                 </div>
-            </CardContent>
-        </Card>
+                <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                        {author?.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                        More posts from this author
+                    </p>
+                </div>
+            </div>
+
+            {/* Posts List */}
+            <div className="space-y-4">
+                {posts.slice(0, 5).map((post) => (
+                    <Link
+                        href={`/blogs/${post.slug}`}
+                        key={post._id}
+                        className="group block"
+                    >
+                        <article className="flex gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+                            {post.thumbnail && (
+                                <div className="relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden">
+                                    <img
+                                        src={post.thumbnail}
+                                        alt=""
+                                        className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                </div>
+                            )}
+
+                            <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-sm mb-1 text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                                    {post.title}
+                                </h4>
+
+                                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                    <Calendar className="h-3 w-3" />
+                                    <time dateTime={post.createdAt}>
+                                        {formatDate(post.createdAt)}
+                                    </time>
+                                </div>
+                            </div>
+                        </article>
+                    </Link>
+                ))}
+            </div>
+
+            {/* View All Link */}
+            <Link
+                href={`/author/${author?._id}`}
+                className="inline-flex items-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors mt-2"
+            >
+                View all posts
+                <ArrowRight className="h-4 w-4 ml-1" />
+            </Link>
+        </div>
     );
 };
 
 export default AuthorPosts;
+

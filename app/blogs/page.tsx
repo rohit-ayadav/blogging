@@ -8,15 +8,12 @@ import { toast, Toaster } from 'react-hot-toast';
 import DashboardGrid from '../component/dashboardGrid';
 import BlogPostGrid from '../component/BlogPostGrid';
 import { useTheme } from '@/context/ThemeContext';
-import { CATEGORIES } from '../component/BlogPostCard';
+import { CATEGORIES } from '@/types/blogs-types';
 import debounce from 'lodash/debounce';
 import { themeClasses } from './themeClass';
 import { EmptyState, NoMorePosts, LoadingState } from './themeClass';
 import { StatsType, BlogPostType, UserType } from '@/types/blogs-types';
 
-
-
-// Improved cache implementation with persistent storage
 class DataCache<T> {
     private cache: Map<string, { data: T; timestamp: number }>;
     private readonly timeout: number;
@@ -103,7 +100,6 @@ class DataCache<T> {
     }
 }
 
-// Initialize caches with storage keys
 const postsCache = new DataCache<any>(5, 'blog-posts-cache');
 const statsCache = new DataCache<StatsType>(15, 'blog-stats-cache'); // 15 minutes
 const usersCache = new DataCache<Record<string, UserType>>(300, 'blog-users-cache'); // 5 hours
@@ -140,7 +136,6 @@ const BlogCollection = () => {
     const { isDarkMode, toggleDarkMode } = useTheme();
     const isInitialMount = useRef(true);
 
-    // Enhanced fetch with retry logic
     const fetchWithRetry = async (url: string, options?: RequestInit, retries = 3): Promise<Response> => {
         for (let i = 0; i < retries; i++) {
             try {
@@ -157,7 +152,6 @@ const BlogCollection = () => {
         throw new Error('Failed after retries');
     };
 
-    // Improved fetch stats with cache
     const fetchStats = useCallback(async () => {
         // if (!state.statsLoading) return;
 

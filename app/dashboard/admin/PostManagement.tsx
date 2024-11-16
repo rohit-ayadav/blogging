@@ -5,22 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Search, Save, Loader2 } from 'lucide-react'
-
-const CATEGORIES = [
-    { value: "DSA", label: "DSA" },
-    { value: "Job Posting", label: "Job Posting" },
-    { value: "WebDev", label: "Web Development" },
-    { value: "AI", label: "Artificial Intelligence" },
-    { value: "ML", label: "Machine Learning" },
-    { value: "Skill Development", label: "Skill Development" },
-    { value: "Resume and Cover Letter Guidance", label: "Resume & Cover Letter" },
-    { value: "Interview Preparation", label: "Interview Prep" },
-    { value: "Tech-news", label: "Tech News" },
-    { value: "Internship", label: "Internship" },
-    
-    { value: "Others", label: "Others" }
-]
-
+import { CATEGORIES } from '@/types/blogs-types'
 interface BlogPostType {
     _id: string
     title: string

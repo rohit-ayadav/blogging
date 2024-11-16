@@ -369,6 +369,19 @@ export async function GET(request: Request) {
   try {
     // Extract and validate query parameters
     const { searchParams } = new URL(request.url);
+    if(searchParams.get("admin") === "true") {
+      // return all blogs
+      const blogs = await Blog.find().select("-__v");
+      return NextResponse.json(
+        {
+          message: "All blog posts retrieved successfully",
+          success: true,
+          data: blogs
+        },
+        { status: 200 }
+      );
+    }
+
     const params = validateQueryParams(searchParams);
 
     // Build query object

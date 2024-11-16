@@ -7,9 +7,12 @@ import { isValidObjectId } from "mongoose";
 await connectDB();
 
 const isValidSlug = (slug: string) => {
-  // check if the slug is valid or not , having lowercase, no special character and white space in starting, middle or end
-  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
-}
+  let processedSlug = slug.toLowerCase();
+  processedSlug = processedSlug.replace(/[^a-z0-9-]/g, "");
+  processedSlug = processedSlug.replace(/^-+|-+$/g, "");
+  return /^[a-z0-9]+(?:-*[a-z0-9]+)*$/.test(processedSlug);
+};
+
 
 
 export async function GET(request: NextRequest) {
