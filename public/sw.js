@@ -1,31 +1,32 @@
-// Configuration
+// Configuration with performance settings
 const CONFIG = {
-    version: '1.0.0',
+    version: '1.0.1',
+    debug: true,
+    performance: {
+        installTimeout: 10000,
+        activateTimeout: 5000,
+    },
     caches: {
-        static: 'static-cache-v1',
-        dynamic: 'dynamic-cache-v1',
-        pages: 'pages-cache-v1',
-        images: 'images-cache-v1',
-        api: 'api-cache-v1'
+        static: 'static-cache-v1.0.1',
+        dynamic: 'dynamic-cache-v1.0.1',
+        pages: 'pages-cache-v1.0.1',
+        images: 'images-cache-v1.0.1',
+        api: 'api-cache-v1.0.1'
     },
     strategies: {
         api: {
             timeout: 5000,
-            maxAge: 10 * 60 * 1000 // 10 minutes
+            maxAge: 10 * 60 * 1000
         },
         images: {
             maxEntries: 150,
-            maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
+            maxAgeSeconds: 30 * 24 * 60 * 60
         }
     }
 };
 
-// Assets to cache on install
 const STATIC_ASSETS = [
     '/',
-    '/about',
-    '/contacts',
-    '/services',
     '/offline',
     '/manifest.json',
     '/favicon.ico',
@@ -33,8 +34,58 @@ const STATIC_ASSETS = [
     '/icons/android-icon-512x512.png'
 ];
 
-// Cache Management
+class PerformanceMonitor {
+    static start(label) {
+        if (CONFIG.debug) {
+            console.time(`SW-${label}`);
+            return Date.now();
+        }
+    }
+
+    static end(label, startTime) {
+        if (CONFIG.debug) {
+            console.timeEnd(`SW-${label}`);
+            const duration = Date.now() - startTime;
+            console.log(`SW-${label} took ${duration}ms`);
+        }
+    }
+
+    static async measureAsync(label, asyncFn) {
+        const startTime = this.start(label);
+        try {
+            return await asyncFn();
+        } finally {
+            this.end(label, startTime);
+        }
+    }
+}
+
 class CacheManager {
+    static async preCacheStaticAssets() {
+        const cache = await caches.open(CONFIG.caches.static);
+        const chunkSize = 3;
+        const chunks = [];
+
+        for (let i = 0; i < STATIC_ASSETS.length; i += chunkSize) {
+            chunks.push(STATIC_ASSETS.slice(i, i + chunkSize));
+        }
+
+        await Promise.all(
+            chunks.map(chunk =>
+                Promise.all(chunk.map(async asset => {
+                    try {
+                        const response = await fetch(asset);
+                        if (response.ok) {
+                            await cache.put(asset, response);
+                        }
+                    } catch (error) {
+                        console.warn(`Failed to cache ${asset}:`, error);
+                    }
+                }))
+            )
+        );
+    }
+
     static async deleteOldCaches() {
         const cacheNames = await caches.keys();
         const validCaches = Object.values(CONFIG.caches);
@@ -94,7 +145,6 @@ class CacheManager {
     }
 }
 
-// Request Handling
 class RequestHandler {
     static isApiRequest(url) {
         return url.includes('/api/') || url.includes('/graphql');
@@ -105,8 +155,7 @@ class RequestHandler {
     }
 
     static isHTMLRequest(request) {
-        return request.mode === 'navigate' ||
-            request.headers.get('accept')?.includes('text/html');
+        return request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html');
     }
 
     static async handleAPIRequest(event) {
@@ -125,15 +174,10 @@ class RequestHandler {
             throw new Error('Network response was not ok');
         } catch (error) {
             const cachedResponse = await caches.match(event.request);
-
             if (await CacheManager.isResponseValid(cachedResponse)) {
                 return cachedResponse;
             }
-
-            return Response.json(
-                { error: 'Network error, please try again later' },
-                { status: 503 }
-            );
+            return Response.json({ error: 'Network error, please try again later' }, { status: 503 });
         }
     }
 
@@ -149,10 +193,7 @@ class RequestHandler {
             const response = await fetch(event.request);
             if (response.ok) {
                 await cache.put(event.request, response.clone());
-                await CacheManager.limitCacheSize(
-                    CONFIG.caches.images,
-                    CONFIG.strategies.images.maxEntries
-                );
+                await CacheManager.limitCacheSize(CONFIG.caches.images, CONFIG.strategies.images.maxEntries);
                 return response;
             }
             throw new Error('Network response was not ok');
@@ -175,100 +216,82 @@ class RequestHandler {
             return cachedResponse || caches.match('/offline');
         }
     }
-}
 
-// Notification Handler
-class NotificationHandler {
-    static async handlePush(event) {
-        if (!event.data) return;
+    static async handleDefaultRequest(event) {
+        const cachedResponse = await caches.match(event.request);
+        if (cachedResponse) return cachedResponse;
 
         try {
-            const data = event.data.json();
-            const options = this.createNotificationOptions(data);
-
-            await self.registration.showNotification(data.title, options);
-        } catch (error) {
-            console.error('Push notification error:', error);
-            await this.showFallbackNotification();
-        }
-    }
-
-    static createNotificationOptions(data) {
-        return {
-            body: data.message,
-            icon: data.icon || '/icons/android-icon-192x192.png',
-            badge: data.badge || '/icons/android-icon-72x72.png',
-            image: data.image,
-            tag: data.tag || 'default',
-            timestamp: data.timestamp || Date.now(),
-            vibrate: data.vibrate ? [100, 50, 100] : undefined,
-            renotify: data.renotify || false,
-            requireInteraction: data.requireInteraction || false,
-            silent: data.silent || false,
-            actions: data.actions || [
-                { action: 'open', title: '📱 Open' },
-                { action: 'close', title: '❌ Dismiss' }
-            ],
-            data: {
-                url: data.url || '/',
-                ttl: data.ttl || 86400,
-                urgency: data.urgency || 'normal',
-                topic: data.topic,
-                ...data.data
+            const response = await fetch(event.request);
+            if (response.ok) {
+                const cache = await caches.open(CONFIG.caches.dynamic);
+                await cache.put(event.request, response.clone());
+                return response;
             }
-        };
-    }
-
-    static async showFallbackNotification() {
-        await self.registration.showNotification('New Update', {
-            body: 'There\'s new content available.',
-            icon: '/icons/android-icon-192x192.png'
-        });
-    }
-
-    static async handleNotificationClick(event) {
-        event.notification.close();
-
-        if (event.action === 'close') return;
-
-        const urlToOpen = event.notification.data?.url || '/';
-
-        const windowClients = await clients.matchAll({
-            type: 'window',
-            includeUncontrolled: true
-        });
-
-        // Focus existing tab if available
-        const existingClient = windowClients.find(client =>
-            client.url === urlToOpen || client.url.endsWith(urlToOpen)
-        );
-
-        if (existingClient) {
-            await existingClient.focus();
-            return;
+            throw new Error('Network response was not ok');
+        } catch (error) {
+            return new Response('Network error occurred', { status: 503 });
         }
-
-        // Open new window/tab
-        await clients.openWindow(urlToOpen);
     }
 }
 
-// Event Listeners
+async function handleInstall() {
+    const startTime = PerformanceMonitor.start('install');
+
+    try {
+        const criticalAssets = ['/', '/offline', '/manifest.json'];
+        const cache = await caches.open(CONFIG.caches.static);
+        await cache.addAll(criticalAssets);
+        await self.skipWaiting();
+
+        setTimeout(() => {
+            CacheManager.preCacheStaticAssets()
+                .catch(error => console.warn('Background caching error:', error));
+        }, 0);
+
+    } catch (error) {
+        console.error('Service Worker installation failed:', error);
+    } finally {
+        PerformanceMonitor.end('install', startTime);
+    }
+}
+
+async function handleActivate() {
+    const startTime = PerformanceMonitor.start('activate');
+
+    try {
+        await self.clients.claim();
+
+        setTimeout(() => {
+            CacheManager.deleteOldCaches()
+                .catch(error => console.warn('Cache cleanup error:', error));
+        }, 0);
+
+    } catch (error) {
+        console.error('Service Worker activation failed:', error);
+    } finally {
+        PerformanceMonitor.end('activate', startTime);
+    }
+}
+
 self.addEventListener('install', event => {
     event.waitUntil(
-        Promise.all([
-            caches.open(CONFIG.caches.static)
-                .then(cache => cache.addAll(STATIC_ASSETS)),
-            self.skipWaiting()
+        Promise.race([
+            handleInstall(),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Install timeout')), CONFIG.performance.installTimeout)
+            )
         ])
     );
 });
 
 self.addEventListener('activate', event => {
     event.waitUntil(
-        Promise.all([
-            CacheManager.deleteOldCaches(),
-            self.clients.claim()
+        Promise.race([
+            handleActivate(),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Activate timeout')), CONFIG.performance.activateTimeout)
+            )
         ])
     );
 });
@@ -276,53 +299,23 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
-    // Skip non-GET requests and cross-origin requests
     if (event.request.method !== 'GET' || url.origin !== self.location.origin) {
         return;
     }
 
-    if (RequestHandler.isApiRequest(url.pathname)) {
-        event.respondWith(RequestHandler.handleAPIRequest(event));
-    } else if (RequestHandler.isImageRequest(url.pathname)) {
-        event.respondWith(RequestHandler.handleImageRequest(event));
-    } else if (RequestHandler.isHTMLRequest(event.request)) {
-        event.respondWith(RequestHandler.handleHTMLRequest(event));
-    } else {
-        // Default Stale-While-Revalidate strategy
-        event.respondWith(
-            caches.match(event.request)
-                .then(cachedResponse => {
-                    const fetchPromise = fetch(event.request)
-                        .then(response => {
-                            if (response.ok) {
-                                caches.open(CONFIG.caches.dynamic)
-                                    .then(cache => cache.put(event.request, response.clone()));
-                            }
-                            return response;
-                        });
-                    return cachedResponse || fetchPromise;
-                })
-        );
+    const startTime = PerformanceMonitor.start(`fetch-${url.pathname}`);
+
+    try {
+        if (RequestHandler.isApiRequest(url.pathname)) {
+            event.respondWith(RequestHandler.handleAPIRequest(event));
+        } else if (RequestHandler.isImageRequest(url.pathname)) {
+            event.respondWith(RequestHandler.handleImageRequest(event));
+        } else if (RequestHandler.isHTMLRequest(event.request)) {
+            event.respondWith(RequestHandler.handleHTMLRequest(event));
+        } else {
+            event.respondWith(RequestHandler.handleDefaultRequest(event));
+        }
+    } finally {
+        PerformanceMonitor.end(`fetch-${url.pathname}`, startTime);
     }
-});
-
-self.addEventListener('push', event => {
-    event.waitUntil(NotificationHandler.handlePush(event));
-});
-
-self.addEventListener('notificationclick', event => {
-    event.waitUntil(NotificationHandler.handleNotificationClick(event));
-});
-
-self.addEventListener('pushsubscriptionchange', event => {
-    event.waitUntil(
-        self.registration.pushManager.subscribe(event.oldSubscription.options)
-            .then(subscription => {
-                return fetch('/api/subscribe-notification', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(subscription)
-                });
-            })
-    );
 });

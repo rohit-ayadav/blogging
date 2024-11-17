@@ -3,7 +3,6 @@ import webpush from "web-push";
 import Notification from "@/models/notification.models";
 import { connectDB } from "@/utils/db";
 import { getSessionAtHome } from "@/auth";
-import { z } from "zod";
 
 connectDB();
 
@@ -13,233 +12,173 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY || ""
 );
 
-// Validation schema for notification action
-const NotificationActionSchema = z.object({
-  action: z.string(),
-  title: z.string()
-});
+type NotificationPayload = {
+  title: string;
+  message: string;
+  userId?: string; // Added for user targeting
+  subscription?: any | any[];
+  image?: string | null;
+  icon?: string | null;
+  badge?: string | null;
+  tag?: string;
+  timestamp?: number;
+  vibrate?: boolean;
+  renotify?: boolean;
+  requireInteraction?: boolean;
+  silent?: boolean;
+  actions?: any[];
+  url?: string | null;
+  data?: any;
+  ttl?: number;
+  urgency?: string;
+  topic?: string | null;
+};
 
-const NotificationSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  message: z.string().min(1, "Message is required"),
-  image: z.string().url().optional(),
-  icon: z.string().url().optional(),
-  badge: z.string().url().optional(),
-  tag: z.string().optional(),
-  timestamp: z.number().optional(),
-  vibrate: z.boolean().optional(),
-  renotify: z.boolean().optional(),
-  requireInteraction: z.boolean().optional(),
-  silent: z.boolean().optional(),
-  actions: z.array(NotificationActionSchema).optional(),
-  url: z.string().url().optional(),
-  data: z.record(z.any()).optional(),
-  ttl: z.number().min(0).optional(), // Time To Live in seconds
-  urgency: z.enum(["very-low", "low", "normal", "high"]).optional(),
-  topic: z.string().optional()
-});
+async function getSubscriptions(payload: NotificationPayload) {
+  if (payload.subscription) {
+    return Array.isArray(payload.subscription)
+      ? payload.subscription.map(sub => ({ subscription: sub }))
+      : [{ subscription: payload.subscription }];
+  }
 
-interface NotificationResult {
-  success: boolean;
-  subscription: webpush.PushSubscription;
-  error?: string;
-  timestamp: number;
-  endpoint: string;
+  let query = { active: true };
+
+  const subscriptions = await Notification.find(query);
+
+  if (!subscriptions.length) {
+    throw new Error(
+      payload.userId
+        ? `No active subscriptions found for user ${payload.userId}`
+        : "No active subscriptions found"
+    );
+  }
+
+  return subscriptions;
 }
 
-// Rate limiting implementation
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_NOTIFICATIONS_PER_WINDOW = 100;
-const rateLimitStore = new Map<string, { count: number; timestamp: number }>();
-
-function checkRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const userLimit = rateLimitStore.get(userId);
-
-  if (!userLimit || now - userLimit.timestamp > RATE_LIMIT_WINDOW) {
-    rateLimitStore.set(userId, { count: 1, timestamp: now });
-    return true;
+async function sendNotification(
+  subscription: any,
+  notification: NotificationPayload
+) {
+  try {
+    await webpush.sendNotification(
+      subscription,
+      JSON.stringify({ body: notification.message, ...notification }),
+      {
+        TTL: notification.ttl || 86400,
+        urgency: (notification.urgency as webpush.Urgency) || "normal",
+        topic: notification.topic || undefined
+      }
+    );
+    return { success: true, endpoint: subscription.endpoint };
+  } catch (error) {
+    if (error instanceof webpush.WebPushError && error.statusCode === 410) {
+      throw { type: "EXPIRED", endpoint: subscription.endpoint };
+    }
+    throw { type: "FAILED", endpoint: subscription.endpoint, error };
   }
-
-  if (userLimit.count >= MAX_NOTIFICATIONS_PER_WINDOW) {
-    return false;
-  }
-
-  userLimit.count++;
-  return true;
 }
 
 export async function POST(req: NextRequest) {
-  const startTime = Date.now();
-
   try {
-    // 1. Authentication
+    // Auth check
     const session = await getSessionAtHome();
     if (!session) {
       return NextResponse.json(
-        { message: "Not authorized", success: false },
+        { message: "Unauthorized", success: false },
         { status: 401 }
       );
     }
 
-    // 2. Rate Limiting
-    // if (!checkRateLimit(session?.user?.id)) {
-    //   return NextResponse.json(
-    //     { message: "Rate limit exceeded", success: false },
-    //     { status: 429 }
-    //   );
-    // }
+    const data: NotificationPayload = await req.json();
 
-    // 3. Payload Validation
-    const rawData = await req.json();
-    const validationResult = NotificationSchema.safeParse(rawData);
-
-    if (!validationResult.success) {
+    // Validation
+    if (!data.title || !data.message) {
       return NextResponse.json(
-        {
-          message: "Invalid notification data",
-          errors: validationResult.error.issues,
-          success: false
-        },
+        { message: "Title and message are required", success: false },
         { status: 400 }
       );
     }
 
-    const notificationData = validationResult.data;
+    const notification: NotificationPayload = {
+      title: data.title,
+      message: data.message,
+      userId: data.userId,
+      image: data.image || null,
+      icon: data.icon || null,
+      badge: data.badge || null,
+      tag: data.tag || "default",
+      timestamp: data.timestamp || Date.now(),
+      vibrate: data.vibrate || false,
+      renotify: data.renotify || false,
+      requireInteraction: data.requireInteraction || false,
+      silent: data.silent || false,
+      actions: data.actions || [],
+      url: data.url || null,
+      data: data.data || {},
+      ttl: data.ttl || 86400,
+      urgency: data.urgency || "normal",
+      topic: data.topic || null
+    };
 
-    // 4. Prepare Notification Payload
-    const payload = JSON.stringify({
-      body: notificationData.message,
-      ...notificationData
-    });
+    // Get subscriptions based on targeting
+    const subscriptions = await getSubscriptions(notification);
 
-    // 5. Get Active Subscriptions
-    const subscriptions = await Notification.find({});
+    const startTime = Date.now();
+    const results = [];
 
-    if (!subscriptions.length) {
-      return NextResponse.json(
-        { message: "No active subscriptions found", success: false },
-        { status: 404 }
-      );
-    }
+    for (const { subscription, _id } of subscriptions) {
+      try {
+        const result = await sendNotification(subscription, notification);
+        results.push(result);
 
-    // 6. Send Notifications
-    const results: NotificationResult[] = [];
-    const notificationPromises = subscriptions.map(
-      async ({ subscription, _id }) => {
-        try {
-          const options: webpush.RequestOptions = {
-            TTL: notificationData.ttl || 24 * 60 * 60, // Default 24 hours
-            urgency: notificationData.urgency || "normal",
-            topic: notificationData.topic
-          };
-
-          await webpush.sendNotification(subscription, payload, options);
-
+        if (_id) {
           await Notification.findByIdAndUpdate(_id, {
             lastSuccess: new Date(),
-            $inc: { successCount: 1 }, 
+            $inc: { successCount: 1 }
           });
-
-          results.push({
-            success: true,
-            subscription,
-            endpoint: subscription.endpoint,
-            timestamp: Date.now()
-          });
-
-          return true;
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : "Unknown error";
-
-            if (
-              error instanceof webpush.WebPushError &&
-              error.statusCode === 410
-            ) {
-              // Mark the subscription as inactive if it's expired or invalid
-              await Notification.findByIdAndUpdate(_id, { active: false });
-            } else {
-              // Handle other errors by recording the failure timestamp and incrementing failure count
-              await Notification.findByIdAndUpdate(_id, {
-                lastFailure: new Date(),
-                $inc: { failureCount: 1 }, // Corrected $inc usage
-              });
-            }
-            
-          results.push({
-            success: false,
-            subscription,
-            error: errorMessage,
-            endpoint: subscription.endpoint,
-            timestamp: Date.now()
-          });
-
-          return false;
         }
+      } catch (error) {
+        if ((error as any).type === "EXPIRED" && _id) {
+          await Notification.findByIdAndUpdate(_id, { active: false });
+        } else if (_id) {
+          await Notification.findByIdAndUpdate(_id, {
+            lastFailure: new Date(),
+            $inc: { failureCount: 1 }
+          });
+        }
+
+        results.push({
+          success: false,
+          endpoint: (error as any).endpoint,
+          error:
+            (error as any).error instanceof Error
+              ? (error as any).error.message
+              : "Unknown error"
+        });
       }
-    );
+    }
 
-    await Promise.all(notificationPromises);
+    // Calculate stats
+    const successful = results.filter(r => r.success).length;
+    const failed = results.length - successful;
 
-    // 7. Calculate Statistics and Generate Report
-    const totalDevices = results.length;
-    const successfulDeliveries = results.filter((r) => r.success).length;
-    const failedDeliveries = totalDevices - successfulDeliveries;
-
-    const errorTypes = results
-      .filter((r) => !r.success)
-      .reduce<Record<string, { count: number; endpoints: string[] }>>(
-        (acc, curr) => {
-          const errorType = curr.error || "Unknown error";
-          if (!acc[errorType]) {
-            acc[errorType] = { count: 0, endpoints: [] };
-          }
-          acc[errorType].count++;
-          acc[errorType].endpoints.push(curr.endpoint);
-          return acc;
-        },
-        {}
-      );
-
-    const processingTime = Date.now() - startTime;
-
-    // 8. Return Detailed Response
     return NextResponse.json({
-      message: "Notifications processed",
       success: true,
-      statistics: {
-        totalDevices,
-        successfulDeliveries,
-        failedDeliveries,
-        deliveryRate: `${((successfulDeliveries / totalDevices) * 100).toFixed(
-          1
-        )}%`,
-        processingTime: `${processingTime}ms`,
-        errorBreakdown: errorTypes
+      stats: {
+        total: results.length,
+        successful,
+        failed,
+        successRate: `${(successful / results.length * 100).toFixed(1)}%`,
+        processingTime: `${Date.now() - startTime}ms`
       },
-      details: results.map((r) => ({
-        success: r.success,
-        endpoint: r.endpoint,
-        error: r.error,
-        timestamp: r.timestamp
-      })),
-      metadata: {
-        sender: session?.user?.name || "Unknown",
-        timestamp: new Date().toISOString(),
-        notificationType: notificationData.tag || "default"
-      }
+      results
     });
   } catch (error) {
-    console.error("Fatal error in notification processing:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-
     return NextResponse.json(
       {
-        message: `Error processing notifications: ${errorMessage}`,
-        success: false,
-        timestamp: new Date().toISOString()
+        message: error instanceof Error ? error.message : "Server error",
+        success: false
       },
       { status: 500 }
     );
@@ -247,51 +186,44 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
-  const session = await getSessionAtHome();
-
-  // if (!session) {
-  //   return NextResponse.json(
-  //     { message: "Not authorized", success: false },
-  //     { status: 401 }
-  //   );
-  // }
-
   try {
     const stats = await Notification.aggregate([
       {
         $group: {
           _id: null,
-          totalSubscriptions: { $sum: 1 },
-          activeSubscriptions: {
-            $sum: { $cond: [{ $eq: ["$active", true] }, 1, 0] }
-          },
-          totalSuccesses: { $sum: "$successCount" },
-          totalFailures: { $sum: "$failureCount" },
-          averageSuccessRate: {
-            $avg: {
-              $divide: [
-                "$successCount",
-                { $add: ["$successCount", "$failureCount"] }
-              ]
-            }
-          }
+          total: { $sum: 1 },
+          active: { $sum: { $cond: [{ $eq: ["$active", true] }, 1, 0] } },
+          successes: { $sum: "$successCount" },
+          failures: { $sum: "$failureCount" }
         }
       }
     ]);
 
+    const result = stats[0] || {
+      total: 0,
+      active: 0,
+      successes: 0,
+      failures: 0
+    };
+
     return NextResponse.json({
       success: true,
-      statistics: stats[0] || {
-        totalSubscriptions: 0,
-        activeSubscriptions: 0,
-        totalSuccesses: 0,
-        totalFailures: 0,
-        averageSuccessRate: 0
+      stats: {
+        ...result,
+        successRate:
+          result.successes + result.failures > 0
+            ? `${(result.successes /
+                (result.successes + result.failures) *
+                100).toFixed(1)}%`
+            : "0%"
       }
     });
   } catch (error) {
     return NextResponse.json(
-      { message: "Error fetching statistics", success: false },
+      {
+        message: "Failed to fetch stats",
+        success: false
+      },
       { status: 500 }
     );
   }

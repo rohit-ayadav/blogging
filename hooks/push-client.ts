@@ -1,8 +1,16 @@
 // hooks/push-client.ts
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
+import {
+  myFirstNotification,
+  sendTestNotification
+} from "../lib/greetNotification";
 
 function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  if (!base64String) {
+    return new Uint8Array();
+  }
+
+  const padding = "=".repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding)
     .replace(/\-/g, "+")
     .replace(/_/g, "/");
@@ -24,35 +32,68 @@ function isNotificationSupported() {
   );
 }
 
+async function registerServiceWorker() {
+  if ("serviceWorker" in navigator) {
+    try {
+      console.time("SW-registration");
+
+      const registration = await navigator.serviceWorker.register("/sw.js", {
+        scope: "/"
+      });
+
+      console.timeEnd("SW-registration");
+
+      // Set a timeout for the ready check
+      const readyPromise = Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("SW ready timeout")), 15000)
+        )
+      ]);
+
+      await readyPromise;
+      console.log("Service Worker is ready");
+
+      return registration;
+    } catch (error) {
+      console.error("Service Worker registration failed:", error);
+      throw error;
+    }
+  }
+}
+
 async function enablePushNotifications() {
-  let subscription;
+  let subscription, registration;
   try {
-    // First unregister any existing service worker to ensure clean slate
-    const existingRegistration =
-      await navigator.serviceWorker.getRegistration();
-    if (existingRegistration) {
-      await existingRegistration.unregister();
+    if (process.env.NODE_ENV === "development") {
+      const existingRegistration = await navigator.serviceWorker.getRegistration();
+      if (existingRegistration) {
+        await existingRegistration.unregister();
+      }
+      console.log("ServiceWorker unregistered successfully");
+      registration = await registerServiceWorker();
+      console.log("ServiceWorker registered successfully:", registration);
+    } else if ("serviceWorker" in navigator) {
+      registration = await registerServiceWorker();
+      console.log("ServiceWorker registered successfully:", registration);
     }
 
-    // Register new service worker
-    const registration = await navigator.serviceWorker.register("/sw.js", {
-      scope: "/"
-    });
+    if (!registration) {
+      throw new Error("ServiceWorker registration failed");
+    } else {
+      console.log("ServiceWorker registered successfully:");
+    }
 
-    // Wait for the service worker to be ready
-    await navigator.serviceWorker.ready;
-
-    console.log("ServiceWorker registered successfully:", registration);
-
-    // Request permission with better error handling
+    console.log("Requesting notification permission...");
     const permission = await Notification.requestPermission();
     console.log("Notification permission status:", permission);
 
     if (permission !== "granted") {
-      throw new Error(`Permission not granted for Notification: ${permission}`);
+      throw new Error("Permission denied for Notification");
+    } else {
+      console.log("Permission granted for Notification: ", permission);
     }
 
-    // Get existing subscription or create new one
     subscription = await registration.pushManager.getSubscription();
 
     if (subscription) {
@@ -96,29 +137,20 @@ async function enablePushNotifications() {
     console.log("Server subscription response:", data);
 
     // Test notification
-    await fetch("/api/send-notification", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        title: "Thanks for subscribing!",
-        message: "You will now receive notifications for new posts.",
-        image: "/icons/android-chrome-192x192.png",
-        url: "/blogs",
-        subscription: data.subscription
-      })
-    });
-    console.log("Test notification sent successfully");
+    console.log("Sending test notification..." + subscription);
+    // check if subscription is valid
+    if (!subscription) {
+      throw new Error("Subscription not found");
+    }
+    await myFirstNotification(subscription);
+    await sendTestNotification(subscription);
   } catch (error) {
     console.error("Push notification setup failed:", error);
-    // Re-throw to handle in component
     throw error;
   }
 }
 
 export function usePushClient() {
-  console.log("Initializing push client");
   const initializePush = useCallback(async () => {
     if (!isNotificationSupported()) {
       console.warn("Push notifications not supported");
@@ -126,21 +158,19 @@ export function usePushClient() {
     }
 
     try {
-      console.log("Enabling push notifications");
       await enablePushNotifications();
-      console.log("Push notifications enabled successfully");
     } catch (error) {
-      console.error("Failed to initialize push notifications:", error);
       throw error;
     }
   }, []);
 
-  useEffect(() => {
-    initializePush().catch((error) => {
-      console.error("Push initialization failed in useEffect:", error);
-    });
-  }, [initializePush]);
-
-  // Return the initialization function so it can be called manually if needed
+  useEffect(
+    () => {
+      initializePush().catch(error => {
+        console.error("Push initialization failed in useEffect:", error);
+      });
+    },
+    [initializePush]
+  );
   return { initializePush };
 }
