@@ -53,23 +53,16 @@ async function enablePushNotifications() {
     if (process.env.NODE_ENV === "development") {
       const existingRegistration = await navigator.serviceWorker.getRegistration();
       if (existingRegistration) {
-        console.log("ServiceWorker found, unregistering...");
         await existingRegistration.unregister();
       }
-      console.log("ServiceWorker unregistered successfully");
       registration = await registerServiceWorker();
-      console.log("ServiceWorker registered successfully:", registration);
     } else if ("serviceWorker" in navigator) {
-      console.log("No existing ServiceWorker found, registering...");
       registration = await registerServiceWorker();
-      console.log("ServiceWorker registered successfully:", registration);
     }
 
     if (!registration) throw new Error("ServiceWorker registration failed");
 
-    console.log("Requesting notification permission...");
     const permission = await Notification.requestPermission();
-    console.log("Notification permission status:", permission);
 
     if (permission !== "granted") {
       throw new Error("Permission denied for Notification");
@@ -77,12 +70,9 @@ async function enablePushNotifications() {
       console.log("Permission granted for Notification: ", permission);
     }
 
-    // Check if push subscription exists
-    console.log("Checking existing push subscription...");
     subscription = await registration.pushManager.getSubscription();
 
     if (subscription) {
-      navigator.clipboard.writeText(JSON.stringify(subscription));
       console.log("Found existing push subscription", subscription);
     } else {
       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
