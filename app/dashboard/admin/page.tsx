@@ -6,13 +6,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { toast } from 'react-hot-toast';
 import { Eye, ThumbsUp, Tag, Loader2, BarChart as BarChartIcon, Users, Mail, MessageSquare, Contact } from 'lucide-react';
 import { Line, LineChart, PieChart, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useInView } from 'react-intersection-observer';
 import { ErrorBoundary } from 'react-error-boundary';
-import { set } from 'mongoose';
 import ContactFormPage from './ContactFormPage';
 import NewsLetterPage from './NewsLetterPage';
 import NotificationTest from '@/components/NotificationTest/page';
@@ -37,11 +35,6 @@ interface Stats {
     categoryStats: CategoryStats[];
 }
 
-
-
-
-
-
 const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error, resetErrorBoundary: () => void }) => (
     <div role="alert" className="p-4">
         <p className="font-bold">Something went wrong:</p>
@@ -49,7 +42,6 @@ const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error, resetError
         <Button onClick={resetErrorBoundary} className="mt-4">Try again</Button>
     </div>
 );
-
 interface StatCardProps {
     title: string;
     value: number | string;
@@ -62,8 +54,6 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, subValue 
         triggerOnce: true,
         rootMargin: '200px 0px',
     });
-
-
 
     return (
         <Card ref={ref}>
@@ -78,7 +68,6 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, subValue 
         </Card>
     );
 };
-
 interface LazyChartCardProps {
     title: string;
     description?: string;
@@ -92,9 +81,7 @@ const LazyChartCard: React.FC<LazyChartCardProps> = ({ title, description, Chart
         triggerOnce: true,
         rootMargin: '200px 0px',
     });
-
-
-
+    
     return (
         <Card ref={ref}>
             <CardHeader>
@@ -196,9 +183,6 @@ const OptimizedAdminDashboard = () => {
                 subscribersResponse.json(),
                 contactResponse.json()
             ]);
-            interface User {
-                createdAt: string;
-            }
             setNewsletterStats({
                 total: subscriberData.subscribers.length,
                 openRate: parseFloat(calculateOpenRate(subscriberData.subscribers))
@@ -365,6 +349,7 @@ const OptimizedAdminDashboard = () => {
                         <TabsTrigger value="users">Users</TabsTrigger>
                         <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
                         <TabsTrigger value="contact">Contact Form</TabsTrigger>
+                        <TabsTrigger value="notification">Notification</TabsTrigger>
                         {isSuperAdmin && <TabsTrigger value="settings">Settings</TabsTrigger>}
                     </TabsList>
 

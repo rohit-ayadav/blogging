@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!session?.user?.email) {
+  if (!session.user.email) {
     return NextResponse.json(
       {
         message: "You need to be logged in to create a blog post",
@@ -105,6 +105,14 @@ export async function POST(request: NextRequest) {
       .replace(/\s+/g, "-") // Replace spaces with hyphens
       .replace(/[^a-zA-Z0-9-]/g, "") // Remove special characters
       .toLowerCase(); // Convert to lowercase
+  }else{
+    slug = slug
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9-]/g, "")
+    .replace(/\s+/g, "-")
+    .trim()
+    .replace(/-{2,}/g, "-")
+    .replace(/_{2,}/g, "_")
   }
 
   const { window } = new JSDOM("");
@@ -114,31 +122,37 @@ export async function POST(request: NextRequest) {
   const sanitizedTags = tags.map((tag: string) => purify.sanitize(tag));
   const sanitizedCategory = purify.sanitize(category);
 
-  const blogPost = {
-    title: sanitizedTitle,
-    content: sanitizedContent,
-    status,
-    thumbnail,
-    tags: sanitizedTags,
-    createdBy: session.user.email,
-    likes: 0,
-    views: 0,
-    category: sanitizedCategory,
-    language: language,
-    slug
-  };
-
   try {
-    // check if slug already exists
     const existingBlog = await Blog.findOne({ slug });
-    if (existingBlog) slug = `${slug}-${Date.now()}`;
+    if (existingBlog) {
+      let counter = 1;
+      let newSlug = `${slug}-${counter}`;
+      while (await Blog.findOne({ slug: newSlug })) {
+        counter++;
+        newSlug = `${slug}-${counter}`;
+      }
+      slug = newSlug;
+    }
+
+    const blogPost = {
+      title: sanitizedTitle,
+      content: sanitizedContent,
+      status,
+      thumbnail,
+      tags: sanitizedTags,
+      createdBy: session.user.email,
+      likes: 0,
+      views: 0,
+      category: sanitizedCategory,
+      language: language,
+      slug
+    };
 
     // Save blog post
     const newBlogPost = new Blog(blogPost);
     await newBlogPost.save();
-    const blogPostId = newBlogPost._id;
+    const blogPostId = newBlogPost.slug;
 
-    // Increment blog count for user
     await User.findOneAndUpdate(
       { email: session.user.email },
       {
@@ -150,11 +164,13 @@ export async function POST(request: NextRequest) {
     const subscriptions = await Notification.find({});
     if (subscriptions.length) {
       const payload = {
-        title: "New Blog Post",
+        title: `New Blog Post: ${blogPost.title}`,
         body: `A new blog post "${blogPost.title}" has been published`,
-        icon: blogPost.thumbnail,
+        image: blogPost.thumbnail,
+        icon: "/favicon.ico",
+        tag: "new-blog-post",
         data: {
-          url: `/blog/${newBlogPost._id}`
+          url: `/blogs/${slug}`
         },
         actions: [
           { action: "open", title: "Open" },
@@ -171,7 +187,9 @@ export async function POST(request: NextRequest) {
           })
       );
 
+
       await Promise.all(notificationPromises);
+      await Notification.deleteMany({ active: false });
       console.log("Notifications sent successfully");
     } else {
       console.log("No active subscriptions found");

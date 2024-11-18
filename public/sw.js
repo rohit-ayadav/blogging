@@ -1,3 +1,12 @@
+function isValidUrl(url) {
+    try {
+        new URL(url);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 self.addEventListener('push', function (event) {
     const payload = event.data?.json() ?? {};
     const options = {
@@ -7,6 +16,7 @@ self.addEventListener('push', function (event) {
         image: payload.image,
         badge: payload.badge,
         tag: payload.tag,
+        url: payload.url,
         timestamp: payload.timestamp || Date.now(),
         vibrate: payload.vibrate ? [200, 100, 200] : undefined,
         renotify: payload.renotify || false,
@@ -23,10 +33,34 @@ self.addEventListener('push', function (event) {
 
 self.addEventListener('notificationclick', function (event) {
     event.notification.close();
+    const url = event.notification.data?.url || event.url;
+    if (!isValidUrl(url)) {
+        return;
+    }
+    event.waitUntil(
+        clients.openWindow(url)
+    );
+    if (event.action) {
+        switch (event.action) {
+            case 'dismiss' || 'close':
+                break;
+            case 'open':
+                event.waitUntil(
+                    clients.openWindow(url)
+                );
+                break;
+            case 'settings':
+                event.waitUntil(
+                    clients.openWindow('/profile')
+                );
+                break;
+            case 'explore':
+                event.waitUntil(
+                    clients.openWindow('/')
+                );
 
-    if (event.notification.data.url) {
-        event.waitUntil(
-            clients.openWindow(event.notification.data.url)
-        );
+            default:
+                break;
+        }
     }
 });

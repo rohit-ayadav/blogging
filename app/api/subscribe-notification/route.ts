@@ -5,6 +5,9 @@ import { connectDB } from "@/utils/db";
 
 connectDB();
 
+const defaultIcon = "/icons/default-thumbnail.png";
+const defaultBadge = "/icons/default-profile.jpg";
+
 webpush.setVapidDetails(
   "mailto:rohitkuyada@gmail.com",
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "",
@@ -62,8 +65,42 @@ export async function POST(req: NextRequest, res: NextResponse) {
     }
 
     await Notification.create({ subscription });
+    const payload = {
+      title: "Welcome! 👋",
+      message:
+        "Thank you for subscribing to our notifications. You will now receive updates and notifications from our site.",
+      icon: defaultIcon,
+      badge: defaultBadge,
+      tag: "welcome",
+      timestamp: Date.now(),
+      vibrate: [200, 100, 200],
+      requireInteraction: true,
+      actions: [
+        {
+          action: "explore",
+          title: "Explore Site"
+        },
+        {
+          action: "settings",
+          title: "Notification Settings"
+        }
+      ],
+      url: "/blogs",
+      data: {
+        type: "welcome",
+        timestamp: Date.now(),
+        url: "/blogs"
+      },
+      ttl: 86400, // 24 hours
+      urgency: "normal",
+      renotify: false,
+      silent: false
+    };
+
+    await webpush.sendNotification(subscription, JSON.stringify(payload));
     return NextResponse.json({
-      message: "Notification subscription saved",
+      message:
+        "Notification subscription saved and welcome notification sent successfully",
       success: true
     });
   } catch (error) {

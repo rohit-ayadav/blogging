@@ -1,9 +1,5 @@
 // hooks/push-client.ts
 import { useEffect, useCallback, useRef } from "react";
-import {
-  myFirstNotification,
-  sendTestNotification
-} from "../lib/greetNotification";
 
 function urlBase64ToUint8Array(base64String: string) {
   if (!base64String) {
@@ -40,7 +36,6 @@ async function registerServiceWorker() {
         scope: "/"
       });
       console.log("Service Worker registered successfully:", registration);
-      // Activate the service worker immediately
       await navigator.serviceWorker.ready;
       console.log("Service Worker is ready");
 
@@ -87,6 +82,7 @@ async function enablePushNotifications() {
     subscription = await registration.pushManager.getSubscription();
 
     if (subscription) {
+      navigator.clipboard.writeText(JSON.stringify(subscription));
       console.log("Found existing push subscription", subscription);
     } else {
       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -123,14 +119,6 @@ async function enablePushNotifications() {
 
     const data = await response.json();
     console.log("Server subscription response:", data);
-
-    console.log("Sending test notification..." + subscription);
-    // check if subscription is valid
-    if (!subscription) {
-      throw new Error("Subscription not found");
-    }
-    await myFirstNotification(subscription);
-    await sendTestNotification(subscription);
   } catch (error) {
     console.error("Push notification setup failed:", error);
     throw error;

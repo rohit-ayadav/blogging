@@ -6,6 +6,27 @@ import { connectDB } from "@/utils/db";
 import webpush from "web-push";
 
 connectDB();
+interface Subscription {
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+}
+
+interface Payload {
+  title: string;
+  [key: string]: any;
+}
+
+const validateSubscription = (subscription: Subscription): boolean => {
+  return (
+    !!subscription &&
+    !!subscription.keys &&
+    !!subscription.keys.p256dh &&
+    !!subscription.keys.auth
+  );
+};
 
 webpush.setVapidDetails(
   "mailto:rohitkuyada@gmail.com",
@@ -13,61 +34,76 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY || ""
 );
 
+const getSubscriptions = async (subscription?: Subscription) => {
+  if (subscription) {
+    if (!validateSubscription(subscription)) {
+      throw new Error("Invalid subscription");
+    }
+    return [{ subscription }];
+  }
+
+  const activeSubscriptions = await Notification.find({ active: true });
+  // const activeSubscriptions = await Notification.find({});
+  if (!activeSubscriptions.length) {
+    throw new Error("No subscriptions found");
+  }
+
+  return activeSubscriptions;
+};
+
+// Send notifications to all subscriptions
+const sendNotifications = async (
+  subscriptions: { subscription: Subscription }[],
+  payload: Payload
+) => {
+  const success: string[] = [];
+  const failed: string[] = [];
+
+  await Promise.all(
+    subscriptions.map(async ({ subscription }) => {
+      try {
+        await webpush.sendNotification(subscription, JSON.stringify(payload));
+        success.push(subscription.endpoint);
+      } catch (error) {
+        console.error("Failed to send notification:", error);
+        failed.push(subscription.endpoint);
+      }
+    })
+  );
+
+  return { success, failed };
+};
+
 export async function POST(request: NextRequest, response: NextResponse) {
   try {
-    // const { payload, subscription } = await request.json();
-    const payload = await request.json();
-    let subscriptions = [];
-    // if (!subscription) {
-    //   subscriptions = await Notification.find({});
-    //   console.log("Subscriptions", subscriptions);
-    // } else {
-    //   subscriptions.push({ subscription });
-    // }
-    subscriptions = await Notification.find({});
-
-    if (!subscriptions) {
-      return NextResponse.json({
-        success: false,
-        body: "No subscriptions found"
-      });
-    }
+    const { payload, subscription } = await request.json();
     if (!payload) {
-      return NextResponse.json({
-        success: false,
-        message: "Payload is required"
-      });
-    }
-    if (!payload.title) {
-      return NextResponse.json({
-        success: false,
-        message: "Title are required"
-      });
+      return NextResponse.json(
+        { message: "Payload is required", success: false },
+        { status: 400 }
+      );
     }
 
-    subscriptions.forEach(async ({ subscription }) => {
-      await webpush.sendNotification(subscription, JSON.stringify(payload));
-    });
+    const subscriptions = await getSubscriptions(subscription);
+    const { success, failed } = await sendNotifications(subscriptions, payload);
 
     const stats = {
-      deliveryRate: `${(subscriptions.length /
-        subscriptions.length *
-        100).toFixed(2)}%`,
-      deviceCount: subscriptions.length,
-      timing: `${subscriptions.length * 100}ms`,
-      successful: subscriptions.length,
-      failed: 0
+      total: subscriptions.length,
+      successful: success.length,
+      failed: failed.length,
+      deliveryRate: `${(success.length / subscriptions.length * 100).toFixed(
+        2
+      )}%`
     };
 
-    return NextResponse.json({
-      success: true,
-      message: "Notification sent successfully",
-      stats
-    });
+    // Delete the subscription having active as false
+    await Notification.deleteMany({ active: false });
+    return NextResponse.json({ success: true, stats });
   } catch (error) {
-    return NextResponse.json({
-      success: false,
-      message: "Failed to send notification"
-    });
+    console.error("Error sending notifications:", error);
+    return NextResponse.json(
+      { message: "Error sending notifications", success: false },
+      { status: 500 }
+    );
   }
 }

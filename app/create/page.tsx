@@ -24,6 +24,7 @@ interface DraftData {
     thumbnail: string | null;
     markdownContent: string;
     htmlContent: string;
+    slug: string;
     tags: string[];
     category: string;
     timestamp: number;
@@ -50,6 +51,7 @@ export default function CreateBlog() {
         thumbnail: null as string | null,
         htmlContent: DEFAULT_CONTENT.html,
         markdownContent: DEFAULT_CONTENT.markdown,
+        slug: '',
         tags: [] as string[],
         category: '',
         blogId: '',
@@ -76,6 +78,7 @@ export default function CreateBlog() {
                             markdownContent: data.markdownContent || DEFAULT_CONTENT.markdown,
                             htmlContent: data.htmlContent || DEFAULT_CONTENT.html,
                             tags: data.tags || [],
+                            slug: data.slug || '',
                             category: data.category || '',
                             editorMode: data.editorMode || 'markdown'
                         });
@@ -106,6 +109,7 @@ export default function CreateBlog() {
                     markdownContent: state.markdownContent,
                     htmlContent: state.htmlContent,
                     tags: state.tags,
+                    slug: state.slug,
                     category: state.category,
                     timestamp: Date.now(),
                     editorMode: state.editorMode
@@ -127,6 +131,7 @@ export default function CreateBlog() {
     const sanitizeContent = {
         title: (title: string) => DOMPurify.sanitize(title.slice(0, 250)),
         tags: (tag: string) => DOMPurify.sanitize(tag),
+        slug: (slug: string) => DOMPurify.sanitize(slug),
         content: (value: string) => {
             if (state.editorMode === 'markdown') {
                 const md = new MarkdownIt({ html: true });
@@ -160,6 +165,7 @@ export default function CreateBlog() {
                     state.editorMode === 'markdown' ? state.markdownContent : state.htmlContent
                 ),
                 thumbnail: state.thumbnail,
+                slug: sanitizeContent.slug(state.slug),
                 tags: state.tags.map(sanitizeContent.tags),
                 category: state.category,
                 status: 'published',
@@ -274,6 +280,14 @@ export default function CreateBlog() {
                             })}
                             isDarkMode={isDarkMode}
                         />
+
+                        {/* <SlugSection
+                            slug={state.slug}
+                            setSlug={(slug: string) => updateState({ slug })}
+                            isDarkMode={isDarkMode}
+                        /> */}
+
+                        <div className="border-t border-gray-200" />
 
                         <TagsSection
                             tags={state.tags}
