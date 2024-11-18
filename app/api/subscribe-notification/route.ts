@@ -5,8 +5,9 @@ import { connectDB } from "@/utils/db";
 
 connectDB();
 
-const defaultIcon = "/icons/default-thumbnail.png";
-const defaultBadge = "/icons/default-profile.jpg";
+const defaultIcon =
+  "https://as1.ftcdn.net/v2/jpg/09/15/85/08/1000_F_915850846_PYB5ChOp6ZVc0KGouKNKicwFNolwd5nZ.jpg";
+const defaultBadge = "/favicon.ico";
 
 webpush.setVapidDetails(
   "mailto:rohitkuyada@gmail.com",
