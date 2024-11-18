@@ -141,7 +141,7 @@ const HomePage = () => {
   //   usePushClient();
   // }, []);
 
-  usePushClient();
+  // usePushClient();
 
   useEffect(() => {
     document.body.classList.toggle('dark', isDarkMode);

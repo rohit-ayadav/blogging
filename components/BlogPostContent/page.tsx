@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { RefreshCcw } from 'lucide-react';
 import { BlogPostType } from '@/types/blogs-types';
+import SubscriptionPopup from '@/app/blogs/SubscriptionPopup';
 
 interface BlogPostClientContentProps {
     initialData: BlogPostType;
@@ -58,6 +59,8 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({ initialDa
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
             <BlogPostHeader post={post} author={author} />
+
+            <SubscriptionPopup />
 
             <div className="container mx-auto px-4">
                 <div className="lg:grid lg:grid-cols-12 lg:gap-8">

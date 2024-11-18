@@ -86,7 +86,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
           title: "Notification Settings"
         }
       ],
-      url: "/blogs",
       data: {
         type: "welcome",
         timestamp: Date.now(),

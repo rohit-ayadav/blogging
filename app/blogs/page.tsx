@@ -13,6 +13,7 @@ import debounce from 'lodash/debounce';
 import { themeClasses } from './themeClass';
 import { EmptyState, NoMorePosts, LoadingState } from './themeClass';
 import { StatsType, BlogPostType, UserType } from '@/types/blogs-types';
+import SubscriptionPopup from './SubscriptionPopup';
 
 class DataCache<T> {
     private cache: Map<string, { data: T; timestamp: number }>;
@@ -371,6 +372,7 @@ const BlogCollection = () => {
                     duration: 3000
                 }}
             />
+            <SubscriptionPopup />
 
             <div className={themeClasses(isDarkMode).container}>
                 {/* Header Section */}

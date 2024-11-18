@@ -42,19 +42,19 @@ self.addEventListener('notificationclick', function (event) {
     );
     if (event.action) {
         switch (event.action) {
-            case 'dismiss' || 'close':
+            case 'dismiss' || 'close' || 'cancel':
                 break;
-            case 'open':
+            case 'open' || 'view' || 'read' || 'show':
                 event.waitUntil(
                     clients.openWindow(url)
                 );
                 break;
-            case 'settings':
+            case 'settings' || 'setting' || 'config' || 'configure' || 'profile':
                 event.waitUntil(
                     clients.openWindow('/profile')
                 );
                 break;
-            case 'explore':
+            case 'explore' || 'discover' || 'search' || 'find':
                 event.waitUntil(
                     clients.openWindow('/')
                 );

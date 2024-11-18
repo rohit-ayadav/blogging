@@ -118,28 +118,44 @@ async function enablePushNotifications() {
     throw error;
   }
 }
+const isAlreadySubscribedForPushNotifications = async () => {
+  if (!isNotificationSupported()) {
+    console.warn("Push notifications not supported");
+    return false;
+  }
 
-export function usePushClient() {
-  const initializePush = useCallback(async () => {
-    if (!isNotificationSupported()) {
-      console.warn("Push notifications not supported");
-      return;
+  try {
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (!registration) {
+      return false;
     }
 
-    try {
-      await enablePushNotifications();
-    } catch (error) {
-      throw error;
-    }
+    const subscription = await registration.pushManager.getSubscription();
+    return !!subscription;
+  } catch (error) {
+    console.error("Failed to check push subscription:", error);
+    return false;
+  }
+};
+
+export function usePushSubscription() {
+  const isSubscribed = useRef(false);
+
+  useEffect(() => {
+    isAlreadySubscribedForPushNotifications().then(subscribed => {
+      isSubscribed.current = subscribed;
+    });
   }, []);
 
-  useEffect(
-    () => {
-      initializePush().catch(error => {
-        console.error("Push initialization failed in useEffect:", error);
-      });
-    },
-    [initializePush]
-  );
+  return { isSubscribed: isSubscribed.current };
+}
+
+export function usePushClient() {
+  const initializePush = useCallback(() => {
+    enablePushNotifications().catch(error => {
+      console.error("Failed to enable push notifications:", error);
+    });
+  }, []);
+
   return { initializePush };
 }

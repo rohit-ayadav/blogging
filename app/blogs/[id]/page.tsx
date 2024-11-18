@@ -5,7 +5,7 @@ import BlogPostLayout from '../../../components/BlogPostLayout/page';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
-import toast from 'react-hot-toast';
+import SubscriptionPopup from '../SubscriptionPopup';
 
 // Error message components
 const ErrorMessage = ({ message }: { message: string }) => (
@@ -62,13 +62,11 @@ async function getPostData(id: string): Promise<ApiResponse> {
             success: true,
             data: data.data,
             statusCode: res.status,
-            // language: data.language,
         };
     } catch (error) {
         console.error('Error fetching post data:', error);
         return {
             success: false,
-            // error: 'An unexpected error occurred while fetching the blog post',
             error: (error as Error).message,
             statusCode: 500
         };
