@@ -57,7 +57,11 @@ async function enablePushNotifications() {
       }
       registration = await registerServiceWorker();
     } else if ("serviceWorker" in navigator) {
-      registration = await registerServiceWorker();
+      // Check if service worker is already registered
+      registration = await navigator.serviceWorker.getRegistration();
+      if (!registration) {
+        registration = await registerServiceWorker();
+      }
     }
 
     if (!registration) throw new Error("ServiceWorker registration failed");
