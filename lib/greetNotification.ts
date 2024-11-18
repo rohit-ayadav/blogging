@@ -13,7 +13,7 @@ async function sendTestNotification(subscription: PushSubscription) {
       tag: "welcome",
       timestamp: Date.now(),
       vibrate: [200, 100, 200],
-      requireInteraction: true, // Makes notification stay until user interacts
+      requireInteraction: true,
       actions: [
         {
           action: "explore",

@@ -21,10 +21,10 @@ async function addCategoryField() {
         //     { slug: { $exists: false } },
         //     { $set: { language: "1" } }
         // );
-        const result = await client.db("blogging").collection("blogs").updateMany(
-            { language: "1" }, // Match documents modified by the original script
-            { $set: { language: "html" } } // Restore to "html" or another known value
-        );
+        // const result = await client.db("blogging").collection("blogs").updateMany(
+        //     { language: "1" }, // Match documents modified by the original script
+        //     { $set: { language: "html" } } // Restore to "html" or another known value
+        // );
         // const result = await client.db("blogging").collection("users").updateMany(
         //     { role: { $exists: false } },
         //     { $set: { role: "user" } }
@@ -34,8 +34,14 @@ async function addCategoryField() {
         //   { $set: { category: "Others" } }
         // );
 
+        // delete with {active: false} all documents
+        const result = await client.db("blogging").collection("notifications").deleteMany(
+            { active: false }
+        );
+
+
         // Find and print the updated documents
-        const cursor = client.db("blogging").collection("blogs").find();
+        const cursor = client.db("blogging").collection("notifications").find();
         const results = await cursor.toArray();
         console.log(results);
         // console.log(results.map(blog =>blog.title + " - " + blog.category));

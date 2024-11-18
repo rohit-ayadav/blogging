@@ -35,23 +35,13 @@ function isNotificationSupported() {
 async function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
     try {
-      console.time("SW-registration");
-
+      console.log("Registering Service Worker...");
       const registration = await navigator.serviceWorker.register("/sw.js", {
         scope: "/"
       });
-
-      console.timeEnd("SW-registration");
-
-      // Set a timeout for the ready check
-      const readyPromise = Promise.race([
-        navigator.serviceWorker.ready,
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("SW ready timeout")), 15000)
-        )
-      ]);
-
-      await readyPromise;
+      console.log("Service Worker registered successfully:", registration);
+      // Activate the service worker immediately
+      await navigator.serviceWorker.ready;
       console.log("Service Worker is ready");
 
       return registration;
@@ -68,21 +58,19 @@ async function enablePushNotifications() {
     if (process.env.NODE_ENV === "development") {
       const existingRegistration = await navigator.serviceWorker.getRegistration();
       if (existingRegistration) {
+        console.log("ServiceWorker found, unregistering...");
         await existingRegistration.unregister();
       }
       console.log("ServiceWorker unregistered successfully");
       registration = await registerServiceWorker();
       console.log("ServiceWorker registered successfully:", registration);
     } else if ("serviceWorker" in navigator) {
+      console.log("No existing ServiceWorker found, registering...");
       registration = await registerServiceWorker();
       console.log("ServiceWorker registered successfully:", registration);
     }
 
-    if (!registration) {
-      throw new Error("ServiceWorker registration failed");
-    } else {
-      console.log("ServiceWorker registered successfully:");
-    }
+    if (!registration) throw new Error("ServiceWorker registration failed");
 
     console.log("Requesting notification permission...");
     const permission = await Notification.requestPermission();
@@ -94,6 +82,8 @@ async function enablePushNotifications() {
       console.log("Permission granted for Notification: ", permission);
     }
 
+    // Check if push subscription exists
+    console.log("Checking existing push subscription...");
     subscription = await registration.pushManager.getSubscription();
 
     if (subscription) {
@@ -114,7 +104,6 @@ async function enablePushNotifications() {
       console.log("Created new push subscription", subscription);
     }
 
-    // Send subscription to server
     const response = await fetch("/api/subscribe-notification", {
       method: "POST",
       headers: {
@@ -122,7 +111,6 @@ async function enablePushNotifications() {
       },
       body: JSON.stringify({
         subscription,
-        // Add additional debugging info
         userAgent: navigator.userAgent,
         timestamp: new Date().toISOString()
       })
@@ -136,7 +124,6 @@ async function enablePushNotifications() {
     const data = await response.json();
     console.log("Server subscription response:", data);
 
-    // Test notification
     console.log("Sending test notification..." + subscription);
     // check if subscription is valid
     if (!subscription) {
