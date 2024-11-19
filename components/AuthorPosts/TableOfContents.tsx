@@ -17,7 +17,12 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content, contentType 
     const [toc, setToc] = useState<TOCItem[]>([]);
     const [activeId, setActiveId] = useState<string>('');
     const [isExpanded, setIsExpanded] = useState(true);
-    const { isDarkMode } = useTheme();
+    const { isDarkMode, toggleDarkMode } = useTheme();
+
+    useEffect(() => {
+        toggleDarkMode();
+        toggleDarkMode();
+    }, []);
 
     useEffect(() => {
         const generateTOC = () => {

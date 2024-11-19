@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+// components/BlogPostContent011/CodeBlock.tsx
+import React, { useEffect, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Copy, Check } from 'lucide-react';
+
 
 interface CodeBlockProps {
     code: string;
@@ -31,19 +33,22 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language, isDarkMode
                     <Copy className="w-4 h-4 text-white" />
                 )}
             </button>
-            <SyntaxHighlighter
-                language={language || 'text'}
-                style={isDarkMode ? vscDarkPlus : vs}
-                customStyle={{
-                    margin: 0,
-                    padding: '1rem',
-                    borderRadius: '0.5rem',
-                    fontSize: '0.875rem',
-                }}
-                showLineNumbers={true}
-            >
-                {code}
-            </SyntaxHighlighter>
+
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
+                <SyntaxHighlighter
+                    language={language || 'text'}
+                    style={isDarkMode ? vscDarkPlus : vs}
+                    customStyle={{
+                        margin: 0,
+                        padding: '1rem',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.875rem',
+                    }}
+                    showLineNumbers={true}
+                >
+                    {code}
+                </SyntaxHighlighter>
+            </div>
         </div>
     );
 };

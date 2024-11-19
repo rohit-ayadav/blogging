@@ -5,8 +5,7 @@ import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
 import { MediaWrapper } from './MediaWrapper';
-import { TableWrapper } from './TableWrapper';
-import { CodeBlock } from './CodeBlock';
+import { CodeBlock } from '../../app/component/CodeBlock';
 import { useTheme } from '@/context/ThemeContext';
 import { createRoot } from 'react-dom/client';
 import { ReadingProgress } from './ReadingProgress';
@@ -22,8 +21,6 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const contentRef = useRef<HTMLDivElement>(null);
   const [sanitizedContent, setSanitizedContent] = useState<string>('');
-  const [copiedCode, setCopiedCode] = useState<string | null>(null);
-  const [showCopyButtons, setShowCopyButtons] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -39,24 +36,6 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
     toggleDarkMode();
     toggleDarkMode();
   }, []);
-
-  useEffect(() => {
-    if (!isMobile) return;
-
-    const handleTouch = () => {
-      setShowCopyButtons(true);
-      setTimeout(() => setShowCopyButtons(false), 3000);
-    };
-
-    document.addEventListener('touchstart', handleTouch);
-    return () => document.removeEventListener('touchstart', handleTouch);
-  }, [isMobile]);
-
-  const handleCodeCopy = async (code: string): Promise<void> => {
-    await navigator.clipboard.writeText(code);
-    setCopiedCode(code);
-    setTimeout(() => setCopiedCode(null), 2000);
-  };
 
 
   useEffect(() => {
@@ -78,7 +57,9 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
         ALLOWED_TAGS: [
           'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'a', 'ul', 'ol', 'li',
           'blockquote', 'code', 'pre', 'img', 'video', 'table', 'thead', 'tbody',
-          'tr', 'td', 'th', 'strong', 'em', 'br', 'div', 'span', 'iframe'
+          'tr', 'td', 'th', 'strong', 'em', 'br', 'div', 'span', 'iframe', 'hr', 'figure', 'figcaption',
+          'details', 'summary', 'cite', 'sub', 'sup', 'del', 'ins', 'mark', 'small', 's', 'u', 'abbr', 'time',
+          'input', 'label', 'select', 'option', 'button', 'textarea', 'form', 'fieldset', 'legend', 'img'
         ]
       });
 
@@ -93,6 +74,15 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
         }
         if (node.tagName === 'CODE' && node.parentElement?.tagName !== 'PRE') {
           node.classList.add('inline-code');
+        }
+        if (node.tagName === 'PRE') {
+          node.classList.add('code-block');
+        }
+        if (node.tagName === 'TABLE') {
+          node.classList.add('table');
+        }
+        if (node.tagName === 'IMG') {
+          node.classList.add('w-full', 'object-cover', 'rounded-lg', 'shadow-lg');
         }
         return node;
       });
@@ -145,37 +135,16 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
       table.parentNode?.replaceChild(wrapper, table);
     });
 
-    // Enhanced code block processing with improved mobile handling
     container.querySelectorAll('pre code').forEach((code) => {
       const wrapper = document.createElement('div');
       const root = createRoot(wrapper);
-      const language = code.className.replace('language-', '');
+      const language = code.className.replace('language-', 'markdown-').replace('lang-', 'text-');
       const codeContent = code.textContent || '';
 
       root.render(
         <div className="relative group my-6">
-          <div className="absolute right-4 top-4 z-10">
-            <button
-              onClick={() => handleCodeCopy(codeContent)}
-              className={cn(
-                "p-2 rounded-md transition-all duration-200",
-                "bg-gray-800/70 hover:bg-gray-700",
-                "dark:bg-gray-700/70 dark:hover:bg-gray-600",
-                "backdrop-blur-sm",
-                isMobile ?
-                  (showCopyButtons ? "opacity-100" : "opacity-0") :
-                  "opacity-0 group-hover:opacity-100"
-              )}
-            >
-              {copiedCode === codeContent ? (
-                <Check className="w-4 h-4 text-green-400" />
-              ) : (
-                <Copy className="w-4 h-4 text-gray-200" />
-              )}
-            </button>
-          </div>
           <CodeBlock
-            code={codeContent}
+            code={codeContent.trim()}
             language={language}
             isDarkMode={isDarkMode}
           />
@@ -183,9 +152,7 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
       );
       code.parentElement?.parentNode?.replaceChild(wrapper, code.parentElement);
     });
-
-    // Cleanup remains the same...
-  }, [isDarkMode, sanitizedContent, isMobile, copiedCode, showCopyButtons]);
+  }, [sanitizedContent, isDarkMode]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
@@ -195,7 +162,6 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
           <div
             ref={contentRef}
             className={cn(
-              // Base typography
               "prose max-w-none",
               isMobile ? "prose-sm" : "prose-base lg:prose-lg",
 
@@ -230,10 +196,10 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
               "prose-blockquote:mb-3",
 
               // Code
-              "prose-code:before:content-[''] prose-code:after:content-['']",
-              "prose-code:bg-gray-100 dark:prose-code:bg-gray-800",
-              "prose-code:rounded prose-code:px-1.5 prose-code:py-0.5",
-              "prose-code:text-sm md:prose-code:text-base",
+              // "prose-code:before:content-[''] prose-code:after:content-['']", // remove quotes before and after code blocks
+              // "prose-code:bg-gray-100 dark:prose-code:bg-gray-800", // code block background color
+              // "prose-code:rounded prose-code:px-1.5 prose-code:py-0.5", // code block padding
+              // "prose-code:text-sm md:prose-code:text-base", // code block font size
 
               // Tables
               "prose-table:w-full",
