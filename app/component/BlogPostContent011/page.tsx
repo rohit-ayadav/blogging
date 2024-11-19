@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
 import { unified } from 'unified';
