@@ -20,13 +20,29 @@ interface BlogPostContentProps {
   post: BlogPostType;
 }
 
-
 const BlogPostContent = ({ post }: BlogPostContentProps) => {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const contentRef = useRef<HTMLDivElement>(null);
   const [sanitizedContent, setSanitizedContent] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const handleLinkClick = (e: MouseEvent, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      const targetId = href.slice(1);
+      const targetElement = document.getElementById(targetId);
+
+      if (targetElement) {
+        targetElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+
+        window.history.pushState(null, '', href);
+      }
+    }
+  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -46,7 +62,14 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
     await navigator.clipboard.writeText(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }
+  };
+
+  const generateValidId = (text: string): string => {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  };
 
   useEffect(() => {
     const processContent = async () => {
@@ -63,7 +86,7 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
 
       DOMPurify.setConfig({
         ADD_TAGS: ['iframe'],
-        ADD_ATTR: ['target', 'rel', 'style', 'class', 'allowfullscreen', 'frameborder', 'src'],
+        ADD_ATTR: ['target', 'rel', 'style', 'class', 'allowfullscreen', 'frameborder', 'src', 'id'],
         ALLOWED_TAGS: [
           'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'a', 'ul', 'ol', 'li',
           'blockquote', 'code', 'pre', 'img', 'video', 'table', 'thead', 'tbody',
@@ -75,10 +98,26 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
 
       DOMPurify.addHook('afterSanitizeElements', (node) => {
         if (node.tagName === 'A') {
-          node.setAttribute('target', '_blank');
-          node.setAttribute('rel', 'noopener noreferrer');
-          node.classList.add('inline-link', 'break-words');
+          const href = node.getAttribute('href') || '';
+
+          if (href.startsWith('#')) {
+            node.removeAttribute('target');
+            node.removeAttribute('rel');
+            node.addEventListener('click', ((e: MouseEvent) => handleLinkClick(e, href)) as EventListener);
+            node.classList.add('internal-link', 'break-words');
+          } else {
+            
+            node.setAttribute('target', '_blank');
+            node.setAttribute('rel', 'noopener noreferrer');
+            node.classList.add('external-link', 'break-words');
+          }
         }
+
+        if (/^H[1-6]$/.test(node.tagName)) {
+          const id = generateValidId(node.textContent || '');
+          node.setAttribute('id', id);
+        }
+
         if (node.tagName === 'BLOCKQUOTE') {
           node.classList.add('blockquote');
         }
