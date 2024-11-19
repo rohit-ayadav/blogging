@@ -6,7 +6,7 @@ import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
 import { MediaWrapper } from './MediaWrapper';
-import { CodeBlock } from '../CodeBlock';
+import { CodeBlock } from './CodeBlock';
 import { useTheme } from '@/context/ThemeContext';
 import { createRoot } from 'react-dom/client';
 import { ReadingProgress } from './ReadingProgress';
