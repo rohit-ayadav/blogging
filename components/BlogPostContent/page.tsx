@@ -2,7 +2,7 @@
 import React, { Suspense } from 'react';
 import useBlogPost from '../../hooks/useBlogPost';
 import BlogPostHeader from '../BlogPostHeader/page';
-import BlogPostContent from '../BlogPostContent011/page';
+import BlogPostContent from '../../app/component/BlogPostContent011/page';
 import BlogPostFooter from '../BlogPostFooter/page';
 import CommentSection from '@/app/component/commentsection';
 import { Skeleton } from '@/components/ui/skeleton';

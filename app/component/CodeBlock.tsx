@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Copy, Check } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
 
 
 interface CodeBlockProps {
@@ -11,8 +12,9 @@ interface CodeBlockProps {
     isDarkMode: boolean;
 }
 
-export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language, isDarkMode }) => {
+export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language }) => {
     const [copied, setCopied] = useState(false);
+    const { isDarkMode, toggleDarkMode } = useTheme();
 
     const handleCopy = async () => {
         await navigator.clipboard.writeText(code);

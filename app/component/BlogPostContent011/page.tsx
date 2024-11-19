@@ -5,23 +5,27 @@ import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
 import { MediaWrapper } from './MediaWrapper';
-import { CodeBlock } from '../../app/component/CodeBlock';
+import { CodeBlock } from '../CodeBlock';
 import { useTheme } from '@/context/ThemeContext';
 import { createRoot } from 'react-dom/client';
 import { ReadingProgress } from './ReadingProgress';
 import { Copy, Check, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BlogPostType } from '@/types/blogs-types';
+import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 
 interface BlogPostContentProps {
   post: BlogPostType;
 }
+
 
 const BlogPostContent = ({ post }: BlogPostContentProps) => {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const contentRef = useRef<HTMLDivElement>(null);
   const [sanitizedContent, setSanitizedContent] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -37,6 +41,11 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
     toggleDarkMode();
   }, []);
 
+  const handleCopy = (code: string) => async () => {
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   useEffect(() => {
     const processContent = async () => {
@@ -106,7 +115,6 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
           src={img.getAttribute('src') || ''}
           alt={img.getAttribute('alt') || ''}
           type="image"
-        // className="w-full object-cover rounded-lg shadow-lg"
         />
       );
       img.parentNode?.replaceChild(wrapper, img);
@@ -143,11 +151,40 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
 
       root.render(
         <div className="relative group my-6">
-          <CodeBlock
+          {/* <CodeBlock
             code={codeContent.trim()}
             language={language}
             isDarkMode={isDarkMode}
-          />
+          /> */}
+          <div className="relative group rounded-lg overflow-hidden">
+            <button
+              onClick={handleCopy(codeContent.trim())}
+              className="absolute right-2 top-2 p-2 bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-label="Copy code"
+            >
+              {copied ? (
+                <Check className="w-4 h-4 text-green-400" />
+              ) : (
+                <Copy className="w-4 h-4 text-white" />
+              )}
+            </button>
+
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
+              <SyntaxHighlighter
+                language={language || 'text'}
+                style={isDarkMode ? vscDarkPlus : vs}
+                customStyle={{
+                  margin: 0,
+                  padding: '1rem',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.875rem',
+                }}
+                showLineNumbers={true}
+              >
+                {code.textContent || ''}
+              </SyntaxHighlighter>
+            </div>
+          </div>
         </div>
       );
       code.parentElement?.parentNode?.replaceChild(wrapper, code.parentElement);
@@ -196,10 +233,8 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
               "prose-blockquote:mb-3",
 
               // Code
-              // "prose-code:before:content-[''] prose-code:after:content-['']", // remove quotes before and after code blocks
-              // "prose-code:bg-gray-100 dark:prose-code:bg-gray-800", // code block background color
-              // "prose-code:rounded prose-code:px-1.5 prose-code:py-0.5", // code block padding
-              // "prose-code:text-sm md:prose-code:text-base", // code block font size
+              "prose-code:before:content-[''] prose-code:after:content-['']",
+              "prose-code:rounded prose-code:px-1.5 prose-code:py-0.5",
 
               // Tables
               "prose-table:w-full",
