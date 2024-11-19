@@ -1,27 +1,34 @@
 // hooks/push-client.ts
 "use client";
 import { useEffect, useCallback, useState } from "react";
+import { PushSubscriptionRequest } from "@/types/notification-types";
 
-function urlBase64ToUint8Array(base64String: string) {
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
   if (!base64String) {
+    console.warn("Empty base64 string provided");
     return new Uint8Array();
   }
 
-  const padding = "=".repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding)
-    .replace(/\-/g, "+")
-    .replace(/_/g, "/");
+  try {
+    const padding = "=".repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
 
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
 
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  } catch (error) {
+    console.error("Failed to convert base64 string:", error);
+    throw new Error("Invalid base64 string provided");
   }
-  return outputArray;
 }
 
-function isNotificationSupported() {
+function isNotificationSupported(): boolean {
   return (
     "serviceWorker" in navigator &&
     "PushManager" in window &&
@@ -29,70 +36,53 @@ function isNotificationSupported() {
   );
 }
 
-async function registerServiceWorker() {
-  if ("serviceWorker" in navigator) {
-    try {
-      console.log("Registering Service Worker...");
-      const registration = await navigator.serviceWorker.register("/sw.js", {
-        scope: "/"
-      });
-      console.log("Service Worker registered successfully:", registration);
-      await navigator.serviceWorker.ready;
-      console.log("Service Worker is ready");
+async function registerServiceWorker(): Promise<
+  ServiceWorkerRegistration | undefined
+> {
+  if (!("serviceWorker" in navigator)) {
+    console.warn("Service Worker not supported");
+    return;
+  }
 
-      return registration;
-    } catch (error) {
-      console.error("Service Worker registration failed:", error);
-      throw error;
-    }
+  try {
+    const registration = await navigator.serviceWorker.register("/sw.js", {
+      scope: "/"
+    });
+    console.log("Service Worker registered successfully");
+    await navigator.serviceWorker.ready;
+    return registration;
+  } catch (error) {
+    console.error("Service Worker registration failed:", error);
+    throw error;
   }
 }
 
-async function enablePushNotifications() {
-  let subscription, registration;
-  try {
-    if (process.env.NODE_ENV === "development") {
-      const existingRegistration = await navigator.serviceWorker.getRegistration();
-      if (existingRegistration) {
-        await existingRegistration.unregister();
-      }
-      registration = await registerServiceWorker();
-    } else if ("serviceWorker" in navigator) {
-      // Check if service worker is already registered
-      registration = await navigator.serviceWorker.getRegistration();
-      if (!registration) {
-        registration = await registerServiceWorker();
-      }
-    }
+async function enablePushNotifications(): Promise<void> {
+  if (!isNotificationSupported()) {
+    throw new Error("Push notifications not supported in this browser");
+  }
 
+  try {
+    const registration = await registerServiceWorkerFirstTime();
     if (!registration) throw new Error("ServiceWorker registration failed");
 
     const permission = await Notification.requestPermission();
-
     if (permission !== "granted") {
-      throw new Error("Permission denied for Notification");
-    } else {
-      console.log("Permission granted for Notification: ", permission);
+      throw new Error("Notification permission denied");
     }
 
-    subscription = await registration.pushManager.getSubscription();
+    let subscription = await registration.pushManager.getSubscription();
 
-    if (subscription) {
-      console.log("Found existing push subscription", subscription);
-    } else {
+    if (!subscription) {
       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!vapidPublicKey) {
         throw new Error("VAPID public key not found");
       }
 
-      const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
-
       subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: convertedVapidKey
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
       });
-
-      console.log("Created new push subscription", subscription);
     }
 
     const response = await fetch("/api/subscribe-notification", {
@@ -100,37 +90,36 @@ async function enablePushNotifications() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        subscription,
-        userAgent: navigator.userAgent,
-        timestamp: new Date().toISOString()
-      })
+      body: JSON.stringify(
+        {
+          subscription,
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString()
+        } as PushSubscriptionRequest
+      )
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(`Server error: ${errorData.message}`);
+      throw new Error(`Subscription failed: ${errorData.message}`);
     }
 
     const data = await response.json();
-    console.log("Server subscription response:", data);
+    return data;
   } catch (error) {
     console.error("Push notification setup failed:", error);
     throw error;
   }
 }
 
-const isAlreadySubscribedForPushNotifications = async () => {
+const isAlreadySubscribedForPushNotifications = async (): Promise<boolean> => {
   if (!isNotificationSupported()) {
-    console.warn("Push notifications not supported");
     return false;
   }
 
   try {
     const registration = await navigator.serviceWorker.getRegistration();
-    if (!registration) {
-      return false;
-    }
+    if (!registration) return false;
 
     const subscription = await registration.pushManager.getSubscription();
     return !!subscription;
@@ -141,39 +130,67 @@ const isAlreadySubscribedForPushNotifications = async () => {
 };
 
 export function usePushSubscription() {
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    isAlreadySubscribedForPushNotifications().then(setIsSubscribed);
+    const checkSubscription = async () => {
+      try {
+        const subscribed = await isAlreadySubscribedForPushNotifications();
+        setIsSubscribed(subscribed);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error("Unknown error"));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkSubscription();
   }, []);
 
-  return { isSubscribed };
+  return { isSubscribed, isLoading, error };
 }
 
 export function usePushClient() {
-  const initializePush = useCallback(() => {
-    enablePushNotifications().catch(error => {
+  const [initializationStatus, setInitializationStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+
+  const initializePush = useCallback(async () => {
+    try {
+      setInitializationStatus("loading");
+      await enablePushNotifications();
+      setInitializationStatus("success");
+    } catch (error) {
       console.error("Failed to enable push notifications:", error);
-    });
+      setInitializationStatus("error");
+      throw error;
+    }
   }, []);
 
-  return { initializePush };
+  return { initializePush, initializationStatus };
 }
 
-const registerServiceWorkerFirstTime = async () => {
-  let registration;
-  if (process.env.NODE_ENV === "development") {
-    const existingRegistration = await navigator.serviceWorker.getRegistration();
-    if (existingRegistration) {
-      await existingRegistration.unregister();
+const registerServiceWorkerFirstTime = async (): Promise<
+  ServiceWorkerRegistration | undefined
+> => {
+  if (!("serviceWorker" in navigator)) return;
+
+  try {
+    if (process.env.NODE_ENV === "development") {
+      const existingRegistration = await navigator.serviceWorker.getRegistration();
+      if (existingRegistration) {
+        await existingRegistration.unregister();
+      }
+      return await registerServiceWorker();
     }
-    registration = await registerServiceWorker();
-  } else if ("serviceWorker" in navigator) {
-    // Check if service worker is already registered
-    registration = await navigator.serviceWorker.getRegistration();
-    if (!registration) {
-      registration = await registerServiceWorker();
-    }
+
+    const registration = await navigator.serviceWorker.getRegistration();
+    return registration || (await registerServiceWorker());
+  } catch (error) {
+    console.error("Failed to register service worker:", error);
+    throw error;
   }
 };
 

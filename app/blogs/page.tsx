@@ -373,7 +373,6 @@ const BlogCollection = () => {
                     duration: 3000
                 }}
             />
-            <SubscriptionPopup />
 
             <div className={themeClasses(isDarkMode).container}>
                 {/* Header Section */}

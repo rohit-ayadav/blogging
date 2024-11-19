@@ -25,4 +25,10 @@ interface GlobalStatistics {
   averageSuccessRate: number;
 }
 
-export type { NotificationPayload, GlobalStatistics };
+type PushSubscriptionRequest = {
+  subscription: PushSubscription;
+  userAgent: string;
+  timestamp: string;
+};
+
+export type { NotificationPayload, GlobalStatistics, PushSubscriptionRequest };

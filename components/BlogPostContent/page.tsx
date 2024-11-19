@@ -56,8 +56,6 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({ initialDa
         <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
             <BlogPostHeader post={post} author={author} />
 
-            <SubscriptionPopup />
-
             <div className="container mx-auto px-4">
                 <div className="lg:grid lg:grid-cols-12 lg:gap-8">
                     <div className="lg:col-span-12">
@@ -90,8 +88,17 @@ const LoadingSkeleton = () => (
         <Skeleton className="h-8 w-full mb-4" />
         <Skeleton className="h-4 w-3/4 mb-6" />
         <div className="space-y-3">
-            {Array(6).fill(null).map((_, i) => (
-                <Skeleton key={i} className="h-4 w-full" />
+            {Array(10).fill(null).map((_, i) => (
+                <>
+                    <Skeleton key={i} className="h-8 w-full" />
+                    <Skeleton key={i} className="h-4 w-3/4" />
+
+                    <Skeleton key={i} className="h-4 w-full" />
+                    <Skeleton key={i} className="h-4 w-3/4" />
+                    <Skeleton key={i} className="h-4 w-1/2" />
+                    <Skeleton key={i} className="h-4 w-1/4" />
+                    <Skeleton key={i} className="h-4 w-1/3" />
+                </>
             ))}
         </div>
     </div>
