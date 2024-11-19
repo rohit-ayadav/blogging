@@ -345,6 +345,7 @@ const BlogCollection = () => {
         fetchData(true);
     }, [fetchData]);
 
+    // if some error occurred
     if (state.error) {
         return (
             <div className={`flex flex-col justify-center items-center h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>

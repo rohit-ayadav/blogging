@@ -4,16 +4,12 @@ import useBlogPost from '../../hooks/useBlogPost';
 import BlogPostHeader from '../BlogPostHeader/page';
 import BlogPostContent from '../BlogPostContent011/page';
 import BlogPostFooter from '../BlogPostFooter/page';
-import RelatedPosts from '../RelatedPosts/page';
-import AuthorPosts from '../AuthorPosts/page';
-import NewsLetter from '@/app/component/newsletter';
 import CommentSection from '@/app/component/commentsection';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { RefreshCcw } from 'lucide-react';
 import { BlogPostType } from '@/types/blogs-types';
 import SubscriptionPopup from '@/app/blogs/SubscriptionPopup';
-
 interface BlogPostClientContentProps {
     initialData: BlogPostType;
     id: string;

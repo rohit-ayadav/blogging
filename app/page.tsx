@@ -10,8 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import CountUp from 'react-countup';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
-import { usePushClient } from '@/hooks/push-client';
 import { BlogPostType, UserType } from '@/types/blogs-types';
+import { registerServiceWorkerFirstTime } from '@/hooks/push-client';
 
 
 interface Post {
@@ -136,12 +136,9 @@ const HomePage = () => {
   const router = useRouter();
   const { loading, error, posts, users, totalBlogs, totalUsers, totalLikes, totalViews } = useBlogData();
 
-  // useEffect(() => {
-  //   console.log('useEffect');
-  //   usePushClient();
-  // }, []);
-
-  // usePushClient();
+  useEffect(() => {
+    registerServiceWorkerFirstTime();
+  }, []);
 
   useEffect(() => {
     document.body.classList.toggle('dark', isDarkMode);

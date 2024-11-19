@@ -1,5 +1,6 @@
 // hooks/push-client.ts
-import { useEffect, useCallback, useRef } from "react";
+"use client";
+import { useEffect, useCallback, useState } from "react";
 
 function urlBase64ToUint8Array(base64String: string) {
   if (!base64String) {
@@ -118,6 +119,7 @@ async function enablePushNotifications() {
     throw error;
   }
 }
+
 const isAlreadySubscribedForPushNotifications = async () => {
   if (!isNotificationSupported()) {
     console.warn("Push notifications not supported");
@@ -139,15 +141,13 @@ const isAlreadySubscribedForPushNotifications = async () => {
 };
 
 export function usePushSubscription() {
-  const isSubscribed = useRef(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
-    isAlreadySubscribedForPushNotifications().then(subscribed => {
-      isSubscribed.current = subscribed;
-    });
+    isAlreadySubscribedForPushNotifications().then(setIsSubscribed);
   }, []);
 
-  return { isSubscribed: isSubscribed.current };
+  return { isSubscribed };
 }
 
 export function usePushClient() {
@@ -159,3 +159,22 @@ export function usePushClient() {
 
   return { initializePush };
 }
+
+const registerServiceWorkerFirstTime = async () => {
+  let registration;
+  if (process.env.NODE_ENV === "development") {
+    const existingRegistration = await navigator.serviceWorker.getRegistration();
+    if (existingRegistration) {
+      await existingRegistration.unregister();
+    }
+    registration = await registerServiceWorker();
+  } else if ("serviceWorker" in navigator) {
+    // Check if service worker is already registered
+    registration = await navigator.serviceWorker.getRegistration();
+    if (!registration) {
+      registration = await registerServiceWorker();
+    }
+  }
+};
+
+export { registerServiceWorkerFirstTime };

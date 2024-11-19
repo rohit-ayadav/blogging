@@ -1,18 +1,17 @@
 // app/blogs/not-found.tsx
+"use client";
 import React from 'react';
 
 export default function NotFound() {
     return (
         <div className="min-h-[60vh] flex items-center justify-center">
-            {/* // a back button to go back to the previous page */}
             <button
                 onClick={() => window.history.back()}
                 className="absolute top-4 left-4 bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors"
             >
                 Go Back
             </button>
-            {/* // a message to show that the blog post is not found */}
-            
+
             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 max-w-2xl w-full">
                 <div className="flex">
                     <div>
