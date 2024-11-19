@@ -13,7 +13,7 @@ import debounce from 'lodash/debounce';
 import { themeClasses } from './themeClass';
 import { EmptyState, NoMorePosts, LoadingState } from './themeClass';
 import { StatsType, BlogPostType, UserType } from '@/types/blogs-types';
-import SubscriptionPopup from './SubscriptionPopup';
+import SubscriptionPopup from '../../components/SubscriptionPopup';
 
 class DataCache<T> {
     private cache: Map<string, { data: T; timestamp: number }>;

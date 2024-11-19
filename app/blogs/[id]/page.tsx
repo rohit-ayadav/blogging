@@ -5,7 +5,7 @@ import BlogPostLayout from '../../../components/BlogPostLayout/page';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
-import SubscriptionPopup from '../SubscriptionPopup';
+import SubscriptionPopup from '../../../components/SubscriptionPopup';
 
 // Error message components
 const ErrorMessage = ({ message }: { message: string }) => (

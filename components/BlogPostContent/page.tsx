@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { RefreshCcw } from 'lucide-react';
 import { BlogPostType } from '@/types/blogs-types';
-import SubscriptionPopup from '@/app/blogs/SubscriptionPopup';
+import SubscriptionPopup from '@/components/SubscriptionPopup';
 interface BlogPostClientContentProps {
     initialData: BlogPostType;
     id: string;

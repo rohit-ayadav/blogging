@@ -1,6 +1,6 @@
 "use client";
 import { SessionProvider } from 'next-auth/react'
-import SubscriptionPopup from '../blogs/SubscriptionPopup';
+import SubscriptionPopup from '../../components/SubscriptionPopup';
 
 const SessionWrapper = ({ children }) => {
     return (
