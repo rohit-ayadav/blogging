@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Loader2, Eye, Heart, Star, Globe } from 'lucide-react';
-import { CodeBlock } from '@/components/BlogPostContent011/CodeBlock';
+import { CodeBlock } from '@/components/BlogPostContent011/component/CodeBlock';
 import { BlogPostType } from '@/types/blogs-types';
 import { useTheme } from '@/context/ThemeContext';
 
