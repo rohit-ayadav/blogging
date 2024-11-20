@@ -7,6 +7,12 @@ import { Calendar, Eye, ImageIcon, ThumbsUp, User } from 'lucide-react';
 import { ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardTitle, CardHeader } from '@/components/ui/card';
 import { UserType, BlogPostType } from '@/types/blogs-types';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 
 const getCategoryColor = (category: string): { bg: string; text: string; border: string } => {
@@ -74,38 +80,40 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
     const categoryColors = getCategoryColor(post.category);
 
     return (
-        <Card className="group relative overflow-hidden transition-all duration-300 flex flex-col h-full 
+
+        <TooltipProvider>
+            <Card className="group relative overflow-hidden transition-all duration-300 flex flex-col h-full 
             bg-white dark:bg-gray-900 
             border-2 border-gray-200 dark:border-gray-700 
             hover:shadow-2xl hover:border-opacity-50 
             rounded-xl 
             transform hover:-translate-y-2 hover:scale-[1.02]">
-            {/* Thumbnail Section with Improved Overlay */}
-            <div className="relative h-56 lg:h-64 overflow-hidden rounded-t-xl">
-                {post.thumbnail ? (
-                    <img
-                        src={post.thumbnail}
-                        alt={post.title}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 
+                {/* Thumbnail Section with Improved Overlay */}
+                <div className="relative h-56 lg:h-64 overflow-hidden rounded-t-xl">
+                    {post.thumbnail ? (
+                        <img
+                            src={post.thumbnail}
+                            alt={post.title}
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 
                             group-hover:scale-110 
                             brightness-90 group-hover:brightness-75"
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).onerror = null;
-                            (e.target as HTMLImageElement).src = '/default-thumbnail.png';
-                        }}
-                    />
-                ) : (
-                    <div className="absolute inset-0 flex items-center justify-center 
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).onerror = null;
+                                (e.target as HTMLImageElement).src = '/default-thumbnail.png';
+                            }}
+                        />
+                    ) : (
+                        <div className="absolute inset-0 flex items-center justify-center 
                         bg-gradient-to-br from-gray-100 to-gray-200 
                         dark:from-gray-800 dark:to-gray-700">
-                        <ImageIcon className="h-16 w-16 text-gray-400 dark:text-gray-500 opacity-50" />
-                    </div>
-                )}
-                
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                            <ImageIcon className="h-16 w-16 text-gray-400 dark:text-gray-500 opacity-50" />
+                        </div>
+                    )}
 
-                <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
-                    <span className={`
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                    <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
+                        <span className={`
                         inline-flex items-center px-3 py-1 rounded-full 
                         text-sm font-semibold tracking-wide 
                         transition-all duration-300 
@@ -113,12 +121,12 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                         ${categoryColors.bg} ${categoryColors.text} ${categoryColors.border}
                         shadow-sm
                     `}>
-                        {post.category}
-                    </span>
-                </div>
+                            {post.category}
+                        </span>
+                    </div>
 
-                <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <CardTitle className="
+                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                        <CardTitle className="
                         text-2xl font-bold 
                         line-clamp-2 
                         mb-3 
@@ -126,106 +134,113 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                         transition-all duration-300 
                         group-hover:text-opacity-90
                     ">
-                        {post.title}
-                    </CardTitle>
+                            {post.title}
+                        </CardTitle>
 
-                    <div className="flex items-center justify-between text-gray-100 text-sm">
-                        <div className="flex items-center space-x-2">
-                            <FaCalendarAlt className="h-4 w-4 opacity-80" />
-                            <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                            <div className="flex items-center space-x-1">
-                                <FaEye className="h-4 w-4 opacity-80" />
-                                <span className="font-medium">{post.views || 0}</span>
+                        <div className="flex items-center justify-between text-gray-100 text-sm">
+                            <div className="flex items-center space-x-2">
+                                <FaCalendarAlt className="h-4 w-4 opacity-80" />
+                                <span>{new Date(post.createdAt).toLocaleDateString()}</span>
                             </div>
-                            <div className="flex items-center space-x-1">
-                                <FaThumbsUp className="h-4 w-4 opacity-80" />
-                                <span className="font-medium">{post.likes || 0}</span>
+                            <div className="flex items-center space-x-3">
+                                <div className="flex items-center space-x-1">
+                                    <FaEye className="h-4 w-4 opacity-80" />
+                                    <span className="font-medium">{post.views || 0}</span>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                    <FaThumbsUp className="h-4 w-4 opacity-80" />
+                                    <span className="font-medium">{post.likes || 0}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <CardContent className="flex-grow p-6">
-                <p className="
+                <CardContent className="flex-grow p-6">
+                    <p className="
                     line-clamp-4 
                     text-gray-700 dark:text-gray-300 
                     text-base 
                     leading-relaxed
                 ">
-                    {post.content.replace(/<[^>]+>/g, '')}
-                </p>
-            </CardContent>
+                        {post.content.replace(/<[^>]+>/g, '')}
+                    </p>
+                </CardContent>
 
-            <CardFooter className="
+                <CardFooter className="
                 flex flex-col sm:flex-row 
                 justify-between 
                 items-center 
                 p-6 pt-0 
                 space-y-4 sm:space-y-0
             ">
-                {/* User Section */}
-                <div className="flex items-center space-x-3 w-full sm:w-auto">
-                    <Avatar className="
+                    {/* User Section */}
+                    <div className="flex items-center space-x-3 w-full sm:w-auto">
+                        <Avatar className="
                         w-10 h-10 
                         ring-2 ring-offset-2 
                         ring-blue-100 dark:ring-blue-900
                     ">
-                        <AvatarImage
-                            src={user?.image}
-                            alt={user?.name}
-                            className="object-cover"
-                        />
-                        <AvatarFallback>
-                            <FaUserCircle className="w-full h-full text-gray-400" />
-                        </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                            {user?.name || 'Unknown Author'}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {user?.bio?.slice(0, 30) || 'No bio available'}
-                        </span>
+                            <AvatarImage
+                                src={user?.image}
+                                alt={user?.name}
+                                className="object-cover"
+                            />
+                            <AvatarFallback>
+                                <FaUserCircle className="w-full h-full text-gray-400" />
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                {user?.name || 'Unknown Author'}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {user?.bio?.slice(0, 30) || 'No bio available'}
+                            </span>
+                        </div>
                     </div>
-                </div>
 
-                {/* Action Buttons */}
-                <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-                    <button
-                        onClick={() => {
-                            navigator.clipboard.writeText(
-                                `${post.title}\nRead here: ${window.location.origin}/blogs/${post._id}\n\n`
-                            );
-                            toast.success('Blog link copied!', {
-                                icon: '📋',
-                                style: {
-                                    borderRadius: '10px',
-                                    background: '#333',
-                                    color: '#fff',
-                                }
-                            });
-                        }}
-                        className="
+                    {/* Action Buttons */}
+                    <div className="flex items-center space-x-3 mt-4 sm:mt-0">
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(
+                                            `${post.title}\nRead here: ${window.location.origin}/blogs/${post._id}\n\n`
+                                        );
+                                        toast.success('Blog link copied!', {
+                                            icon: '📋',
+                                            style: {
+                                                borderRadius: '10px',
+                                                background: '#333',
+                                                color: '#fff',
+                                            }
+                                        });
+                                    }}
+                                    className="
                             p-2 rounded-full 
                             hover:bg-gray-100 dark:hover:bg-gray-800 
                             transition-all duration-300 
                             hover:scale-110
                         "
-                    >
-                        <FaClipboard className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                    </button>
+                                >
+                                    <FaClipboard className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <span className='text-xs'>Copy post link to clip board</span>
+                            </TooltipContent>
+                        </Tooltip>
 
-                    {/* <Link href={`/blogs/${post._id}`} className="w-full"> */}
-                    {/* <Link href={`/blogs/${post.slug}`} className="w-full"> */}
-                    <Link href={`/blogs/${post.slug}`} passHref>
+                        {/* <Link href={`/blogs/${post._id}`} className="w-full"> */}
+                        {/* <Link href={`/blogs/${post.slug}`} className="w-full"> */}
+                        <Link href={`/blogs/${post.slug}`} passHref>
 
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="
                                 group 
                                 w-full 
                                 hover:bg-blue-500 hover:text-white 
@@ -235,14 +250,15 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                                 transition-all duration-300 
                                 rounded-full
                             "
-                        >
-                            Read More
-                            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                        </Button>
-                    </Link>
-                </div>
-            </CardFooter>
-        </Card>
+                            >
+                                Read More
+                                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                            </Button>
+                        </Link>
+                    </div>
+                </CardFooter>
+            </Card>
+        </TooltipProvider>
     );
 };
 

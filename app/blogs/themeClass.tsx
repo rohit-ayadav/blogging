@@ -1,17 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-
-interface ThemeClasses {
-    layout: string;
-    container: string;
-    header: string;
-    title: string;
-    controls: string;
-    searchContainer: string;
-    input: string;
-    select: string;
-    themeToggle: string;
-}
+import { ThemeClasses } from "@/types/blogs-types";
 
 const themeClasses: (isDarkMode: boolean) => ThemeClasses = (isDarkMode: boolean) => {
     const themeClasses: ThemeClasses = {
@@ -59,7 +48,6 @@ const NoMorePosts = () => (
     </div>
 );
 
-// Empty state component
 const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-16 space-y-4">
         <div className="text-4xl">📝</div>

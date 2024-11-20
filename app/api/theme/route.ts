@@ -69,14 +69,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-
-  return NextResponse.json(
-    {
-      message: "Theme selected successfully",
-      success: true
-    },
-    { status: 200 }
-  );
 }
 
 export async function GET(request: NextRequest) {

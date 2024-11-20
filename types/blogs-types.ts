@@ -65,5 +65,18 @@ interface TOCItem {
   id: string;
 }
 
-export type { BlogPostType, UserType, StatsType, Author, TOCItem };
+
+interface ThemeClasses {
+  layout: string;
+  container: string;
+  header: string;
+  title: string;
+  controls: string;
+  searchContainer: string;
+  input: string;
+  select: string;
+  themeToggle: string;
+}
+
+export type { BlogPostType, UserType, StatsType, Author, TOCItem, ThemeClasses };
 export {CATEGORIES};

@@ -6,19 +6,17 @@ import BlogPostContent from '../BlogPostContent011/page';
 import BlogPostFooter from '../BlogPostFooter/page';
 import CommentSection from '@/app/component/commentsection';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { RefreshCcw } from 'lucide-react';
-import { BlogPostType } from '@/types/blogs-types';
-import SubscriptionPopup from '@/components/SubscriptionPopup';
+import { Author, BlogPostType } from '@/types/blogs-types';
+import { ErrorMessage } from '@/app/blogs/[id]/ErrorMessage';
 interface BlogPostClientContentProps {
     initialData: BlogPostType;
     id: string;
+    author: Author;
 }
 
-const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({ initialData, id }) => {
+const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({ initialData, id, author }) => {
     const {
         post,
-        author,
         relatedPosts,
         authorPosts,
         likes,
@@ -31,40 +29,25 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({ initialDa
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] p-2">
-                <Alert variant="destructive" className="mb-4">
-                    <AlertDescription>
-                        {error.message || 'Failed to load blog post'}
-                    </AlertDescription>
-                </Alert>
-                <button
-                    onClick={() => window.location.reload()}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-                >
-                    <RefreshCcw className="w-4 h-4" />
-                    Try Again
-                </button>
-            </div>
+            <ErrorMessage message={error.message} />
         );
     }
 
-    if (!post || !author || isLoading) {
+    if (isLoading) {
         return <LoadingSkeleton />;
     }
 
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-            <BlogPostHeader post={post} author={author} />
+            <BlogPostHeader post={initialData} author={author} />
 
             <div className="container mx-auto px-4">
                 <div className="lg:grid lg:grid-cols-12 lg:gap-8">
                     <div className="lg:col-span-12">
                         <article>
-                            <Suspense fallback={<LoadingSkeleton />}>
-                                <BlogPostContent post={post} />
-                            </Suspense>
+                            <BlogPostContent post={initialData} />
                             <BlogPostFooter
-                                post={post}
+                                post={initialData}
                                 likes={likes}
                                 views={views}
                                 liked={liked}
@@ -92,7 +75,6 @@ const LoadingSkeleton = () => (
                 <>
                     <Skeleton key={i} className="h-8 w-full" />
                     <Skeleton key={i} className="h-4 w-3/4" />
-
                     <Skeleton key={i} className="h-4 w-full" />
                     <Skeleton key={i} className="h-4 w-3/4" />
                     <Skeleton key={i} className="h-4 w-1/2" />

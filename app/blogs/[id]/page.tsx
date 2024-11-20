@@ -4,22 +4,20 @@ import dynamic from 'next/dynamic';
 import BlogPostLayout from '../../../components/BlogPostLayout/page';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { headers } from 'next/headers';
-import SubscriptionPopup from '../../../components/SubscriptionPopup';
+import Blog from '@/models/blogs.models';
+import User from '@/models/users.models';
+import { connectDB, disconnectDB } from '@/utils/db';
+import { isValidObjectId } from 'mongoose';
+import { Author } from '@/types/blogs-types';
+import { ErrorMessage } from './ErrorMessage';
 
-// Error message components
-const ErrorMessage = ({ message }: { message: string }) => (
-    <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 max-w-2xl w-full">
-            <div className="flex">
-                <div>
-                    <p className="text-red-700">Error</p>
-                    <p className="text-red-700 mt-1">{message}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-);
+const isValidSlug = (slug: string) => {
+    let processedSlug = slug.toLowerCase(); // Convert to lowercase
+    processedSlug = processedSlug.replace(/[^a-z0-9-]/g, ""); // Remove invalid characters
+    processedSlug = processedSlug.replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+    return /^[a-z0-9]+(?:-*[a-z0-9]+)*$/.test(processedSlug);
+};
+
 
 const BlogPostClientContent = dynamic(
     () => import('../../../components/BlogPostContent/page'),
@@ -31,44 +29,47 @@ type ApiResponse = {
     data?: any;
     error?: string;
     statusCode?: number;
-    // language?: string;
+    author?: Author;
 };
 
 async function getPostData(id: string): Promise<ApiResponse> {
-    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
-    const headersList = headers();
-    const host = headersList.get('host') || 'localhost:3000';
-    const apiUrl = `${protocol}://${host}/api/blog/${id}`;
-
     try {
-        const res = await fetch(apiUrl, {
-            cache: 'no-store',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        await connectDB();
+        let post;
+        if (isValidObjectId(id))
+            post = await Blog.findById(id);
+        else
+            if (isValidSlug(id)) post = await Blog.findOne({ slug: id });
 
-        const data = await res.json();
-
-        if (!res.ok) {
+        if (!post) {
             return {
                 success: false,
-                error: data.message || 'Failed to fetch blog post',
-                statusCode: res.status
+                statusCode: 404,
+                error: 'Blog post not found',
+
             };
         }
+        // Increment views
+        await Blog.findOneAndUpdate({ slug: id }, { $inc: { views: 1 } });
+        // Get author details from his/her email    
+        const author = await User.findOne({ email: post.createdBy });
 
+
+        const plainPost = JSON.parse(JSON.stringify(post));
+        const plainAuthor = JSON.parse(JSON.stringify(author));
+        // await disconnectDB();
         return {
             success: true,
-            data: data.data,
-            statusCode: res.status,
+            data: plainPost,
+            author: plainAuthor,
+            statusCode: 200,
         };
-    } catch (error) {
-        console.error('Error fetching post data:', error);
+    }
+    catch (error) {
         return {
             success: false,
             error: (error as Error).message,
-            statusCode: 500
+            statusCode: 500,
         };
     }
 }
@@ -127,7 +128,7 @@ export default async function IndividualBlogPost({ params }: { params: { id: str
 
     return (
         <BlogPostLayout post={response.data} id={params.id}>
-            <BlogPostClientContent initialData={response.data} id={params.id} />
+            <BlogPostClientContent initialData={response.data} id={params.id} author={response.author || { name: 'Anonymous', image: '/default-profile.jpg', _id: '0', likes: 0, views: 0 }} />
         </BlogPostLayout>
     );
 }

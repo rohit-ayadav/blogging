@@ -13,7 +13,12 @@ import debounce from 'lodash/debounce';
 import { themeClasses } from './themeClass';
 import { EmptyState, NoMorePosts, LoadingState } from './themeClass';
 import { StatsType, BlogPostType, UserType } from '@/types/blogs-types';
-import SubscriptionPopup from '../../components/SubscriptionPopup';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 class DataCache<T> {
     private cache: Map<string, { data: T; timestamp: number }>;
@@ -283,9 +288,9 @@ const BlogCollection = () => {
     // Intersection Observer for infinite scroll
     useEffect(() => {
         const options = {
-            root: null,
-            rootMargin: '200px',
-            threshold: 0.1
+            root: null, // viewport
+            rootMargin: '200px', // trigger when 200px from the bottom
+            threshold: 0.1 // 10% visibility
         };
 
         const observer = new IntersectionObserver((entries) => {
@@ -362,119 +367,144 @@ const BlogCollection = () => {
     }
 
     return (
-        <div className={`${themeClasses(isDarkMode).layout} transition-colors duration-200`}>
-            <Toaster
-                position="top-right"
-                toastOptions={{
-                    style: {
-                        background: isDarkMode ? '#1f2937' : '#ffffff',
-                        color: isDarkMode ? '#f3f4f6' : '#111827',
-                    },
-                    duration: 3000
-                }}
-            />
-
-            <div className={themeClasses(isDarkMode).container}>
-                {/* Header Section */}
-                <div className={`${themeClasses(isDarkMode).header} sticky top-0 z-10 backdrop-blur-sm bg-opacity-90 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
-                    <h1 className={themeClasses(isDarkMode).title}>Blog Posts</h1>
-                    <Button
-                        onClick={toggleDarkMode}
-                        variant="outline"
-                        size="icon"
-                        className={`${themeClasses(isDarkMode).themeToggle} transition-colors duration-200`}
-                    >
-                        {isDarkMode ? (
-                            <Sun className="h-5 w-5" />
-                        ) : (
-                            <Moon className="h-5 w-5" />
-                        )}
-                    </Button>
-                </div>
-
-                {/* Controls Section */}
-                <div className={`${themeClasses(isDarkMode).controls} grid grid-cols-1 md:grid-cols-3 gap-4`}>
-                    <div className={`${themeClasses(isDarkMode).searchContainer} md:col-span-2`}>
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <Input
-                            type="text"
-                            placeholder="Search posts..."
-                            value={state.searchTerm}
-                            onChange={(e) => handleSearch(e.target.value)}
-                            className={`${themeClasses(isDarkMode).input} pl-10`}
-                        />
-                    </div>
-
-                    <div className="flex space-x-2">
-                        <Select
-                            value={state.category}
-                            onValueChange={(value) => setState(prev => ({
-                                ...prev,
-                                category: value,
-                                page: 1
-                            }))}
-                        >
-                            <SelectTrigger className={themeClasses(isDarkMode).select}>
-                                <SelectValue placeholder="Category" />
-                            </SelectTrigger>
-                            <SelectContent className={`${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} max-h-60`}>
-                                {CATEGORIES.map((cat) => (
-                                    <SelectItem key={cat.value} value={cat.value}>
-                                        {cat.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-
-                        <Select
-                            value={state.sortBy}
-                            onValueChange={(value) => setState(prev => ({
-                                ...prev,
-                                sortBy: value,
-                                page: 1
-                            }))}
-                        >
-                            <SelectTrigger className={themeClasses(isDarkMode).select}>
-                                <SelectValue placeholder="Sort" />
-                            </SelectTrigger>
-                            <SelectContent className={isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
-                                <SelectItem value="newest">Newest</SelectItem>
-                                <SelectItem value="trending">Trending</SelectItem>
-                                <SelectItem value="oldest">Oldest</SelectItem>
-                                <SelectItem value="mostViews">Most Views</SelectItem>
-                                <SelectItem value="mostLikes">Most Likes</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-
-                {/* Stats Section */}
-                <DashboardGrid
-                    totalBlogs={state.stats.totalBlogs}
-                    totalViews={state.stats.totalViews}
-                    totalLikes={state.stats.totalLikes}
-                    totalUsers={state.stats.totalUsers}
-                    loading={state.statsLoading}
+        <TooltipProvider>
+            <div className={`${themeClasses(isDarkMode).layout} transition-colors duration-200`}>
+                <Toaster
+                    position="top-right"
+                    toastOptions={{
+                        style: {
+                            background: isDarkMode ? '#1f2937' : '#ffffff',
+                            color: isDarkMode ? '#f3f4f6' : '#111827',
+                        },
+                        duration: 3000
+                    }}
                 />
 
-                {/* Posts Section */}
-                <BlogPostGrid
-                    filteredPosts={Array.from(new Set(state.posts.map(post => post._id)))
-                        .map(id => state.posts.find(post => post._id === id))
-                        .filter((post): post is BlogPostType => post !== undefined)}
-                    users={state.users}
-                    loading={state.loading}
-                />
+                <div className={themeClasses(isDarkMode).container}>
+                    {/* Header Section */}
+                    <div className={`${themeClasses(isDarkMode).header} sticky top-0 z-10 backdrop-blur-sm bg-opacity-90 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+                        <h1 className={themeClasses(isDarkMode).title}>Blog Posts</h1>
+                        <Button
+                            onClick={toggleDarkMode}
+                            variant="outline"
+                            size="icon"
+                            className={`${themeClasses(isDarkMode).themeToggle} transition-colors duration-200`}
+                        >
+                            {isDarkMode ? (
+                                <Sun className="h-5 w-5" />
+                            ) : (
+                                <Moon className="h-5 w-5" />
+                            )}
+                        </Button>
+                    </div>
 
-                {/* Loading State */}
-                {state.loadingMore && <LoadingState message="Loading more posts..." />}
-                {!state.loadingMore && !state.loading && !state.metadata.hasMore && <NoMorePosts />}
-                {state.posts.length === 0 && !state.loading && <EmptyState />}
+                    {/* Controls Section */}
+                    <div className={`${themeClasses(isDarkMode).controls} grid grid-cols-1 md:grid-cols-3 gap-4`}>
+                        <div className={`${themeClasses(isDarkMode).searchContainer} md:col-span-2`}>
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                            <Input
+                                type="text"
+                                placeholder="Search posts..."
+                                value={state.searchTerm}
+                                onChange={(e) => handleSearch(e.target.value)}
+                                className={`${themeClasses(isDarkMode).input} pl-10`}
+                            />
+                        </div>
 
-                {/* Scroll Sentinel */}
-                <div id="scroll-sentinel" className="h-8" />
+                        <div className="flex space-x-2">
+                            <Select
+                                value={state.category}
+                                onValueChange={(value) => setState(prev => ({
+                                    ...prev,
+                                    category: value,
+                                    page: 1
+                                }))}
+                            >
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <SelectTrigger className={themeClasses(isDarkMode).select}>
+                                            <SelectValue placeholder="Category" />
+                                        </SelectTrigger>
+                                        <SelectContent className={`${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} max-h-60`}>
+                                            {CATEGORIES.map((cat) => (
+                                                <SelectItem key={cat.value} value={cat.value}>
+                                                    {cat.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <span className="text-xs">Filter by category</span>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </Select>
+
+                            <Select
+                                value={state.sortBy}
+                                onValueChange={(value) => setState(prev => ({
+                                    ...prev,
+                                    sortBy: value,
+                                    page: 1
+                                }))}
+                            >
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <SelectTrigger className={themeClasses(isDarkMode).select}>
+                                            <SelectValue placeholder="Sort" />
+                                        </SelectTrigger>
+                                        <SelectContent className={isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
+                                            <SelectItem value="newest">Newest</SelectItem>
+                                            <SelectItem value="trending">Trending</SelectItem>
+                                            <SelectItem value="oldest">Oldest</SelectItem>
+                                            <SelectItem value="mostViews">Most Views</SelectItem>
+                                            <SelectItem value="mostLikes">Most Likes</SelectItem>
+                                        </SelectContent>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <span className="text-xs">Sort the posts</span>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </Select>
+                        </div>
+                    </div>
+
+                    {/* Stats Section */}
+                    <DashboardGrid
+                        totalBlogs={state.stats.totalBlogs}
+                        totalViews={state.stats.totalViews}
+                        totalLikes={state.stats.totalLikes}
+                        totalUsers={state.stats.totalUsers}
+                        loading={state.statsLoading}
+                    />
+
+                    {/* Posts Section */}
+                    <BlogPostGrid
+                        filteredPosts={Array.from(new Set(state.posts.map(post => post._id)))
+                            .map(id => state.posts.find(post => post._id === id))
+                            .filter((post): post is BlogPostType => post !== undefined)}
+                        users={state.users}
+                        loading={state.loading}
+                    />
+
+                    {/* Loading State */}
+                    {state.loadingMore && <LoadingState message="Loading more posts..." />}
+                    {!state.loadingMore && // No more posts
+                        !state.loading && // Not loading
+                        !state.metadata.hasMore && // No more posts to load
+                        !(state.posts.length === 0) && // No posts found
+                        <NoMorePosts />
+                    }
+                    {state.posts.length === 0 &&
+                        !state.loading &&
+                        <EmptyState />
+                    }
+
+                    <div id="scroll-sentinel" className="h-8" />
+                </div>
             </div>
-        </div>
+        </TooltipProvider>
+
     );
 }
 
