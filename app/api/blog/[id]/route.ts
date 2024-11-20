@@ -7,9 +7,9 @@ import { isValidObjectId } from "mongoose";
 await connectDB();
 
 const isValidSlug = (slug: string) => {
-  let processedSlug = slug.toLowerCase();
-  processedSlug = processedSlug.replace(/[^a-z0-9-]/g, "");
-  processedSlug = processedSlug.replace(/^-+|-+$/g, "");
+  let processedSlug = slug.toLowerCase(); // Convert to lowercase
+  processedSlug = processedSlug.replace(/[^a-z0-9-]/g, ""); // Remove invalid characters
+  processedSlug = processedSlug.replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
   return /^[a-z0-9]+(?:-*[a-z0-9]+)*$/.test(processedSlug);
 };
 
@@ -50,12 +50,12 @@ export async function GET(request: NextRequest) {
   console.log("id", id);
   let blog;
   if (isSlug) {
-    blog = await Blog.findOne({slug: id});
+    blog = await Blog.findOne({ slug: id });
   }
   else {
     blog = await Blog.findById(id);
   }
-  
+
   if (!blog) {
     return NextResponse.json(
       {
@@ -91,7 +91,7 @@ export async function PUT(request: NextRequest) {
   if (!session) {
     return NextResponse.json(
       {
-        message: "Unauthorized",
+        message: "Sorry, you are not authorized to update this blog",
         success: false
       },
       { status: 401 }
@@ -99,7 +99,14 @@ export async function PUT(request: NextRequest) {
   }
   try {
     const data = await request.json();
-    const blog = await Blog.findById(id);
+    // Find blog by id or slug
+    let blog;
+    if (isValidObjectId(id)) {
+      blog = await Blog.findById(id);
+    } else {
+      blog = await Blog.findOne({ slug: id });
+    }
+
     if (!blog) {
       return NextResponse.json(
         {
@@ -112,10 +119,70 @@ export async function PUT(request: NextRequest) {
     if (session?.user?.email !== blog.createdBy) {
       return NextResponse.json(
         {
-          message: "You are not authorized to update this blog",
+          message: "Sorry, you are not authorized to update this blog",
           success: false
         },
         { status: 403 }
+      );
+    }
+    if (!data.title || !data.content || !data.category || !data.language) {
+      return NextResponse.json(
+        {
+          message: "Title, Content, Category and Language are required",
+          success: false
+        },
+        { status: 400 }
+      );
+    }
+    if (!data.slug) {
+      data.slug = data.title
+        .trim() // Remove leading and trailing spaces
+        .replace(/\s+/g, "-") // Replace spaces with hyphens
+        .replace(/[^a-zA-Z0-9-]/g, "") // Remove special characters
+        .toLowerCase() // Convert to lowercase
+        .replace(/-{2,}/g, "-") // Replace multiple hyphens with a single hyphen
+        .replace(/_{2,}/g, "_") // Replace multiple underscores with a single underscore
+        .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+    }
+
+    if (!isValidSlug(data.slug)) {
+      return NextResponse.json(
+        {
+          message: "Invalid slug",
+          success: false
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if slug is already taken
+    const existingBlog = await Blog.findOne({ slug: data.slug });
+    if (existingBlog && existingBlog._id.toString() !== blog._id.toString()) {
+      let counter = 1;
+      let newSlug = `${data.slug}-${counter}`;
+      while (await Blog.findOne({ slug: newSlug })) {
+        counter++;
+        newSlug = `${data.slug}-${counter}`;
+      }
+      data.slug = newSlug;
+    }
+
+    // Check if data is changed or not
+    if (
+      blog.title === data.title &&
+      blog.thumbnail === data.thumbnail &&
+      blog.content === data.content &&
+      blog.tags === data.tags &&
+      blog.category === data.category &&
+      blog.language === data.language &&
+      blog.slug === data.slug
+    ) {
+      return NextResponse.json(
+        {
+          message: "No changes found to update",
+          success: true
+        },
+        { status: 200 }
       );
     }
 
@@ -123,9 +190,25 @@ export async function PUT(request: NextRequest) {
     blog.thumbnail = data.thumbnail;
     blog.content = data.content;
     blog.tags = data.tags;
+    blog.category = data.category;
+    blog.language = data.language;
+    blog.slug = data.slug;
 
-    await blog.save();
-    return NextResponse.json({ data: blog, success: true });
+    const result = await blog.save();
+    if (!result) {
+      return NextResponse.json(
+        {
+          message: "Something went wrong",
+          success: false
+        },
+        { status: 500 }
+      );
+    }
+    return NextResponse.json({
+      message: "Blog updated successfully",
+      data: result,
+      success: true
+    });
   } catch (error: any) {
     console.error("Error updating blog:", error);
     return NextResponse.json(

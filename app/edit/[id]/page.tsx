@@ -20,24 +20,10 @@ import { cn } from "@/lib/utils";
 import TurndownService from 'turndown';
 import { CATEGORIES } from '@/types/blogs-types';
 
-
-interface DraftData {
-    title: string;
-    thumbnail: string | null;
-    markdownContent: string;
-    htmlContent: string;
-    tags: string[];
-    category: string;
-    timestamp: number;
-    editorMode: 'markdown' | 'visual' | 'html';
-}
-
 const DEFAULT_CONTENT = {
     markdown: `# Welcome to the blog post editor\nStart writing your blog post here...`,
     html: `<h1>Welcome to the blog post editor</h1><br><br><p>Start writing your blog post here...</p>`
 };
-
-const DRAFT_EXPIRY = 86400000; // 24 hours in milliseconds
 
 export default function EditBlog() {
     const router = useRouter();
@@ -65,7 +51,6 @@ export default function EditBlog() {
         setState(prev => ({ ...prev, ...updates }));
     };
 
-    // Fetch blog post data
     useEffect(() => {
         const fetchBlogPost = async () => {
             if (!id) {
@@ -79,6 +64,7 @@ export default function EditBlog() {
                     throw new Error('Failed to fetch blog post');
                 }
                 const data1 = await response.json();
+                
                 const data = data1.data;
 
                 if (data.language === 'markdown') {
@@ -87,8 +73,6 @@ export default function EditBlog() {
                     const markdown = turndownService.turndown(html);
                     data.content = markdown;
                 }
-
-
 
                 updateState({
                     title: data.title || '',
@@ -288,7 +272,6 @@ export default function EditBlog() {
 
                         <ActionButtons
                             loading={state.isLoading}
-                            handleSave={() => handleSave(true)}
                             handleSubmit={() => handleSave(false)}
                             isDarkMode={isDarkMode}
                             mode="edit"

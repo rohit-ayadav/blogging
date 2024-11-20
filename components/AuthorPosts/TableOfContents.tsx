@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import { List, ChevronRight, BookOpen, Hash, ArrowUpCircle } from 'lucide-react';
+import { TOCItem } from '@/types/blogs-types';
 
 interface TableOfContentsProps {
     content: string;
     contentType?: 'html' | 'markdown';
-}
-
-interface TOCItem {
-    level: number;
-    text: string;
-    id: string;
 }
 
 const TableOfContents: React.FC<TableOfContentsProps> = ({ content, contentType = 'html' }) => {
@@ -32,19 +27,25 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content, contentType 
                 const headings = [];
                 let match;
                 while ((match = headingRegex.exec(content)) !== null) {
-                    const level = match[1].length;
-                    const text = match[2].trim();
-                    const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                    headings.push({ level, text, id });
+                    const level = match[1].length; // Number of '#' characters
+                    const text = match[2].trim(); // Heading text
+                    const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-'); // Generate ID from text
+                    headings.push({ level, text, id }); // Add to TOC
                 }
                 setToc(headings);
             } else if (contentType === 'html') {
                 tempDiv.innerHTML = content;
                 const headingElements = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
                 const headings = Array.from(headingElements).map(heading => ({
-                    level: parseInt(heading.tagName[1]),
-                    text: heading.textContent || '',
-                    id: heading.id || (heading.textContent ? heading.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')
+                    level: parseInt(heading.tagName[1]), // Get the number from 'h1', 'h2', etc.
+                    text: heading.textContent || '', // Get the text content of the heading
+                    id: heading.id || ( // Get the ID of the heading or generate one
+                        heading.textContent ? // If the heading has text content
+                            heading.textContent // Use the text content
+                                .toLowerCase() // Convert to lowercase
+                                .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric characters with hyphens
+                                .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+                            : '') // Otherwise, use an empty string
                 }));
                 setToc(headings);
             }

@@ -106,7 +106,7 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
             node.addEventListener('click', ((e: MouseEvent) => handleLinkClick(e, href)) as EventListener);
             node.classList.add('internal-link', 'break-words');
           } else {
-            
+
             node.setAttribute('target', '_blank');
             node.setAttribute('rel', 'noopener noreferrer');
             node.classList.add('external-link', 'break-words');
@@ -260,6 +260,12 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
               "prose-a:text-blue-600 dark:prose-a:text-blue-400",
               "prose-a:no-underline hover:prose-a:underline",
               "prose-a:font-medium",
+              "[&_.internal-link]:text-purple-600 dark:[&_.internal-link]:text-purple-400",
+              "[&_.internal-link]:transition-colors",
+              "[&_.internal-link]:duration-200",
+              "[&_.internal-link]:ease-in-out",
+              "hover:[&_.internal-link]:text-purple-700 dark:hover:[&_.internal-link]:text-purple-300",
+
 
               // Lists
               "prose-ul:list-disc prose-ol:list-decimal",
@@ -293,6 +299,7 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
               // Additional utilities
               "selection:bg-blue-600/20 dark:selection:bg-blue-400/20"
             )}
+
             dangerouslySetInnerHTML={{ __html: sanitizedContent }}
           />
         </article>

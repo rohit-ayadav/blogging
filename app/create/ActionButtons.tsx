@@ -1,25 +1,29 @@
 // ActionButtons.tsx
 import { Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 interface ActionButtonsProps {
     loading: boolean;
-    handleSave: () => void;
+    handleSave?: () => void;
     handleSubmit: (e: React.FormEvent) => void;
-    isDarkMode?: boolean;
-    mode?: 'create' | 'edit';
+    isDarkMode: boolean;
+    mode: 'create' | 'edit';
 }
 
-export const ActionButtons = ({ handleSave, handleSubmit, mode }: ActionButtonsProps) => {
+export const ActionButtons = ({ handleSubmit, mode, isDarkMode, loading }: ActionButtonsProps) => {
+    const router = useRouter();
     return (
         <div className="flex justify-between mt-20">
             <Button
                 type="button"
-                onClick={handleSave}
+                onClick={router.back}
                 className="flex items-center space-x-2 bg-yellow-500 text-white rounded cursor-pointer"
             >
                 <Save size={16} />
-                <span>Save Draft</span>
+                <span>
+                    {mode === 'create' ? 'Save as Draft' : 'Cancel'}
+                </span>
             </Button>
             <button
                 type="submit"

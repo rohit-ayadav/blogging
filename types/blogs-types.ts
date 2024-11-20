@@ -59,5 +59,11 @@ const CATEGORIES = [
   { value: "Others", label: "Others" }
 ];
 
-export type { BlogPostType, UserType, StatsType, Author };
+interface TOCItem {
+  level: number;
+  text: string;
+  id: string;
+}
+
+export type { BlogPostType, UserType, StatsType, Author, TOCItem };
 export {CATEGORIES};

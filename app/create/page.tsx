@@ -310,6 +310,7 @@ export default function CreateBlog() {
                             handleSave={() => handleSaveDraft()}
                             handleSubmit={() => handleSave()}
                             isDarkMode={isDarkMode}
+                            mode="create"
                         />
                     </CardContent>
                 </Card>
