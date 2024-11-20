@@ -64,7 +64,7 @@ export default function EditBlog() {
                     throw new Error('Failed to fetch blog post');
                 }
                 const data1 = await response.json();
-                
+
                 const data = data1.data;
 
                 if (data.language === 'markdown') {
@@ -72,6 +72,11 @@ export default function EditBlog() {
                     const turndownService = new TurndownService();
                     const markdown = turndownService.turndown(html);
                     data.content = markdown;
+                }
+                // authorised user check
+                if (session?.user?.email !== data.createdBy) {
+                    toast.error('You are not authorized to edit this blog post');
+                    router.push(`/unauthorized`);
                 }
 
                 updateState({
@@ -86,6 +91,7 @@ export default function EditBlog() {
                     editorMode: data.language === 'markdown' ? 'markdown' : 'html',
                     isInitializing: false
                 });
+
             } catch (error) {
                 console.error('Error fetching blog post:', error);
                 updateState({

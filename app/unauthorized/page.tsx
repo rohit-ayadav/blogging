@@ -9,7 +9,7 @@ export default function UnauthorizedPage() {
     const router = useRouter()
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex items-center justify-center min-h-[75vh] bg-background">
             <Card className="w-full max-w-md">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-2xl font-bold text-destructive">
