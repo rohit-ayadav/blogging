@@ -26,6 +26,7 @@ const BlogPostContent = ({ post }: BlogPostContentProps) => {
   const [sanitizedContent, setSanitizedContent] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
   const [copied, setCopied] = useState(false);
+  const language = post.language;// html or markdown
 
   const handleLinkClick = (e: MouseEvent, href: string) => {
     if (href.startsWith('#')) {

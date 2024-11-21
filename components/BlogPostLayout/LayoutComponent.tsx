@@ -3,11 +3,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Button } from '../ui/button';
 import Link from 'next/link';
 
+
 const Breadcrumb = ({ href, children }: { href: string; children: ReactNode }) => (
     <Link
         href={href}
         className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 
-                 dark:hover:text-white transition-colors"
+               dark:hover:text-white transition-colors"
     >
         {children}
     </Link>
