@@ -1,10 +1,8 @@
 "use client";
-import React, { ReactNode, Suspense, useEffect } from 'react';
+import React, { ReactNode, Suspense } from 'react';
 import { ArrowLeft, Moon, Sun, Home, ChevronRight, Share2, Table } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useTheme } from '@/context/ThemeContext';
-import BlogPostClientContent from '../BlogPostContent/page';
-import { BlogPostType } from '@/types/blogs-types';
+import { Author, BlogPostType } from '@/types/blogs-types';
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import toast from 'react-hot-toast';
@@ -14,21 +12,24 @@ import NewsLetter from '@/app/component/newsletter';
 import { NavigationButton, Breadcrumb } from './LayoutComponent';
 import useBlogPost from '@/hooks/useBlogPost';
 import TableOfContents from '../AuthorPosts/TableOfContents';
+import { useTheme } from '@/context/ThemeContext';
 
 interface BlogPostLayoutProps {
   children: ReactNode;
   post: BlogPostType;
   isLoading?: boolean;
   id: string;
+  author: Author;
 }
 
 const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
   children,
   post,
-  isLoading = false,
+  isLoading,
+  author,
   id,
 }) => {
-  const { relatedPosts, authorPosts, author } = useBlogPost(id, post);
+  const { relatedPosts, authorPosts } = useBlogPost({ email: post.createdBy, tags: post.tags || [], id });
   const { isDarkMode, toggleDarkMode } = useTheme();
   const router = useRouter();
 
@@ -130,7 +131,8 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
             <div className="sticky top-16">
 
               {!isLoading && (
-                <>
+                // the div should be space bewteen so that the last element is at the bottom and the first element is at the top
+                <div className='space-y-8 justify-between'>
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                     <TableOfContents content={post.content} contentType={post.language as 'html' | 'markdown'} />
                   </div>
@@ -147,7 +149,7 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
                       <NewsLetter />
                     </div>
                   </Suspense>
-                </>
+                </div>
               )}
             </div>
           </aside>

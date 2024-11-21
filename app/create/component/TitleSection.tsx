@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Type } from "lucide-react";
+import { Loader2, TriangleAlertIcon, Type } from "lucide-react";
 
 interface TitleSectionProps {
     title: string;
@@ -104,7 +104,7 @@ export const TitleSection = ({ title, setTitle, content }: TitleSectionProps) =>
 
                     {title.length > 200 && (
                         <p className="text-red-500 text-sm">
-                            Approaching maximum length ({MAX_LENGTH} characters)
+                            <TriangleAlertIcon className="h-4 w-4 mr-1" /> Approaching maximum length ({MAX_LENGTH} characters)
                         </p>
                     )}
                 </div>

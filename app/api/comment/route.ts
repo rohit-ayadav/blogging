@@ -4,7 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { valid } from "joi";
 import { isValidObjectId } from "mongoose";
 import User from "@/models/users.models";
+import Blog from "@/models/blogs.models";
 import { getSessionAtHome } from "@/auth";
+import { isValidSlug } from "@/lib/common-function";
 
 await connectDB();
 
@@ -47,11 +49,26 @@ export async function GET(req: NextRequest, res: NextResponse) {
     );
   }
   if (!isValidObjectId(postId)) {
-    return NextResponse.json({ message: "Invalid postId." }, { status: 400 });
+    if (!isValidSlug(postId)) {
+      return NextResponse.json({ message: "Invalid postId." }, { status: 400 });
+    }
   }
 
   try {
-    const comments = await Comment.find({ postId }).sort({ createdAt: -1 });
+    let comments;
+    if (isValidObjectId(postId)) {
+      comments = await Comment.find({ postId });
+    } else {
+      const post = await Blog.findOne({ slug: postId });
+      if (!post) {
+        return NextResponse.json(
+          { message: "Post not found." },
+          { status: 404 }
+        );
+      }
+      comments = await Comment.find({ postId: post._id });
+    }
+
     if (!comments) {
       return NextResponse.json(
         { message: "No comments found for this post." },

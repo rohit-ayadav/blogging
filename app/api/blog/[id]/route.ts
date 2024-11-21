@@ -3,17 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import Blog from "@/models/blogs.models";
 import { getSessionAtHome } from "@/auth";
 import { isValidObjectId } from "mongoose";
+import { isValidSlug, makeValidSlug } from "@/lib/common-function";
 
 await connectDB();
-
-const isValidSlug = (slug: string) => {
-  let processedSlug = slug.toLowerCase(); // Convert to lowercase
-  processedSlug = processedSlug.replace(/[^a-z0-9-]/g, ""); // Remove invalid characters
-  processedSlug = processedSlug.replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
-  return /^[a-z0-9]+(?:-*[a-z0-9]+)*$/.test(processedSlug);
-};
-
-
 
 export async function GET(request: NextRequest) {
   const id = request.nextUrl.pathname.split("/").pop();
@@ -99,7 +91,6 @@ export async function PUT(request: NextRequest) {
   }
   try {
     const data = await request.json();
-    // Find blog by id or slug
     let blog;
     if (isValidObjectId(id)) {
       blog = await Blog.findById(id);
@@ -135,14 +126,7 @@ export async function PUT(request: NextRequest) {
       );
     }
     if (!data.slug) {
-      data.slug = data.title
-        .trim() // Remove leading and trailing spaces
-        .replace(/\s+/g, "-") // Replace spaces with hyphens
-        .replace(/[^a-zA-Z0-9-]/g, "") // Remove special characters
-        .toLowerCase() // Convert to lowercase
-        .replace(/-{2,}/g, "-") // Replace multiple hyphens with a single hyphen
-        .replace(/_{2,}/g, "_") // Replace multiple underscores with a single underscore
-        .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+      data.slug = makeValidSlug(data.title);
     }
 
     if (!isValidSlug(data.slug)) {

@@ -3,57 +3,23 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { BlogPostType, Author } from "@/types/blogs-types";
+import { BlogPostType } from "@/types/blogs-types";
+import { ErrorMessage } from "@/app/blogs/[id]/ErrorMessage";
 
-const useBlogPost = (id: string, initialData: BlogPostType | null = null) => {
+const useBlogPost = ({ email, tags, id }: { email: string, tags: string[], id: string }) => {
     const router = useRouter();
-    const [post, setPost] = useState<BlogPostType | null>(initialData);
-    const [author, setAuthor] = useState<Author | null>(null);
     const [authorPosts, setAuthorPosts] = useState<BlogPostType[]>([]);
     const [relatedPosts, setRelatedPosts] = useState<BlogPostType[]>([]);
-    const [likes, setLikes] = useState(0);
-    const [views, setViews] = useState(0);
-    const [liked] = useState(false);
-    const [createdBy, setCreatedBy] = useState<string | null>(null);
-    const [language, setLanguage] = useState<string | null>(null);
+    const [error, setError] = useState<Error | null>(null);
 
-    const fetchPostAndRelatedData = async () => {
+    const RelatedData = async () => {
         if (id) {
-            let data;
-            try {
-                const response = await fetch(`/api/blog/${id}`);
-                if (!response.ok) {
-                    throw new Error(`${response.status} - ${response.statusText}`);
-                }
-                data = await response.json();
-                setPost(data.data);
-                setLikes(data.data.likes);
-                setViews(data.data.views);
-                setCreatedBy(data.data.createdBy);
-                setLanguage(data.language);
-            } catch (error: any) {
-                toast.error(`${error.message}`);
-                router.push("/blogs");
+            if (!email) {
+                router.push('/404');
             }
-            try {
-                const authorResponse = await fetch(
-                    `/api/user?email=${data.data.createdBy}`
-                );
-                if (!authorResponse.ok) {
-                    throw new Error(
-                        `${authorResponse.status} - ${authorResponse.statusText}`
-                    );
-                }
-                const authorData = await authorResponse.json();
-                setAuthor(authorData.user);
-            }
-            catch (error: any) {
-                toast.error(error.message);
-            }
-
             try {
                 const authorPostsResponse = await fetch(
-                    `/api/blogpost?email=${data.data.createdBy}`
+                    `/api/blogpost?email=${email}`
                 );
                 if (!authorPostsResponse.ok) {
                     throw new Error(
@@ -65,11 +31,12 @@ const useBlogPost = (id: string, initialData: BlogPostType | null = null) => {
                     authorPostsData.blogs.filter((p: BlogPostType) => p._id !== id)
                 );
             } catch (error: any) {
+                setError(error);
                 toast.error(error.message);
             }
             try {
                 const relatedPostsResponse = await fetch(
-                    `/api/blog?tags=${data.data.tags.join(",")}&limit=4`
+                    `/api/blog?tags=${tags?.slice(0, 6).join(",")}&&limit=3`
                 );
                 if (!relatedPostsResponse.ok) {
                     throw new Error(
@@ -81,29 +48,24 @@ const useBlogPost = (id: string, initialData: BlogPostType | null = null) => {
                     relatedPostsData.data.filter((p: BlogPostType) => p._id !== id)
                 );
             } catch (error: any) {
-                // toast.error("An error occurred while fetching blog post data");
+                setError(error);
+                console.error('Error sharing:', error);
             }
         }
     };
 
     useEffect(() => {
-        fetchPostAndRelatedData();
+        RelatedData();
     }, [id]);
 
+    if (error) {
+        <ErrorMessage message={error.message} />
+    }
 
 
     return {
-        post,
-        author,
         relatedPosts,
         authorPosts,
-        likes,
-        views,
-        liked,
-        createdBy,
-        isLoading: !post,
-        error: !post ? new Error("Post not found") : null,
-        language,
     };
 };
 

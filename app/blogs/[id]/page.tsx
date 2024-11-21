@@ -1,6 +1,5 @@
 // app/blogs/[id]/page.tsx
 import React from 'react';
-import dynamic from 'next/dynamic';
 import BlogPostLayout from '../../../components/BlogPostLayout/page';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -10,19 +9,8 @@ import { connectDB, disconnectDB } from '@/utils/db';
 import { isValidObjectId } from 'mongoose';
 import { Author } from '@/types/blogs-types';
 import { ErrorMessage } from './ErrorMessage';
-
-const isValidSlug = (slug: string) => {
-    let processedSlug = slug.toLowerCase(); // Convert to lowercase
-    processedSlug = processedSlug.replace(/[^a-z0-9-]/g, ""); // Remove invalid characters
-    processedSlug = processedSlug.replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
-    return /^[a-z0-9]+(?:-*[a-z0-9]+)*$/.test(processedSlug);
-};
-
-
-const BlogPostClientContent = dynamic(
-    () => import('../../../components/BlogPostContent/page'),
-    { ssr: false }
-);
+import BlogPostClientContent from '@/components/BlogPostContent/page';
+import { isValidSlug } from '@/lib/common-function';
 
 type ApiResponse = {
     success: boolean;
@@ -108,9 +96,26 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     };
 }
 
-export default async function IndividualBlogPost({ params }: { params: { id: string } }) {
-    const response = await getPostData(params.id);
+export async function generateStaticParams() {
 
+    let posts = [];
+    let paths = [];
+    await connectDB();
+    // Get all blog posts from the database with only the slug field and _id
+    posts = await Blog.find({}, { slug: 1, _id: 1 });
+    paths = posts.map(post => ({
+        params: {
+            id: post._id.toString(),
+            slug: post.slug
+        }
+    }));
+    // await disconnectDB();
+    return paths;
+}
+
+export default async function IndividualBlogPost({ params }: { params: { id: string } }) {
+
+    const response = await getPostData(params.id);
 
     if (!response.success) {
         switch (response.statusCode) {
@@ -125,9 +130,8 @@ export default async function IndividualBlogPost({ params }: { params: { id: str
         }
     }
 
-
     return (
-        <BlogPostLayout post={response.data} id={params.id}>
+        <BlogPostLayout post={response.data} id={params.id} isLoading={false} author={response.author || { name: 'Anonymous', image: '/default-profile.jpg', _id: '0', likes: 0, views: 0 }}>
             <BlogPostClientContent initialData={response.data} id={params.id} author={response.author || { name: 'Anonymous', image: '/default-profile.jpg', _id: '0', likes: 0, views: 0 }} />
         </BlogPostLayout>
     );

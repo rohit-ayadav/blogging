@@ -24,7 +24,6 @@ interface BlogPostFooterProps {
   post: BlogPostType;
   likes: number;
   views: number;
-  liked: boolean;
   id: string;
   className?: string;
 }
@@ -40,12 +39,11 @@ const BlogPostFooter = ({
   post,
   likes: initialLikes,
   views,
-  liked: initialLiked,
   id,
   className
 }: BlogPostFooterProps) => {
   const [likes, setLikes] = useState(initialLikes);
-  const [isLiked, setIsLiked] = useState(initialLiked);
+  const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
 
@@ -106,7 +104,6 @@ const BlogPostFooter = ({
       });
 
       if (!response.ok) {
-        // Revert changes if request fails
         setLikes(likes);
         setIsLiked(isLiked);
         throw new Error(`Failed to ${endpoint} post`);

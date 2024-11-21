@@ -27,10 +27,9 @@ const DEFAULT_CONTENT = {
 
 export default function EditBlog() {
     const router = useRouter();
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const { isDarkMode } = useTheme();
     const { id } = useParams();
-
     const [state, setState] = useState({
         isInitializing: true,
         isLoading: false,
@@ -73,8 +72,8 @@ export default function EditBlog() {
                     const markdown = turndownService.turndown(html);
                     data.content = markdown;
                 }
-                // authorised user check
-                if (session?.user?.email !== data.createdBy) {
+
+                if (session && session?.user?.email !== data.createdBy) {
                     toast.error('You are not authorized to edit this blog post');
                     router.push(`/unauthorized`);
                 }
@@ -132,7 +131,7 @@ export default function EditBlog() {
         }
 
         // Check authorization
-        if (session?.user?.email !== state.createdBy) {
+        if (session && session?.user?.email !== state.createdBy) {
             toast.error('You are not authorized to edit this blog post');
             return;
         }
@@ -193,6 +192,8 @@ export default function EditBlog() {
             </div>
         );
     }
+
+    if (status === 'loading') return null;
 
     return (
         <ScrollArea className={cn(

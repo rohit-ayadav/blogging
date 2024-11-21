@@ -8,7 +8,7 @@ export const ReadingProgress = () => {
 
     useEffect(() => {
         const calculateReadingProgress = () => {
-            const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight - 100; // 100px buffer
             const scrollTop = window.scrollY;
             const calculatedProgress = (scrollTop / scrollableHeight) * 100;
 
@@ -22,13 +22,16 @@ export const ReadingProgress = () => {
         };
     }, []);
 
-    return ReactDOM.createPortal(
-        <div
-            className="fixed top-0 left-0 w-full h-1 bg-blue-600 dark:bg-blue-400 z-50"
-            style={{ width: `${progress}%` }}
-        />,
-        document.body
-    );
+    if (typeof document !== 'undefined') {
+        return ReactDOM.createPortal(
+            <div
+                className="fixed top-0 left-0 w-full h-1 bg-blue-600 dark:bg-blue-400 z-50"
+                style={{ width: `${progress}%` }}
+            />
+            , document.body
+        );
+    }
+    return null;
 };
 
 export default ReadingProgress;
