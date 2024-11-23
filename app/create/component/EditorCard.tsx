@@ -40,7 +40,7 @@ const EditorCard: React.FC<EditorCardProps> = ({
         <Card className={cn(
             "transition-colors duration-200",
             isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white",
-            "mx-auto max-w-5xl w-full"
+            "max-w-5xl w-full mx-0 sm:mx-auto"
         )}>
             <CardContent className={cn(
                 "space-y-6 sm:space-y-8 p-4 sm:p-6 md:p-8",

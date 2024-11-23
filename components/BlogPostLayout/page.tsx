@@ -26,7 +26,6 @@ interface BlogPostLayoutProps {
   author: Author;
 }
 
-// Smaller components broken out for better organization and reusability
 const Header: React.FC<{
   post: BlogPostType;
   isLoading?: boolean;
@@ -57,11 +56,18 @@ const Header: React.FC<{
               label="Share this post"
               icon={Share2}
             />
-            <NavigationButton
+            {/* <NavigationButton
               onClick={onToggleTheme}
               label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               icon={isDarkMode ? Sun : Moon}
-            />
+            /> */}
+            <button
+              onClick={onToggleTheme}
+              className="p-2 rounded-md transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
           </div>
         </nav>
       </div>

@@ -12,12 +12,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content, contentType 
     const [toc, setToc] = useState<TOCItem[]>([]);
     const [activeId, setActiveId] = useState<string>('');
     const [isExpanded, setIsExpanded] = useState(true);
-    const { isDarkMode, toggleDarkMode } = useTheme();
-
-    useEffect(() => {
-        toggleDarkMode();
-        toggleDarkMode();
-    }, []);
+    const { isDarkMode } = useTheme();
 
     useEffect(() => {
         const generateTOC = () => {
@@ -61,7 +56,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content, contentType 
             let currentHeading = '';
             for (const heading of headings) {
                 const offsetTop = heading.getBoundingClientRect().top + scrollPosition;
-                if (scrollPosition >= offsetTop - 100) {
+                if (scrollPosition >= offsetTop - 150) {
                     currentHeading = heading.id;
                 }
             }

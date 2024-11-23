@@ -8,6 +8,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import BlogPostHeader from '../BlogPostHeader/page';
 import BlogPostContent from '../BlogPostContent011/page';
 import BlogPostFooter from '../BlogPostFooter/page';
+import RenderContent from '@/app/blogs/components/RenderContent';
 
 const CommentSection = dynamic(
     () => import('@/app/component/commentsection'),
@@ -93,9 +94,11 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({
             >
                 <BlogPostHeader post={initialData} author={author} />
                 <BlogPostContainer>
-                    <article className="prose dark:prose-invert max-w-none">
+                    {/* <article className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: initialData.content }}>
                         <BlogPostContent post={initialData} />
-
+                    </article> */}
+                    <article className="prose dark:prose-invert max-w-none">
+                        <RenderContent {...initialData} />
                         <BlogPostFooter
                             post={initialData}
                             likes={postStats.likes}

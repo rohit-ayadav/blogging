@@ -13,13 +13,11 @@ import { ActionButtons } from '@/app/create/component/ActionButtons';
 import DOMPurify from 'dompurify';
 import MarkdownIt from 'markdown-it';
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import TurndownService from 'turndown';
 import { CATEGORIES } from '@/types/blogs-types';
-import { clear } from 'console';
 import LoadingSpinner from '@/app/create/component/LoadingSpinner';
 import UrlSection from '@/app/create/component/CustomURL';
 
