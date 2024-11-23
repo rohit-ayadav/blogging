@@ -1,5 +1,5 @@
 import React from 'react';
-import cn from 'classnames';
+import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { TitleSection } from './TitleSection';
 import { ThumbnailSection } from './ThumbnailSection';

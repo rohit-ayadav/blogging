@@ -165,12 +165,8 @@ export default function EditBlog() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'Failed to update blog post');
 
-            if (!isDraft) {
-                toast.success('Blog post updated successfully');
-                router.push(`/blogs/${state.blogId}`);
-            } else {
-                toast.success('Draft saved successfully');
-            }
+            toast.success('Blog post updated successfully');
+            router.push(`/blogs/${state.blogId}`);
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'An unknown error occurred');
         } finally {
