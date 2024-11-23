@@ -52,12 +52,12 @@ export const ThumbnailSection = ({
     };
 
     return (
-        <Card className="w-full mt-3 mb-3">
-            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                <Image className="w-5 h-5 mr-2 text-muted-foreground" />
-                <CardTitle className="text-xl font-bold">Thumbnail</CardTitle>
+        <Card className="w-full mt-2 mb-2 sm:mt-3 sm:mb-3">
+            <CardHeader className="flex flex-row items-center space-y-0 pb-2 px-3 sm:px-6">
+                <Image className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-muted-foreground" />
+                <CardTitle className="text-lg sm:text-xl font-bold">Thumbnail</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6">
                 <div className="grid w-full items-center gap-2">
                     <Label htmlFor="thumbnail" className="text-sm">
                         Thumbnail Image URL
@@ -68,7 +68,7 @@ export const ThumbnailSection = ({
                         placeholder="https://example.com/image.jpg"
                         onChange={handleThumbnailChange}
                         defaultValue={thumbnail || ''}
-                        className="w-full"
+                        className="w-full text-base sm:text-lg bg-background"
                     />
                     <p className="text-sm text-muted-foreground">
                         Optional: You can also add images directly in the content below
@@ -76,15 +76,15 @@ export const ThumbnailSection = ({
                 </div>
 
                 {error && (
-                    <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>{error}</AlertDescription>
+                    <Alert variant="destructive" className="text-sm">
+                        <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <AlertDescription className="ml-2">{error}</AlertDescription>
                     </Alert>
                 )}
 
                 {isLoading && (
-                    <div className="flex items-center justify-center p-8">
-                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    <div className="flex items-center justify-center p-4 sm:p-8">
+                        <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-muted-foreground" />
                     </div>
                 )}
 
@@ -92,10 +92,13 @@ export const ThumbnailSection = ({
                     <div className="space-y-2">
                         <Label className="text-sm">Preview</Label>
                         <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted">
+                            <div className="absolute inset-0 bg-background/5 dark:bg-background/10" />
                             <img
                                 src={thumbnail}
                                 alt="Thumbnail preview"
-                                className="w-full h-full object-cover transition-opacity duration-200 hover:opacity-90"
+                                className="w-full h-full object-cover transition-all duration-200 
+                                         hover:opacity-90 
+                                         dark:brightness-90 dark:hover:brightness-100"
                                 loading="lazy"
                             />
                         </div>

@@ -7,6 +7,28 @@ function isValidUrl(url) {
     }
 }
 
+const CACHE_NAME = 'v1';
+const STATIC_ASSETS = [
+    '/about',
+    '/contacts',
+    '/privacy',
+    '/signup',
+    '/login',
+    '/footer',
+    '/services',
+    '/tos',
+];
+
+// This 
+self.addEventListener('install', function (event) {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(function (cache) {
+            return cache.addAll(STATIC_ASSETS);
+        })
+    );
+});
+
+
 self.addEventListener('push', function (event) {
     const payload = event.data?.json() ?? {};
     const options = {

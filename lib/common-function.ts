@@ -17,4 +17,13 @@ const makeValidSlug = (slug: string) => {
   return processedSlug;
 };
 
-export { isValidSlug, makeValidSlug };
+function isValidUrl(url:string) {
+  try {
+      new URL(url);
+      return true;
+  } catch {
+      return false;
+  }
+}
+
+export { isValidSlug, makeValidSlug, isValidUrl };

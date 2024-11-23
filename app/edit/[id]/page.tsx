@@ -19,6 +19,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import TurndownService from 'turndown';
 import { CATEGORIES } from '@/types/blogs-types';
+import { clear } from 'console';
+import LoadingSpinner from '@/app/create/component/LoadingSpinner';
+import UrlSection from '@/app/create/component/CustomURL';
 
 const DEFAULT_CONTENT = {
     markdown: `# Welcome to the blog post editor\nStart writing your blog post here...`,
@@ -43,7 +46,8 @@ export default function EditBlog() {
         blogId: '',
         createdBy: '',
         tagAutoGen: false,
-        editorMode: 'markdown' as 'markdown' | 'visual' | 'html'
+        editorMode: 'markdown' as 'markdown' | 'visual' | 'html',
+        slug: ''
     });
 
     const updateState = (updates: Partial<typeof state>) => {
@@ -86,6 +90,7 @@ export default function EditBlog() {
                     tags: data.tags || [],
                     category: data.category || '',
                     blogId: id as string,
+                    slug: data.slug || '',
                     createdBy: data.createdBy,
                     editorMode: data.language === 'markdown' ? 'markdown' : 'html',
                     isInitializing: false
@@ -173,32 +178,23 @@ export default function EditBlog() {
         }
     };
 
+    const clearDraft = () => {
+        router.back();
+    }
+
     if (state.isInitializing) {
         return (
-            <div className={cn(
-                "flex items-center justify-center min-h-[60vh]",
-                isDarkMode ? "bg-gray-900" : "bg-white"
-            )}>
-                <div className="text-center space-y-4">
-                    <Loader2 className={cn(
-                        "h-8 w-8 animate-spin mx-auto",
-                        isDarkMode ? "text-gray-300" : "text-primary"
-                    )} />
-                    <p className={cn(
-                        "text-lg",
-                        isDarkMode ? "text-gray-300" : "text-muted-foreground"
-                    )}>Loading editor...</p>
-                </div>
-            </div>
+            <LoadingSpinner isDarkMode={isDarkMode} />
         );
     }
 
     if (status === 'loading') return null;
 
     return (
-        <ScrollArea className={cn(
-            "h-[calc(100vh-4rem)] px-4",
-            isDarkMode ? "bg-gray-900" : "bg-white"
+
+        <div className={cn(
+            "min-h-screen",
+            isDarkMode ? "bg-gray-900" : "bg-gray-50"
         )}>
             <div className="max-w-3xl mx-auto py-8 space-y-6">
                 <div className="flex items-center justify-between">
@@ -260,6 +256,12 @@ export default function EditBlog() {
                             })}
                             isDarkMode={isDarkMode}
                         />
+                        <div className="border-t border-gray-200 dark:border-gray-700 my-6 sm:my-8" />
+                        <UrlSection
+                            customUrl={state.slug}
+                            setCustomUrl={(slug: string) => updateState({ slug })}
+                            title={state.title}
+                        />
 
                         <TagsSection
                             tags={state.tags}
@@ -282,10 +284,11 @@ export default function EditBlog() {
                             handleSubmit={() => handleSave(false)}
                             isDarkMode={isDarkMode}
                             mode="edit"
+                            clearDraft={() => clearDraft()}
                         />
                     </CardContent>
                 </Card>
             </div>
-        </ScrollArea>
+        </div>
     );
 }

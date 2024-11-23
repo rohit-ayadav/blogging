@@ -78,5 +78,21 @@ interface ThemeClasses {
   themeToggle: string;
 }
 
-export type { BlogPostType, UserType, StatsType, Author, TOCItem, ThemeClasses };
-export {CATEGORIES};
+interface BlogState {
+  isInitializing: boolean;
+  isLoading: boolean;
+  error: string | null;
+  title: string;
+  thumbnail: string | null;
+  htmlContent: string;
+  markdownContent: string;
+  slug: string;
+  tags: string[];
+  category: string;
+  blogId: string;
+  tagAutoGen: boolean;
+  editorMode: 'markdown' | 'visual' | 'html';
+}
+
+export type { BlogPostType, UserType, StatsType, Author, TOCItem, ThemeClasses, BlogState };
+export { CATEGORIES };

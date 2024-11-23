@@ -31,12 +31,10 @@ export const TagsSection = ({
         }
 
         setIsLoading(true);
-        // setTagAutoGen(true);
 
         try {
             const newTags = await generateTagsFromContent(content);
             if (newTags) {
-                // Filter out duplicates
                 const uniqueTags = [...new Set([...tags, ...newTags])];
                 setTags(uniqueTags);
                 toast.success('Tags generated successfully');
@@ -46,7 +44,6 @@ export const TagsSection = ({
             console.error('Error generating tags:', error);
         } finally {
             setIsLoading(false);
-            // setTagAutoGen(false);
         }
     };
 
@@ -78,32 +75,35 @@ export const TagsSection = ({
     };
 
     return (
-        <Card className="w-full mt-3">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xl font-bold">Tags</CardTitle>
+        <Card className="w-full mt-2 sm:mt-3">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6">
+                <div className="flex items-center">
+                    <Tag className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-muted-foreground" />
+                    <CardTitle className="text-lg sm:text-xl font-bold">Tags</CardTitle>
+                </div>
                 {!tagAutoGen && (
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={generateTags}
                         disabled={isLoading}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-1.5 text-xs sm:text-sm h-8 sm:h-9"
                     >
                         {isLoading ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                         ) : (
-                            <Tag className="h-4 w-4" />
+                            <Tag className="h-3 w-3 sm:h-4 sm:w-4" />
                         )}
-                        Generate Tags
+                        <span className="hidden sm:inline">Generate</span> Tags
                     </Button>
                 )}
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3 px-3 sm:px-6">
                 {!tagAutoGen && (
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                         <Input
                             placeholder="Add tags (separate by comma or press enter)"
-                            className="w-full"
+                            className="w-full text-sm sm:text-base bg-background"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' || e.key === ',') {
                                     e.preventDefault();
@@ -116,33 +116,40 @@ export const TagsSection = ({
                 )}
 
                 {tags.length > 0 && (
-                    <div className="mt-4">
-                        <p className="text-sm text-gray-500 mb-2">Current Tags:</p>
-                        <div className="flex flex-wrap gap-2">
+                    <div className="mt-3 sm:mt-4">
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-2">Current Tags:</p>
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
                             {tags.map((tag, index) => (
                                 <Badge
                                     key={`${tag}-${index}`}
                                     variant="secondary"
-                                    className="flex items-center gap-1 px-2 py-1"
+                                    className="flex items-center gap-1 px-2 py-0.5 sm:py-1 text-xs sm:text-sm 
+                                             bg-secondary/50 hover:bg-secondary/70 transition-colors"
                                 >
                                     {tag}
                                     <button
                                         onClick={() => removeTag(index)}
-                                        className="ml-1 hover:text-red-500 transition-colors"
+                                        className="ml-0.5 text-muted-foreground hover:text-destructive 
+                                                 transition-colors focus:outline-none focus:ring-2 
+                                                 focus:ring-ring focus:ring-offset-1 rounded-full"
                                         aria-label={`Remove ${tag} tag`}
                                     >
-                                        <X className="h-3 w-3" />
+                                        <X className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                                     </button>
                                 </Badge>
                             ))}
-                            {/* Clear all tags  */}
-                            <button
+                        </div>
+                        {tags.length > 0 && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => setTags([])}
-                                className="text-sm text-red-500 hover:underline" 
+                                className="mt-2 text-xs sm:text-sm h-7 text-destructive hover:text-destructive/90 
+                                         hover:bg-destructive/10 px-2"
                             >
                                 Clear all tags
-                            </button>
-                        </div>
+                            </Button>
+                        )}
                     </div>
                 )}
             </CardContent>

@@ -68,3 +68,9 @@
 .prose-dark * {
   color: inherit !important;
 }
+
+@layer utilities {
+  .backdrop-blur {
+    backdrop-filter: blur(8px);
+  }
+}

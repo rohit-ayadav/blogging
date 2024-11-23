@@ -56,12 +56,12 @@ export const TitleSection = ({ title, setTitle, content }: TitleSectionProps) =>
     const characterProgress = (title.length / MAX_LENGTH) * 100;
 
     return (
-        <Card className="w-full mt-3 mb-3">
-            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                <Type className="w-5 h-5 mr-2 text-muted-foreground" />
-                <CardTitle className="text-xl font-bold">Blog Title</CardTitle>
+        <Card className="w-full mt-2 mb-2 sm:mt-3 sm:mb-3">
+            <CardHeader className="flex flex-row items-center space-y-0 pb-2 px-3 sm:px-6">
+                <Type className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-muted-foreground" />
+                <CardTitle className="text-lg sm:text-xl font-bold">Blog Title</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6">
                 <div className="grid w-full items-center gap-2">
                     <Label htmlFor="title" className="text-sm">
                         Enter your blog title
@@ -72,25 +72,23 @@ export const TitleSection = ({ title, setTitle, content }: TitleSectionProps) =>
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Enter the blog title"
                         maxLength={MAX_LENGTH}
-                        className="w-full text-lg"
+                        className="w-full text-base sm:text-lg"
                     />
 
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="link"
-                                size="sm"
-                                onClick={generateTitle}
-                                disabled={isGenerating}
-                                className="p-0 h-auto font-normal"
-                            >
-                                {isGenerating ? (
-                                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                                ) : null}
-                                Generate title from content
-                            </Button>
-                        </div>
-                        <span>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+                        <Button
+                            variant="link"
+                            size="sm"
+                            onClick={generateTitle}
+                            disabled={isGenerating}
+                            className="p-0 h-auto font-normal text-sm justify-start"
+                        >
+                            {isGenerating && (
+                                <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 animate-spin" />
+                            )}
+                            Generate title from content
+                        </Button>
+                        <span className="text-sm text-muted-foreground">
                             {title.length} / {MAX_LENGTH}
                         </span>
                     </div>
@@ -103,8 +101,9 @@ export const TitleSection = ({ title, setTitle, content }: TitleSectionProps) =>
                     )}
 
                     {title.length > 200 && (
-                        <p className="text-red-500 text-sm">
-                            <TriangleAlertIcon className="h-4 w-4 mr-1" /> Approaching maximum length ({MAX_LENGTH} characters)
+                        <p className="text-red-500 text-sm flex items-center">
+                            <TriangleAlertIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                            <span>Approaching maximum length ({MAX_LENGTH} characters)</span>
                         </p>
                     )}
                 </div>
