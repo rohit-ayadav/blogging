@@ -1,3 +1,4 @@
+// Utility function to validate URLs
 function isValidUrl(url) {
     try {
         new URL(url);
@@ -10,6 +11,23 @@ function isValidUrl(url) {
 const CACHE_NAME = 'v1';
 const STATIC_ASSETS = [
     '/about',
+    '/logo.png',
+    '/founder.jpg',
+    '/icon.png',
+    '/manifest.json',
+    '/offline.js',
+    '/offline.html',
+    '/offline.png',
+    '/default-profile.jpg',
+    '/default-thumbnail.png',
+    '/blog.jpeg',
+    '/icons/android-chrome-192x192.png',
+    '/icons/android-chrome-512x512.png',
+    '/icons/apple-touch-icon.png',
+    '/icons/favicon-16x16.png',
+    '/icons/favicon-32x32.png',
+    './icons/favicon-96x96.png',
+    '/icons/create-96x96.png',
     '/contacts',
     '/privacy',
     '/signup',
@@ -17,72 +35,136 @@ const STATIC_ASSETS = [
     '/footer',
     '/services',
     '/tos',
-];
+    '/profile',
+    '/offline',
+    '/dashboard',
+    '/blogs',
+    '/blogs/[id]',
+    '/blogs/[slug]',
+    '/create',
+    '/edit',
+    '/logout',
+    '/settings',
+    '/signup',
+    '/login',
+    '/edit',
+    '/create',
+].map(path => new URL(path, self.location.origin).pathname);
 
-// This 
-self.addEventListener('install', function (event) {
+self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then(function (cache) {
-            return cache.addAll(STATIC_ASSETS);
+        caches.open(CACHE_NAME)
+            .then(cache => {
+                console.log('Caching static assets');
+                return cache.addAll(STATIC_ASSETS);
+            })
+            .catch(error => {
+                console.error('Error during service worker installation:', error);
+                throw error;
+            })
+    );
+});
+
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    if (cacheName !== CACHE_NAME) {
+                        console.log('Deleting old cache:', cacheName);
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
         })
     );
 });
 
-
-self.addEventListener('push', function (event) {
-    const payload = event.data?.json() ?? {};
-    const options = {
-        title: payload.title || 'New Notification',
-        body: payload.message,
-        icon: payload.icon || '/icon.png',
-        image: payload.image,
-        badge: payload.badge,
-        tag: payload.tag,
-        url: payload.url,
-        timestamp: payload.timestamp || Date.now(),
-        vibrate: payload.vibrate ? [200, 100, 200] : undefined,
-        renotify: payload.renotify || false,
-        requireInteraction: payload.requireInteraction || false,
-        silent: payload.silent || false,
-        actions: payload.actions || [],
-        data: payload.data || {},
-    };
-
-    event.waitUntil(
-        self.registration.showNotification(options.title, options)
+self.addEventListener('fetch', event => {
+    event.respondWith(
+        fetch(event.request)
+            .catch(() => {
+                return caches.match(event.request)
+                    .then(response => {
+                        if (response) {
+                            return response;
+                        }
+                        if (event.request.mode === 'navigate') {
+                            return caches.match('/offline.html');
+                        }
+                        return new Response('Network error happened', {
+                            status: 408,
+                            headers: { 'Content-Type': 'text/plain' },
+                        });
+                    });
+            })
     );
 });
 
-self.addEventListener('notificationclick', function (event) {
+self.addEventListener('push', event => {
+    try {
+        const payload = event.data?.json() ?? {};
+        const options = {
+            title: payload.title || 'New Notification',
+            body: payload.message || 'You have a new notification',
+            icon: payload.icon || '/icon.png',
+            image: payload.image,
+            badge: payload.badge || '/icon.png',
+            tag: payload.tag || 'default',
+            data: {
+                url: payload.url,
+                ...payload.data
+            },
+            timestamp: payload.timestamp || Date.now(),
+            vibrate: payload.vibrate ? [200, 100, 200] : undefined,
+            renotify: Boolean(payload.renotify),
+            requireInteraction: Boolean(payload.requireInteraction),
+            silent: Boolean(payload.silent),
+            actions: Array.isArray(payload.actions) ? payload.actions : []
+        };
+
+        event.waitUntil(
+            self.registration.showNotification(options.title, options)
+                .catch(error => {
+                    console.error('Error showing notification:', error);
+                })
+        );
+    } catch (error) {
+        console.error('Error processing push notification:', error);
+    }
+});
+
+self.addEventListener('notificationclick', event => {
     event.notification.close();
-    const url = event.notification.data?.url || event.url;
+
+    const url = event.notification.data?.url || '/';
     if (!isValidUrl(url)) {
+        console.warn('Invalid URL in notification:', url);
         return;
     }
-    event.waitUntil(
-        clients.openWindow(url)
-    );
-    if (event.action) {
-        switch (event.action) {
-            case 'dismiss' || 'close' || 'cancel':
-                break;
-            case 'open' || 'view' || 'read' || 'show':
-                event.waitUntil(
-                    clients.openWindow(url)
-                );
-                break;
-            case 'settings' || 'setting' || 'config' || 'configure' || 'profile':
-                event.waitUntil(
-                    clients.openWindow('/profile')
-                );
-                break;
-            case 'explore' || 'discover' || 'search' || 'find':
-                event.waitUntil(
-                    clients.openWindow('/')
-                );
 
-            default:
-                break;
-        }
+    const actionMap = {
+        dismiss: () => { },
+        close: () => { },
+        cancel: () => { },
+        open: () => clients.openWindow(url),
+        view: () => clients.openWindow(url),
+        read: () => clients.openWindow(url),
+        show: () => clients.openWindow(url),
+        settings: () => clients.openWindow('/settings'),
+        setting: () => clients.openWindow('/settings'),
+        config: () => clients.openWindow('/settings'),
+        configure: () => clients.openWindow('/settings'),
+        profile: () => clients.openWindow('/profile'),
+        explore: () => clients.openWindow('/'),
+        discover: () => clients.openWindow('/'),
+        search: () => clients.openWindow('/'),
+        find: () => clients.openWindow('/')
+    };
+
+    if (event.action && actionMap[event.action]) {
+        event.waitUntil(actionMap[event.action]());
+    } else {
+        event.waitUntil(clients.openWindow(url));
     }
 });
