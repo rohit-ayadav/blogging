@@ -1,5 +1,5 @@
 import React from "react";
-import cn from "classnames";
+import { cn } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
