@@ -4,6 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Mail, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Toast } from "@radix-ui/react-toast";
+import { ToastContainer } from "react-toastify";
+import { Toaster } from "@/components/ui/toaster";
 
 const Newsletter = () => {
     const [email, setEmail] = useState("");
@@ -61,7 +64,8 @@ const Newsletter = () => {
     };
 
     return (
-        <Alert className="mb-8 relative overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800 border-blue-100 dark:border-gray-700">
+        <Alert className="mb-8 relative overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800 border-blue-100 dark:border-gray-700 opacity-100">
+            <Toaster />
             <div className="flex items-center gap-2">
                 <Mail className="h-5 w-5 text-blue-500 dark:text-blue-400" />
                 <AlertTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -117,7 +121,7 @@ const Newsletter = () => {
                 </form>
             </AlertDescription>
 
-            <div className="absolute inset-0 bg-grid-pattern opacity-10" />
+            {/* <div className="absolute inset-0 bg-grid-pattern opacity-10" /> */}
         </Alert>
     );
 };

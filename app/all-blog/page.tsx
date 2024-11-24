@@ -5,6 +5,7 @@ import { Loader2, Eye, Heart, Star, Globe } from 'lucide-react';
 import { CodeBlock } from '@/components/BlogPostContent011/component/CodeBlock';
 import { BlogPostType } from '@/types/blogs-types';
 import { useTheme } from '@/context/ThemeContext';
+import Newsletter from '../component/newsletter';
 
 const BlogListing = () => {
     const [posts, setPosts] = useState<BlogPostType[]>([]);
@@ -100,6 +101,8 @@ const isPrime = (num) => {
     `;
     return (
         <div className="max-w-6xl mx-auto p-4 space-y-6">
+
+            <Newsletter />
 
             <button onClick={toggleDarkMode} className="flex items-center space-x-2">
                 <Globe className="w-6 h-6" />
