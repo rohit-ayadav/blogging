@@ -1,21 +1,38 @@
 "use client";
-import React, { useState } from 'react';
-import { Facebook, Instagram, Mail, Plus, Twitter, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Facebook, Instagram, Mail, Plus, Twitter, X, ArrowUp } from 'lucide-react';
 import { AlertDialog, AlertDialogContent, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/context/ThemeContext';
 import { useRouter } from 'next/navigation';
-import { set } from 'mongoose';
 
 const Footer = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const currentYear = new Date().getFullYear();
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { isDarkMode } = useTheme();
   const router = useRouter();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show button when user scrolls down 200px
+      setShowScrollTop(window.scrollY > 200);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleCreatePost = () => {
     router.push('/create');
     setIsModalOpen(false);
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   };
 
   return (
@@ -52,36 +69,54 @@ const Footer = () => {
           <p>&copy; {currentYear} My Blog. All rights reserved.</p>
         </div>
       </footer>
-      <AlertDialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <AlertDialogTrigger asChild>
-          <button className={`fixed bottom-4 right-4 ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'} text-white p-3 rounded-full shadow-lg transition-colors`}>
-            <Plus size={24} />
-          </button>
-        </AlertDialogTrigger>
-        <AlertDialogContent className={`${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} p-6 rounded-lg shadow-xl`}>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Create Options</h3>
-            <Button variant="ghost" onClick={() => setIsModalOpen(false)}>
-              <X size={24} />
-            </Button>
-          </div>
-          <div className="space-y-4">
-            <Button onClick={handleCreatePost} className={`w-full ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'}`}>
-              Create New Post
-            </Button>
-            <Button onClick={handleCreatePost} variant="outline" className={`w-full ${isDarkMode ? 'text-white border-white hover:bg-gray-700' : 'text-blue-500 border-blue-500 hover:bg-blue-50'}`}>
-              Draft Quick Note
-            </Button>
-            <Button onClick={() => {
-              router.push('/dashboard/admin');
-              setIsModalOpen(false);
-            }} variant="outline" className={`w-full ${isDarkMode ? 'text-white border-white hover:bg-gray-700' : 'text-blue-500 border-blue-500 hover:bg-blue-50'}`}>
-              Open Admin Dashboard
-            </Button>
 
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className={`fixed bottom-4 right-4 ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'
+            } text-white p-3 rounded-full shadow-lg transition-all duration-300 ease-in-out`}
+          aria-label="Scroll to top"
+        >
+          {/* <ArrowUp size={14} /> */}
+
+          <ArrowUp className="sm:w-4 sm:h-4 w-3.5 h-3.5" />
+        </button>
+      )}
+
+      {/* Create Post Modal */}
+      {!showScrollTop && (
+        <AlertDialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <AlertDialogTrigger asChild>
+            <button className={`fixed bottom-4 right-4 ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'} text-white p-3 rounded-full shadow-lg transition-colors`}>
+              {/* <Plus size={14} /> */}
+              <Plus className="sm:w-4 sm:h-4 w-3.5 h-3.5 hover:sm:w-5 hover:sm:h-5" />
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent className={`${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} p-6 rounded-lg shadow-xl`}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Create Options</h3>
+              <Button variant="ghost" onClick={() => setIsModalOpen(false)}>
+                <X size={24} />
+              </Button>
+            </div>
+            <div className="space-y-4">
+              <Button onClick={handleCreatePost} className={`w-full ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'}`}>
+                Create New Post
+              </Button>
+              <Button onClick={handleCreatePost} variant="outline" className={`w-full ${isDarkMode ? 'text-white border-white hover:bg-gray-700' : 'text-blue-500 border-blue-500 hover:bg-blue-50'}`}>
+                Draft Quick Note
+              </Button>
+              <Button onClick={() => {
+                router.push('/dashboard/admin');
+                setIsModalOpen(false);
+              }} variant="outline" className={`w-full ${isDarkMode ? 'text-white border-white hover:bg-gray-700' : 'text-blue-500 border-blue-500 hover:bg-blue-50'}`}>
+                Open Admin Dashboard
+              </Button>
+            </div>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </>
   );
 };

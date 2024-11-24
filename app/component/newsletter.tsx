@@ -4,8 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Mail, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Toast } from "@radix-ui/react-toast";
-import { ToastContainer } from "react-toastify";
 import { Toaster } from "@/components/ui/toaster";
 
 const Newsletter = () => {
