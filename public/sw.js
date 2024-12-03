@@ -102,7 +102,7 @@ self.addEventListener('push', event => {
         const options = {
             title: payload.title || 'New Notification',
             body: payload.message || 'You have a new notification',
-            icon: payload.icon || '/icon.png',
+            icon: payload.icon || 'https://as1.ftcdn.net/v2/jpg/09/15/85/08/1000_F_915850846_PYB5ChOp6ZVc0KGouKNKicwFNolwd5nZ.jpg',
             image: payload.image,
             badge: payload.badge || '/icon.png',
             tag: payload.tag || 'default',
@@ -132,7 +132,7 @@ self.addEventListener('push', event => {
 self.addEventListener('notificationclick', event => {
     event.notification.close();
 
-    const url = event.notification.data?.url || '/';
+    const url = event.notification.data?.url || event.url || '/';
     if (!isValidUrl(url)) {
         console.warn('Invalid URL in notification:', url);
         return;
@@ -162,4 +162,5 @@ self.addEventListener('notificationclick', event => {
     } else {
         event.waitUntil(clients.openWindow(url));
     }
+    event.waitUntil(clients.openWindow(url));
 });
