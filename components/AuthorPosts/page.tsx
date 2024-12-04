@@ -92,7 +92,6 @@ const AuthorPosts = ({ author, posts }: AuthorPostsProps) => {
                 ))}
             </div>
 
-            {/* View All Link */}
             <Link
                 href={`/author/${author?._id}`}
                 className="inline-flex items-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors mt-2"

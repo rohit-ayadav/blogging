@@ -56,7 +56,6 @@ const CommentComponent: React.FC<{
 
     const toggleLike = () => {
         setIsLiked(!isLiked);
-        // Here you would typically make an API call to update likes
     };
 
     return (
@@ -281,7 +280,6 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     };
 
     const handleReply = async (parentId: string) => {
-        // Implement reply functionality
         toast.success('Reply feature coming soon');
     };
 

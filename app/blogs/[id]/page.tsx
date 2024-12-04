@@ -39,7 +39,6 @@ async function getPostData(id: string): Promise<ApiResponse> {
         }
         // Increment views
         await Blog.findOneAndUpdate({ slug: id }, { $inc: { views: 1 } });
-        // Get author details from his/her email    
         const author = await User.findOne({ email: post.createdBy });
 
 
@@ -101,7 +100,6 @@ export async function generateStaticParams() {
     let posts = [];
     let paths = [];
     await connectDB();
-    // Get all blog posts from the database with only the slug field and _id
     posts = await Blog.find({}, { slug: 1, _id: 1 });
     paths = posts.map(post => ({
         params: {

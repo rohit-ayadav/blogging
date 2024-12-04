@@ -39,7 +39,6 @@ const STATIC_ASSETS = [
     '/blogs/[slug]',
     '/create',
     '/edit/[id]',
-    '/settings',
     '/signup',
     '/login',
     '/edit',

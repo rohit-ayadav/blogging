@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { BlogPostType } from '@/types/blogs-types';
+import { dislikePost, likePost } from '@/action/like';
 
 
 interface BlogPostFooterProps {
@@ -86,35 +87,27 @@ const BlogPostFooter = ({
   const handleLike = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (isLoading) return;
+    let response;
 
     setIsLoading(true);
-    const endpoint = isLiked ? 'dislike' : 'like';
     const newLikesCount = isLiked ? likes - 1 : likes + 1;
 
-    // Optimistic update
     setLikes(newLikesCount);
     setIsLiked(!isLiked);
 
-    try {
-      const response = await fetch(`/api/blog/${id}/${endpoint}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        setLikes(likes);
-        setIsLiked(isLiked);
-        throw new Error(`Failed to ${endpoint} post`);
-      }
-    } catch (error) {
-      toast.error(`Failed to ${isLiked ? 'unlike' : 'like'} the post. Please try again.`);
-      console.error("Error:", error);
-    } finally {
-      setIsLoading(false);
+    if (!isLiked) {
+      response = likePost(id);
+    } else {
+      response = dislikePost(id);
     }
+    if (!response) {
+      setLikes(newLikesCount);
+      setIsLiked(!isLiked);
+    }
+    setIsLoading(false);
+
   };
+
 
   const handleShare = (option: ShareOption) => {
     try {
