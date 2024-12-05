@@ -104,6 +104,9 @@ importers:
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
+      classnames:
+        specifier: ^2.5.1
+        version: 2.5.1
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -288,6 +291,9 @@ importers:
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
+      '@types/classnames':
+        specifier: ^2.3.4
+        version: 2.3.4
       '@types/dompurify':
         specifier: ^3.0.5
         version: 3.0.5
@@ -1436,6 +1442,10 @@ packages:
 
   '@types/body-parser@1.19.5':
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==, tarball: https://registry.npmjs.org/@types/body-parser/-/body-parser-1.19.5.tgz}
+
+  '@types/classnames@2.3.4':
+    resolution: {integrity: sha512-dwmfrMMQb9ujX1uYGvB5ERDlOzBNywnZAZBtOe107/hORWP05ESgU4QyaanZMWYYfd2BzrG78y13/Bju8IQcMQ==, tarball: https://registry.npmjs.org/@types/classnames/-/classnames-2.3.4.tgz}
+    deprecated: This is a stub types definition. classnames provides its own type definitions, so you do not need this installed.
 
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==, tarball: https://registry.npmjs.org/@types/connect/-/connect-3.4.38.tgz}
@@ -5607,6 +5617,10 @@ snapshots:
     dependencies:
       '@types/connect': 3.4.38
       '@types/node': 20.17.0
+
+  '@types/classnames@2.3.4':
+    dependencies:
+      classnames: 2.5.1
 
   '@types/connect@3.4.38':
     dependencies:
