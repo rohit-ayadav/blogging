@@ -3,7 +3,7 @@ import { Home, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BlogPostType } from '@/types/blogs-types';
 import Link from 'next/link';
-import cn from 'classnames';
+import cn from 'classnames'; 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const getBreadcrumbClasses = (isDarkMode: boolean) => ({
