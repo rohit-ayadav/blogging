@@ -1,6 +1,19 @@
+"use client";
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { BlogPostType, UserType } from '@/types/blogs-types';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
+import { ChevronRight } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
+interface FeatureCardProps {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    action: string;
+    onClick: () => void;
+}
+
 
 interface Post {
     _id: string;
@@ -92,4 +105,23 @@ const useBlogData = () => {
     };
 };
 
-export { useBlogData };
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, action, onClick }) => {
+    const { isDarkMode } = useTheme();
+
+    return (
+        <Card className={`text-center h-full flex flex-col justify-between transition-all duration-300 hover:shadow-lg ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white'}`}>
+            <CardContent className="pt-6">
+                <div className="text-blue-600 mb-4">{icon}</div>
+                <CardTitle className="text-2xl font-semibold mb-2">{title}</CardTitle>
+                <p className="mb-4">{description}</p>
+            </CardContent>
+            <CardContent className="pt-0">
+                <Button onClick={onClick} className="w-full">
+                    {action} <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+            </CardContent>
+        </Card>
+    );
+};
+
+export { useBlogData, FeatureCard };

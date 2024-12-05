@@ -5,13 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Mail, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { useEffect } from "react";
+import { useTheme } from "@/context/ThemeContext";
 
 const Newsletter = () => {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isTouched, setIsTouched] = useState(false);
     const { toast } = useToast();
+    const { isDarkMode } = useTheme();
 
+    useEffect(() => {
+        document.body.classList.toggle('dark', isDarkMode);
+    }, [isDarkMode]);
+    
     const validateEmail = (email: string) => {
         const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         return re.test(email);

@@ -1,47 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
+import React, { useEffect } from 'react';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { PenTool, Book, Users, ChevronRight } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { PenTool, Book, Users } from 'lucide-react';
 import CountUp from 'react-countup';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import { registerServiceWorkerFirstTime } from '@/hooks/push-client';
-import { useBlogData } from '@/hooks/useMainPageBlog';
+import { useBlogData, FeatureCard } from '@/hooks/useMainPageBlog';
 import { BlogPostCard, SkeletonCard } from './component/BlogPostCard';
 
-
-
-interface FeatureCardProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  action: string;
-  onClick: () => void;
-}
-
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, action, onClick }) => {
-  const { isDarkMode } = useTheme();
-
-  return (
-    <Card className={`text-center h-full flex flex-col justify-between transition-all duration-300 hover:shadow-lg ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white'}`}>
-      <CardContent className="pt-6">
-        <div className="text-blue-600 mb-4">{icon}</div>
-        <CardTitle className="text-2xl font-semibold mb-2">{title}</CardTitle>
-        <p className="mb-4">{description}</p>
-      </CardContent>
-      <CardContent className="pt-0">
-        <Button onClick={onClick} className="w-full">
-          {action} <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
-      </CardContent>
-    </Card>
-  );
-};
 
 const HomePage = () => {
   const { isDarkMode } = useTheme();
