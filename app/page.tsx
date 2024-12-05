@@ -10,99 +10,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import CountUp from 'react-countup';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
-import { BlogPostType, UserType } from '@/types/blogs-types';
 import { registerServiceWorkerFirstTime } from '@/hooks/push-client';
+import { useBlogData } from '@/hooks/useMainPageBlog';
+import { BlogPostCard, SkeletonCard } from './component/BlogPostCard';
 
 
-interface Post {
-  _id: string;
-  title: string;
-  image?: string;
-  createdAt: string;
-  content: string;
-  tags: string[];
-  createdBy: string;
-  likes: number;
-  bio?: string;
-}
-
-const useBlogData = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [posts, setPosts] = useState<BlogPostType[]>([]);
-  const [users, setUsers] = useState({});
-  const [totalLikes, setTotalLikes] = useState(0);
-  const [totalViews, setTotalViews] = useState(0);
-  const [totalBlogs, setTotalBlogs] = useState(0);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [isSubscribed, setIsSubscribed] = useState(false);
-
-
-  useEffect(() => {
-    const fetchStats = async () => {
-
-      try {
-        const response = await fetch('/api/stats/all');
-        if (!response.ok) {
-          throw new Error(`${response.status} - ${response.statusText}`);
-        }
-        const data = await response.json();
-        setTotalLikes(data.totalLikes);
-        setTotalViews(data.totalViews);
-        setTotalBlogs(data.totalBlogs);
-        setTotalUsers(parseInt(data.totalUsers));
-        // toast.success(data.totalAuthors.totalBlogs);
-
-      } catch (error: any) {
-        console.error('Error fetching stats:', error);
-        toast.error(error.message);
-      }
-    };
-    fetchStats();
-  }, []);
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setError(null);
-      try {
-        const response = await fetch('/api/blog?trending');
-        if (!response.ok) {
-          throw new Error(`${response.status} - ${response.statusText}`);
-        }
-        const data = await response.json();
-        setPosts(data.data.slice(0, 3));
-        setLoading(false);
-
-        const userEmails = data.data.map((post: Post) => post.createdBy);
-        const uniqueEmails = [...new Set(userEmails)];
-        const userDetails = await Promise.all(uniqueEmails.map(async (email) => {
-          const userResponse = await fetch(`/api/user?email=${email}`);
-          if (!userResponse.ok) {
-            throw new Error(`${userResponse.status} - ${userResponse.statusText}`);
-          }
-          const userData = await userResponse.json();
-          return userData.data;
-        }));
-        const userMap: { [key: string]: UserType } = {};
-        userDetails.forEach((user) => {
-          userMap[user?.email] = user;
-        });
-        setUsers(userMap);
-      } catch (error) {
-        console.error(error);
-        if (error instanceof Error) {
-          setError(error.message);
-        } else {
-          setError('An unknown error occurred');
-        }
-      }
-    };
-    fetchData();
-  }, []);
-
-  return { loading, error, posts, users, totalBlogs, totalLikes, totalViews, totalUsers };
-};
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -134,7 +46,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, act
 const HomePage = () => {
   const { isDarkMode } = useTheme();
   const router = useRouter();
-  const { loading, error, posts, users, totalBlogs, totalUsers, totalLikes, totalViews } = useBlogData();
+  const { loading, posts, users, totalBlogs, totalUsers, totalLikes, totalViews } = useBlogData();
 
   useEffect(() => {
     registerServiceWorkerFirstTime();
@@ -167,36 +79,15 @@ const HomePage = () => {
           <h2 className="text-3xl font-bold mb-8 text-center">Featured Blogs</h2>
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[...Array(3)].map((_, index) => (
-                <Card key={index} className={isDarkMode ? 'bg-gray-700' : ''}>
-                  <CardHeader>
-                    <Skeleton className="h-6 w-3/4" />
-                  </CardHeader>
-                  <CardContent>
-                    <Skeleton className="h-4 w-full mb-2" />
-                    <Skeleton className="h-4 w-5/6 mb-2" />
-                    <Skeleton className="h-4 w-4/6" />
-                  </CardContent>
-                </Card>
-              ))}
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
             </div>
-            // ) : error ? (
-            //   <div className="text-center text-red-600">{error}</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {posts.map((blog, index) => (
-                <Card key={index} className={`flex flex-col h-full transition-all duration-300 hover:shadow-lg ${isDarkMode ? 'bg-gray-700 text-white' : ''}`}>
-                  <CardHeader>
-                    <CardTitle className="line-clamp-2">{blog.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <p className="line-clamp-3 mb-4">{blog.content.replace(/<[^>]+>/g, '')}</p>
-                    <Button variant={isDarkMode ? "outline" : "secondary"} onClick={() => router.push(`/blogs/${blog._id}`)}>
-                      Read More <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+              <BlogPostCard post={posts[0]} user={users[0]} />
+              <BlogPostCard post={posts[1]} user={users[1]} />
+              <BlogPostCard post={posts[2]} user={users[2]} />
             </div>
           )}
           <div className="text-center mt-12">

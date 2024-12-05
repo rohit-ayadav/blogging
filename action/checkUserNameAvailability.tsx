@@ -11,4 +11,14 @@ async function checkUsernameAvailability(username: string) {
     return user ? false : true;
 }
 
+async function findEmailFromUserName(username: string) {
+    await connectDB();
+    if (!username) {
+        return '';
+    }
+    const user = await User.findOne({ username: username });
+    return user ? user.email : '';
+}
+
+export { checkUsernameAvailability, findEmailFromUserName };
 export default checkUsernameAvailability;
