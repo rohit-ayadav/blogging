@@ -7,9 +7,10 @@ import LoadingSkeleton from '../LoadingComponent';
 interface AuthorPostsProps {
     author: Author | null;
     posts: BlogPostType[];
+    isDarkMode: boolean;
 }
 
-const AuthorPosts = ({ author, posts }: AuthorPostsProps) => {
+const AuthorPosts = ({ author, posts, isDarkMode }: AuthorPostsProps) => {
     if (!author || !posts || !posts.length) {
         return <LoadingSkeleton />;
     }
@@ -30,7 +31,7 @@ const AuthorPosts = ({ author, posts }: AuthorPostsProps) => {
     };
 
     return (
-        <div className="space-y-4">
+        <div className={`space-y-4 ${isDarkMode ? 'dark' : ''}`}>
             {/* Author Header */}
             <div className="flex items-center gap-3 mb-4">
                 <div className="flex-shrink-0">
@@ -41,16 +42,47 @@ const AuthorPosts = ({ author, posts }: AuthorPostsProps) => {
                             className="w-10 h-10 rounded-full object-cover"
                         />
                     ) : (
-                        <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                            <User className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                        <div
+                            className={`
+                                w-10 h-10 rounded-full flex items-center justify-center
+                                ${isDarkMode
+                                    ? 'bg-gray-700'
+                                    : 'bg-gray-200'
+                                }
+                            `}
+                        >
+                            <User
+                                className={`w-6 h-6 
+                                    ${isDarkMode
+                                        ? 'text-gray-400'
+                                        : 'text-gray-500'
+                                    }
+                                `}
+                            />
                         </div>
                     )}
                 </div>
                 <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                    <h3
+                        className={`
+                            font-semibold 
+                            ${isDarkMode
+                                ? 'text-white'
+                                : 'text-gray-900'
+                            }
+                        `}
+                    >
                         {author?.name}
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p
+                        className={`
+                            text-sm 
+                            ${isDarkMode
+                                ? 'text-gray-400'
+                                : 'text-gray-500'
+                            }
+                        `}
+                    >
                         More posts from this author
                     </p>
                 </div>
@@ -64,23 +96,47 @@ const AuthorPosts = ({ author, posts }: AuthorPostsProps) => {
                         key={post._id}
                         className="group block"
                     >
-                        <article className="flex gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+                        <article
+                            className={`
+                                flex gap-4 p-3 rounded-lg transition-colors
+                                ${isDarkMode
+                                    ? 'hover:bg-gray-700/50'
+                                    : 'hover:bg-gray-100'
+                                }
+                            `}
+                        >
                             {post.thumbnail && (
                                 <div className="relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden">
                                     <img
                                         src={post.thumbnail}
-                                        alt=""
+                                        alt={post.title}
                                         className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
                                     />
                                 </div>
                             )}
 
                             <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-sm mb-1 text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                                <h4
+                                    className={`
+                                        font-medium text-sm mb-1 line-clamp-2
+                                        ${isDarkMode
+                                            ? 'text-white hover:text-blue-400'
+                                            : 'text-gray-900 hover:text-blue-600'
+                                        }
+                                    `}
+                                >
                                     {post.title}
                                 </h4>
 
-                                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                <div
+                                    className={`
+                                        flex items-center gap-2 text-xs
+                                        ${isDarkMode
+                                            ? 'text-gray-400'
+                                            : 'text-gray-500'
+                                        }
+                                    `}
+                                >
                                     <Calendar className="h-3 w-3" />
                                     <time dateTime={post.createdAt}>
                                         {formatDate(post.createdAt)}
@@ -94,7 +150,13 @@ const AuthorPosts = ({ author, posts }: AuthorPostsProps) => {
 
             <Link
                 href={`/author/${author?._id}`}
-                className="inline-flex items-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors mt-2"
+                className={`
+                    inline-flex items-center text-sm transition-colors mt-2
+                    ${isDarkMode
+                        ? 'text-blue-400 hover:text-blue-300'
+                        : 'text-blue-600 hover:text-blue-800'
+                    }
+                `}
             >
                 View all posts
                 <ArrowRight className="h-4 w-4 ml-1" />
@@ -104,4 +166,3 @@ const AuthorPosts = ({ author, posts }: AuthorPostsProps) => {
 };
 
 export default AuthorPosts;
-

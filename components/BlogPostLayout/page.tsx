@@ -7,9 +7,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { Sidebar, Header } from './LayoutComponent';
 import useBlogPost from '@/hooks/useBlogPost';
 
-// Constants
 const CONTENT_PREVIEW_LENGTH = 100;
-const SKELETON_COUNT = 3;
 
 interface BlogPostLayoutProps {
   children: ReactNode;
@@ -18,7 +16,6 @@ interface BlogPostLayoutProps {
   id: string;
   author: Author;
 }
-
 
 const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
   children,
@@ -32,7 +29,6 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
     tags: post.tags || [],
     id
   });
-
   const { isDarkMode, toggleDarkMode } = useTheme();
 
   const handleShare = async () => {
@@ -58,23 +54,36 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
   };
 
   return (
-    <div className={cn(
-      "min-h-screen transition-colors duration-300",
-      "bg-white dark:bg-gray-900",
-      "text-gray-900 dark:text-white"
-    )}>
+    <div
+      className={cn(
+        "min-h-screen transition-colors duration-300",
+        isDarkMode
+          ? "bg-gray-900 text-white"
+          : "bg-white text-gray-900",
+        "selection:bg-primary-500 selection:text-white"
+      )}
+    >
       <Header
         post={post}
         isLoading={isLoading}
         onShare={handleShare}
-        isDarkMode={isDarkMode}
-        onToggleTheme={toggleDarkMode}
+        // isDarkMode={isDarkMode}
+        // onToggleTheme={toggleDarkMode}
       />
-
-      <main className="container mx-auto px-4 lg:px-8 py-8">
+      <main className={cn(
+        "container mx-auto px-4 lg:px-8 py-8",
+        isDarkMode ? "text-gray-200" : "text-gray-800"
+      )}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-8">
-            <article className="prose dark:prose-invert max-w-none">
+            <article
+              className={cn(
+                "prose max-w-none",
+                isDarkMode
+                  ? "prose-invert prose-dark"
+                  : "prose-light"
+              )}
+            >
               {children}
             </article>
           </div>
@@ -88,8 +97,10 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
           )}
         </div>
       </main>
-
       <style jsx global>{`
+        :root {
+          color-scheme: ${isDarkMode ? 'dark' : 'light'};
+        }
         .hide-scrollbar {
           -ms-overflow-style: none;
           scrollbar-width: none;
@@ -97,7 +108,7 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
         .hide-scrollbar::-webkit-scrollbar {
           display: none;
         }
-        
+       
         @media (min-width: 1024px) {
           .container {
             max-width: 1200px;
@@ -107,7 +118,5 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
     </div>
   );
 };
-
-
 
 export default BlogPostLayout;

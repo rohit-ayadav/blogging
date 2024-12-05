@@ -9,14 +9,15 @@ import BlogPostHeader from '../BlogPostHeader/page';
 import BlogPostContent from '../BlogPostContent011/page';
 import BlogPostFooter from '../BlogPostFooter/page';
 import RenderContent from '@/app/blogs/components/RenderContent';
-
-const CommentSection = dynamic(
-    () => import('@/app/component/commentsection'),
-    {
-        loading: () => <SectionSkeleton />,
-        ssr: false
-    }
-);
+import { useTheme } from '@/context/ThemeContext';
+// const CommentSection = dynamic(
+//     () => import('@/app/component/commentsection'),
+//     {
+//         loading: () => <SectionSkeleton />,
+//         ssr: false
+//     }
+// );
+import { CommentSection } from '@/app/component/commentsection';
 
 const SKELETON_COUNT = 3;
 
@@ -30,17 +31,18 @@ const ErrorFallback = ({ error, resetErrorBoundary }: {
     error: Error;
     resetErrorBoundary: () => void;
 }) => (
-    <div className="text-center py-8 space-y-4">
+    <div className={`text-center py-8 space-y-4 ${error ? 'bg-red-50 dark:bg-red-900' : ''}`}>
         <h2 className="text-xl font-semibold text-red-600 dark:text-red-400">
             Something went wrong
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600 dark:text-gray-300">
             {error.message}
         </p>
         <button
             onClick={resetErrorBoundary}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 
-                transition-colors duration-200"
+            className="px-4 py-2 bg-blue-500 text-white rounded-md 
+                hover:bg-blue-600 transition-colors duration-200
+                dark:bg-blue-600 dark:hover:bg-blue-700"
         >
             Try again
         </button>
@@ -48,13 +50,13 @@ const ErrorFallback = ({ error, resetErrorBoundary }: {
 );
 
 const SectionSkeleton = () => (
-    <div className="space-y-4 px-4 animate-pulse">
-        <Skeleton className="h-6 w-32" />
+    <div className="space-y-4 px-4 animate-pulse dark:bg-gray-800">
+        <Skeleton className="h-6 w-32 dark:bg-gray-700" />
         <div className="space-y-3">
             {Array(SKELETON_COUNT).fill(null).map((_, i) => (
                 <div key={i} className="space-y-2">
-                    <Skeleton className="h-32 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-32 w-full dark:bg-gray-700" />
+                    <Skeleton className="h-4 w-3/4 dark:bg-gray-700" />
                 </div>
             ))}
         </div>
@@ -81,23 +83,36 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({
         views: initialData.views || 0
     }), [initialData.likes, initialData.views]);
 
+    const { isDarkMode } = useTheme();
+
     const handleError = (error: Error) => {
         console.error('Blog post error:', error);
     };
 
     return (
-        <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
+        <div
+            className={`
+                min-h-screen 
+                ${isDarkMode
+                    ? 'bg-gray-900 text-gray-100 prose-dark'
+                    : 'bg-white text-gray-900 prose-light'}
+            `}
+        >
             <ErrorBoundary
                 FallbackComponent={ErrorFallback}
                 onError={handleError}
                 onReset={() => window.location.reload()}
             >
-                <BlogPostHeader post={initialData} author={author} />
+                <BlogPostHeader post={initialData} author={author} isDarkMode={isDarkMode} />
                 <BlogPostContainer>
-                    {/* <article className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: initialData.content }}>
-                        <BlogPostContent post={initialData} />
-                    </article> */}
-                    <article className="prose dark:prose-invert max-w-none">
+                    <article
+                        className={`
+                            prose max-w-none 
+                            ${isDarkMode
+                                ? 'prose-dark dark:prose-invert'
+                                : 'prose-light'}
+                        `}
+                    >
                         <RenderContent {...initialData} />
                         <BlogPostFooter
                             post={initialData}
@@ -108,7 +123,12 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({
                     </article>
 
                     <section
-                        className="mt-8 border-t dark:border-gray-800 pt-8"
+                        className={`
+                            mt-8 border-t 
+                            ${isDarkMode
+                                ? 'border-gray-800 bg-gray-900'
+                                : 'border-gray-200 bg-white'}
+                        `}
                         aria-label="Comments"
                     >
                         <ErrorBoundary

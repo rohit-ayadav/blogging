@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
   } else if (username.trim() === "") {
     username = email.split("@")[0];
   }
-  
+
   if (!name) {
     name = email.split("@")[0];
   }
@@ -34,16 +34,7 @@ export async function POST(request: NextRequest) {
     );
   }
   try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return NextResponse.json(
-        {
-          message: "User already exists",
-          success: false,
-        },
-        { status: 400 }
-      );
-    }
+
     const existingUsername = await User.findOne({ username: username });
     if (existingUsername) {
       return NextResponse.json(
@@ -55,22 +46,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return NextResponse.json(
+        {
+          message: "User already exists",
+          success: false,
+        },
+        { status: 400 }
+      );
+    }
+
+
     const newUser = {
       name,
       email,
-      bio: bio ? bio : "No bio",
+      bio: bio ? bio : "",
       password: password,
       image,
       providers: "credentials",
       username,
     };
 
-    
+
     await User.create(newUser);
-    
+
     return NextResponse.json(
       {
-        message: "User created successfully",
+        message: "Account created successfully",
         success: true,
         newUser,
       },

@@ -19,7 +19,7 @@ import {
 import { cn } from '@/lib/utils';
 import { BlogPostType } from '@/types/blogs-types';
 import { dislikePost, likePost } from '@/action/like';
-
+import { useTheme } from '@/context/ThemeContext';
 
 interface BlogPostFooterProps {
   post: BlogPostType;
@@ -47,6 +47,8 @@ const BlogPostFooter = ({
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     setShareUrl(window.location.href);
@@ -105,9 +107,7 @@ const BlogPostFooter = ({
       setIsLiked(!isLiked);
     }
     setIsLoading(false);
-
   };
-
 
   const handleShare = (option: ShareOption) => {
     try {
@@ -127,10 +127,13 @@ const BlogPostFooter = ({
   };
 
   return (
-    <div className={cn(
-      "flex flex-col sm:flex-row justify-between items-center gap-4 p-4 border-t",
-      className
-    )}>
+    <div
+      className={cn(
+        "flex flex-col sm:flex-row justify-between items-center gap-4 p-4 border-t",
+        isDarkMode ? "border-gray-700" : "border-gray-200",
+        className
+      )}
+    >
       <div className="flex items-center gap-3">
         <TooltipProvider>
           <Tooltip>
@@ -142,7 +145,11 @@ const BlogPostFooter = ({
                 disabled={isLoading}
                 className={cn(
                   "transition-all",
-                  isLiked && "text-red-500 hover:text-red-600"
+                  isLiked
+                    ? "text-red-500 hover:text-red-600"
+                    : isDarkMode
+                      ? "text-gray-300 hover:text-gray-100"
+                      : "text-gray-600 hover:text-gray-800"
                 )}
               >
                 {isLiked ? (
@@ -150,7 +157,12 @@ const BlogPostFooter = ({
                 ) : (
                   <Heart className="h-5 w-5 mr-2" />
                 )}
-                <span className="font-medium">{likes}</span>
+                <span
+                  className={`font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
+                >
+                  {likes}
+                </span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -162,9 +174,23 @@ const BlogPostFooter = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="sm">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`
+                  ${isDarkMode
+                    ? "text-gray-300 hover:text-gray-100"
+                    : "text-gray-600 hover:text-gray-800"
+                  }
+                `}
+              >
                 <Eye className="h-5 w-5 mr-2" />
-                <span className="font-medium">{views}</span>
+                <span
+                  className={`font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
+                >
+                  {views}
+                </span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -175,7 +201,12 @@ const BlogPostFooter = ({
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground mr-2">Share:</span>
+        <span
+          className={`text-sm ${isDarkMode ? "text-gray-400" : "text-muted-foreground"
+            } mr-2`}
+        >
+          Share:
+        </span>
         <div className="flex items-center gap-1">
           {shareOptions.map((option) => (
             <TooltipProvider key={option.name}>
@@ -185,7 +216,13 @@ const BlogPostFooter = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => handleShare(option)}
-                    className={cn("transition-colors", option.color)}
+                    className={cn(
+                      "transition-colors",
+                      option.color,
+                      isDarkMode
+                        ? "text-gray-300 hover:text-gray-100"
+                        : "text-gray-600 hover:text-gray-800"
+                    )}
                   >
                     {option.icon}
                   </Button>
@@ -199,7 +236,15 @@ const BlogPostFooter = ({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={
+                  isDarkMode
+                    ? "text-gray-300 hover:text-gray-100"
+                    : "text-gray-600 hover:text-gray-800"
+                }
+              >
                 <Share2 className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { FaGithub, FaGoogle } from 'react-icons/fa';
+import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 
 export default function Auth() {
     const [email, setEmail] = useState('');
@@ -14,7 +17,7 @@ export default function Auth() {
 
     const { data: session } = useSession();
     if (session) {
-        
+
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 py-5 px-4 sm:px-6 lg:px-8">
                 <div>
@@ -132,19 +135,21 @@ export default function Auth() {
                     </div>
                 </form>
 
-                <div>
-                    <button
-                        onClick={handleGoogleLogin}
-                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    >
-                        Sign in with Google
-                    </button>
-                    <button
-                        onClick={handleGithubLogin}
-                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 mt-3"
-                    >
-                        Sign in with Github
-                    </button>
+                <div className="mt-6">
+                    <Separator className="my-4">
+                        <span className="px-2 text-sm text-gray-500">Or continue with</span>
+                    </Separator>
+
+                    <div className="mt-6 grid grid-cols-2 gap-3">
+                        <Button variant="outline" className="w-full" onClick={() => signIn('google')}>
+                            <FaGoogle className="h-5 w-5 mr-2" />
+                            Google
+                        </Button>
+                        <Button variant="outline" className="w-full" onClick={() => signIn('github')}>
+                            <FaGithub className="h-5 w-5 mr-2" />
+                            GitHub
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="text-center">

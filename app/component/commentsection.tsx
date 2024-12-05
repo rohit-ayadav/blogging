@@ -1,26 +1,13 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Input } from '@/components/ui/input';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Skeleton } from '@/components/ui/skeleton';
-import toast from 'react-hot-toast';
-import { useSession, signIn } from 'next-auth/react';
-import { Trash2, Heart, Reply, MoreVertical, Edit2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-
-interface CommentSectionProps {
-    postId: string;
-}
+import { useTheme } from '@/context/ThemeContext';
+import { getComment, postComment, deleteComment, updateComment } from '@/action/comment';
+import { Delete, DeleteIcon, Trash, Trash2 } from 'lucide-react';
 
 interface Comment {
     _id: string;
@@ -29,331 +16,465 @@ interface Comment {
     content: string;
     image: string;
     createdAt: string | number | Date;
-    likes: number;
-    isEdited?: boolean;
-    parentId?: string;
-    replies?: Comment[];
 }
 
-const CommentComponent: React.FC<{
-    comment: Comment;
-    onDelete: (id: string) => void;
-    onReply: (parentId: string) => void;
-    onEdit: (id: string, content: string) => void;
-    session: any;
-    depth?: number;
-}> = ({ comment, onDelete, onReply, onEdit, session, depth = 0 }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editContent, setEditContent] = useState(comment.content);
-    const [showReplyForm, setShowReplyForm] = useState(false);
-    const [isLiked, setIsLiked] = useState(false);
-    const maxDepth = 3;
-
-    const handleEdit = () => {
-        onEdit(comment._id, editContent);
-        setIsEditing(false);
-    };
-
-    const toggleLike = () => {
-        setIsLiked(!isLiked);
-    };
-
-    return (
-        <Card className={`w-full ${depth > 0 ? 'ml-4 md:ml-8' : ''}`}>
-            <CardHeader className="p-4">
-                <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-4">
-                        <Avatar className="h-8 w-8">
-                            <AvatarImage src={comment.image} alt={comment.name} />
-                            <AvatarFallback>{comment.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <h4 className="text-sm font-semibold">{comment.name}</h4>
-                            <p className="text-xs text-gray-500">{formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}</p>
-                        </div>
-                    </div>
-
-                    {session && comment.email === session.user?.email && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                    <MoreVertical className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                                    <Edit2 className="mr-2 h-4 w-4" />
-                                    Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="text-red-600" onClick={() => onDelete(comment._id)}>
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Delete
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )}
-                </div>
-            </CardHeader>
-
-            <CardContent className="p-4 pt-0">
-                {isEditing ? (
-                    <div className="space-y-2">
-                        <Textarea
-                            value={editContent}
-                            onChange={(e) => setEditContent(e.target.value)}
-                            className="min-h-[100px]"
-                        />
-                        <div className="flex space-x-2">
-                            <Button size="sm" onClick={handleEdit}>Save</Button>
-                            <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
-                        </div>
-                    </div>
-                ) : (
-                    <p className="text-sm text-gray-700">{comment.content}</p>
-                )}
-            </CardContent>
-
-            <CardFooter className="p-4 pt-0">
-                <div className="flex space-x-4">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className={`${isLiked ? 'text-red-500' : ''} p-0`}
-                        onClick={toggleLike}
-                    >
-                        <Heart className="h-4 w-4 mr-1" fill={isLiked ? "currentColor" : "none"} />
-                        <span className="text-xs">{comment.likes || 0}</span>
-                    </Button>
-
-                    {depth < maxDepth && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="p-0"
-                            onClick={() => setShowReplyForm(!showReplyForm)}
-                        >
-                            <Reply className="h-4 w-4 mr-1" />
-                            <span className="text-xs">Reply</span>
-                        </Button>
-                    )}
-                </div>
-            </CardFooter>
-
-            {showReplyForm && (
-                <div className="p-4 pt-0">
-                    <Textarea
-                        placeholder="Write a reply..."
-                        className="min-h-[100px] mb-2"
-                    />
-                    <div className="flex space-x-2">
-                        <Button size="sm" onClick={() => {
-                            onReply(comment._id);
-                            setShowReplyForm(false);
-                        }}>Reply</Button>
-                        <Button size="sm" variant="outline" onClick={() => setShowReplyForm(false)}>Cancel</Button>
-                    </div>
-                </div>
-            )}
-
-            {comment.replies?.map(reply => (
-                <CommentComponent
-                    key={reply._id}
-                    comment={reply}
-                    onDelete={onDelete}
-                    onReply={onReply}
-                    onEdit={onEdit}
-                    session={session}
-                    depth={depth + 1}
-                />
-            ))}
-        </Card>
-    );
-};
+interface CommentSectionProps {
+    postId: string;
+}
 
 export const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     const router = useRouter();
     const [comments, setComments] = useState<Comment[]>([]);
     const [content, setContent] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+    const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const { data: session } = useSession();
-
-    const fetchComments = useCallback(async () => {
-        try {
-            setIsLoading(true);
-            const response = await fetch(`/api/comment?postId=${postId}`);
-            const data = await response.json();
-            const updatedComments = data.map((comment: Comment) => ({
-                ...comment,
-                image: comment.image || '/default-profile.jpg',
-                likes: comment.likes || 0,
-            }));
-            setComments(updatedComments);
-        } catch (error) {
-            toast.error('Failed to load comments');
-        } finally {
-            setIsLoading(false);
-        }
-    }, [postId]);
+    const { isDarkMode } = useTheme();
 
     useEffect(() => {
+        const fetchComments = async () => {
+            try {
+                setIsLoading(true);
+                setError(null);
+                const response = await getComment(postId);
+                if (response.error) {
+                    throw new Error(response.error);
+                }
+                setComments(response.comments.map((comment: any) => ({
+                    _id: comment._id.toString(),
+                    name: comment.name,
+                    email: comment.email,
+                    content: comment.content,
+                    image: comment.image,
+                    createdAt: comment.createdAt,
+                })));
+            } catch (error) {
+                if (error instanceof Error) {
+                    setError(`Failed to fetch comments. ${error.message}`);
+                } else {
+                    setError('Failed to fetch comments.');
+                }
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
         fetchComments();
-    }, [fetchComments]);
+    }, [postId]);
 
     const handlePostComment = async (e: React.FormEvent) => {
         e.preventDefault();
+
         if (!session) {
-            toast.error('Please login to comment');
+            setError('Please login to comment');
             return;
         }
 
-        toast.promise(postComment(), {
-            loading: 'Posting comment...',
-            success: 'Comment posted successfully',
-            error: (err) => `Error: ${err.message}`
-        });
-    };
-
-    const postComment = async () => {
         if (!content.trim()) {
-            throw new Error('Please enter a comment');
+            setError('Comment cannot be empty');
+            return;
         }
 
         try {
-            const response = await fetch('/api/comment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    postId,
-                    content: content.trim(),
-                    name: session?.user?.name,
-                    email: session?.user?.email,
-                    image: session?.user?.image || '/default-profile.jpg',
-                }),
-            });
+            setSubmissionStatus('submitting');
+            setError(null);
+            if (!session.user) {
+                setError('User information is missing. Please login again.');
+                return;
+            }
+            if (content.length > 500) {
+                setError('Comment cannot be more than 500 characters');
+                return;
+            }
 
-            const data = await response.json();
-            setComments([{ ...data, likes: 0 }, ...comments]);
+            if (editingCommentId) {
+                const response = await updateComment({
+                    // commentId: editingCommentId,
+                    body: {
+                        id: editingCommentId,
+                        name: session.user.name,
+                        email: session.user.email,
+                        content
+                    }
+                });
+                if (response.error) {
+                    throw new Error(response.error);
+                }
+
+                // setComments(comments.map(comment =>
+                //     comment._id === editingCommentId
+                //         ? { ...comment, content: response.comment.content }
+                //         : comment
+                // ));
+                setEditingCommentId(null);
+            } else {
+                // Post new comment
+                const response = await postComment({
+                    body: {
+                        postId,
+                        name: session.user.name,
+                        email: session.user.email,
+                        content
+                    }
+                });
+                if (response.error) {
+                    throw new Error(response.error);
+                }
+                setComments([...comments, response.comments[response.comments.length - 1]]);
+            }
+
             setContent('');
+            setSubmissionStatus('success');
         } catch (error) {
-            throw new Error('Failed to post comment');
+            setError('Failed to post comment. Please try again later.');
+            setSubmissionStatus('error');
         }
-    };
+    }
 
     const handleDeleteComment = async (commentId: string) => {
-        toast.promise(deleteComment(commentId), {
-            loading: 'Deleting comment...',
-            success: 'Comment deleted successfully',
-            error: 'Failed to delete comment'
-        });
-    };
-
-    const deleteComment = async (commentId: string) => {
         try {
-            await fetch(`/api/comment?id=${commentId}`, {
-                method: 'DELETE',
-            });
+            const response = await deleteComment(commentId);
+            if (response.error) {
+                throw new Error(response.error);
+            }
             setComments(comments.filter(comment => comment._id !== commentId));
         } catch (error) {
-            throw new Error('Failed to delete comment');
+            setError('Failed to delete comment. Please try again later.');
         }
-    };
+    }
 
-    const handleEditComment = async (commentId: string, newContent: string) => {
-        try {
-            const response = await fetch(`/api/comment?id=${commentId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: newContent }),
-            });
+    const startEditingComment = (comment: Comment) => {
+        setEditingCommentId(comment._id);
+        setContent(comment.content);
+    }
 
-            if (response.ok) {
-                setComments(comments.map(comment =>
-                    comment._id === commentId
-                        ? { ...comment, content: newContent, isEdited: true }
-                        : comment
-                ));
-                toast.success('Comment updated successfully');
-            }
-        } catch (error) {
-            toast.error('Failed to update comment');
-        }
-    };
+    const getThemeStyles = (baseLight: string, baseDark: string) =>
+        isDarkMode ? baseDark : baseLight;
 
-    const handleReply = async (parentId: string) => {
-        toast.success('Reply feature coming soon');
+    const CommentItem: React.FC<{ comment: Comment }> = ({ comment }) => {
+        const isCurrentUserComment = session?.user?.email === comment.email;
+
+        return (
+            <div
+                className={`
+                    rounded-lg shadow-sm mb-4 p-4 relative
+                    ${getThemeStyles(
+                    'bg-white',
+                    'bg-gray-800'
+                )}
+                `}
+            >
+                {isCurrentUserComment && editingCommentId !== comment._id && (
+                    <div className="absolute top-2 right-2 space-x-2">
+                        {/* <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => startEditingComment(comment)}
+                            className={`
+                                mr-2
+                                ${getThemeStyles(
+                                'text-blue-600 hover:text-blue-700',
+                                'text-blue-400 hover:text-blue-500'
+                            )}
+                            `}
+                        >
+                            Edit
+                        </Button> */}
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteComment(comment._id)}
+                            className={`
+                                ${getThemeStyles(
+                                'text-red-600 hover:text-red-700',
+                                'text-red-400 hover:text-red-500'
+                            )}
+                            `}
+                        >
+                            <Trash2 size={16} />
+                        </Button>
+                    </div>
+                )}
+                <div className="flex items-start space-x-4">
+                    <Avatar
+                        className={`
+                            h-10 w-10 border-2
+                            ${getThemeStyles(
+                            'border-gray-200',
+                            'border-gray-700'
+                        )}
+                        `}
+                    >
+                        <AvatarImage src={comment.image} alt={comment.name} />
+                        <AvatarFallback
+                            className={`
+                                ${getThemeStyles(
+                                'bg-gray-100 text-gray-600',
+                                'bg-gray-700 text-gray-300'
+                            )}
+                            `}
+                        >
+                            {comment.name.charAt(0)}
+                        </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                        <div className="flex justify-between items-center mb-2">
+                            <h4
+                                className={`
+                                    font-semibold text-sm
+                                    ${getThemeStyles(
+                                    'text-gray-800',
+                                    'text-gray-200'
+                                )}
+                                `}
+                            >
+                                {comment.name}
+                            </h4>
+                            <span
+                                className={`
+                                    text-xs
+                                    ${getThemeStyles(
+                                    'text-gray-500',
+                                    'text-gray-400'
+                                )}
+                                `}
+                            >
+                                {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                            </span>
+                        </div>
+                        <p
+                            className={`
+                                text-sm
+                                ${getThemeStyles(
+                                'text-gray-700',
+                                'text-gray-300'
+                            )}
+                            `}
+                        >
+                            {comment.content}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
     };
 
     return (
-        <div className="w-full max-w-3xl mx-auto">
-            <Card className="mb-8">
-                <CardHeader>
-                    <CardTitle className="text-xl">Comments</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {session ? (
-                        <form onSubmit={handlePostComment} className="space-y-4">
-                            <Textarea
-                                placeholder="Share your thoughts..."
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                className="min-h-[120px] resize-none"
-                            />
-                            <Button
-                                type="submit"
-                                className="w-full md:w-auto"
-                                disabled={!content.trim()}
-                            >
-                                Post Comment
-                            </Button>
-                        </form>
-                    ) : (
-                        <div className="text-center py-6">
-                            <p className="mb-4 text-gray-600">Join the discussion by logging in</p>
-                            <Button onClick={() => router.push('/login')}>Login to Comment</Button>
-                        </div>
+        <div className={`
+            max-w-2xl mx-auto px-4 py-8
+            ${getThemeStyles(
+            'bg-white text-gray-900',
+            'bg-gray-900 text-gray-100'
+        )}
+        `}>
+            <div className="mb-6">
+                <h2
+                    className={`
+                        text-2xl font-bold mb-4
+                        ${getThemeStyles(
+                        'text-gray-900',
+                        'text-gray-100'
                     )}
-                </CardContent>
-            </Card>
+                    `}
+                >
+                    Comments
+                </h2>
 
-            <div className="space-y-4 mb-8">
+                {session ? (
+                    <form onSubmit={handlePostComment} className="space-y-4">
+                        <Textarea
+                            placeholder="Share your thoughts..."
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            className={`
+                                min-h-[120px] resize-none
+                                ${getThemeStyles(
+                                'bg-white text-gray-900 border-gray-300',
+                                'bg-gray-800 text-gray-100 border-gray-700'
+                            )}
+                                focus:ring-2 focus:ring-blue-500
+                            `}
+                        />
+                        {error && (
+                            <div
+                                className={`
+                                    text-sm mb-2
+                                    ${getThemeStyles(
+                                    'text-red-500',
+                                    'text-red-400'
+                                )}
+                                `}
+                            >
+                                {error}
+                            </div>
+                        )}
+                        <Button
+                            type="submit"
+                            disabled={submissionStatus === 'submitting' || !content.trim()}
+                            className={`
+                                w-full transition-colors duration-300
+                                ${getThemeStyles(
+                                'bg-blue-600 hover:bg-blue-700',
+                                'bg-blue-700 hover:bg-blue-800'
+                            )}
+                                text-white
+                            `}
+                        >
+                            {editingCommentId
+                                ? 'Update Comment'
+                                : (submissionStatus === 'submitting'
+                                    ? 'Posting...'
+                                    : 'Post Comment')
+                            }
+                        </Button>
+                        {editingCommentId && (
+                            <Button
+                                type="button"
+                                onClick={() => {
+                                    setEditingCommentId(null);
+                                    setContent('');
+                                }}
+                                className={`
+                                    w-full mt-2 transition-colors duration-300
+                                    ${getThemeStyles(
+                                    'bg-gray-200 hover:bg-gray-300 text-gray-700',
+                                    'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                                )}
+                                `}
+                            >
+                                Cancel Edit
+                            </Button>
+                        )}
+                        {submissionStatus === 'success' && (
+                            <div
+                                className={`
+                                    text-sm mt-2
+                                    ${getThemeStyles(
+                                    'text-green-600',
+                                    'text-green-400'
+                                )}
+                                `}
+                            >
+                                Comment {editingCommentId ? 'updated' : 'posted'} successfully!
+                            </div>
+                        )}
+                    </form>
+                ) : (
+                    <div
+                        className={`
+                            rounded-lg p-6 text-center
+                            ${getThemeStyles(
+                            'bg-gray-50',
+                            'bg-gray-800'
+                        )}
+                        `}
+                    >
+                        <p
+                            className={`
+                                mb-4
+                                ${getThemeStyles(
+                                'text-gray-600',
+                                'text-gray-300'
+                            )}
+                            `}
+                        >
+                            Join the discussion by logging in
+                        </p>
+                        <Button
+                            onClick={() => router.push('/login')}
+                            className={`
+                                transition-colors duration-300
+                                ${getThemeStyles(
+                                'bg-blue-600 hover:bg-blue-700',
+                                'bg-blue-700 hover:bg-blue-800'
+                            )}
+                                text-white
+                            `}
+                        >
+                            Login to Comment
+                        </Button>
+                    </div>
+                )}
+            </div>
+
+            <div className="space-y-4">
                 {isLoading ? (
                     Array.from({ length: 3 }).map((_, i) => (
-                        <Card key={i} className="w-full">
-                            <CardHeader>
-                                <div className="flex items-center space-x-4">
-                                    <Skeleton className="h-12 w-12 rounded-full" />
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-4 w-[200px]" />
-                                        <Skeleton className="h-4 w-[150px]" />
-                                    </div>
+                        <div
+                            key={i}
+                            className={`
+                                rounded-lg shadow-sm mb-4 p-4 animate-pulse
+                                ${getThemeStyles(
+                                'bg-white',
+                                'bg-gray-800'
+                            )}
+                            `}
+                        >
+                            <div className="flex items-center space-x-4">
+                                <div
+                                    className={`
+                                        rounded-full h-10 w-10
+                                        ${getThemeStyles(
+                                        'bg-gray-300',
+                                        'bg-gray-700'
+                                    )}
+                                    `}
+                                ></div>
+                                <div className="flex-1 space-y-2">
+                                    <div
+                                        className={`
+                                            h-4 rounded w-3/4
+                                            ${getThemeStyles(
+                                            'bg-gray-300',
+                                            'bg-gray-700'
+                                        )}
+                                        `}
+                                    ></div>
+                                    <div
+                                        className={`
+                                            h-4 rounded w-1/2
+                                            ${getThemeStyles(
+                                            'bg-gray-300',
+                                            'bg-gray-700'
+                                        )}
+                                        `}
+                                    ></div>
                                 </div>
-                            </CardHeader>
-                            <CardContent>
-                                <Skeleton className="h-20 w-full" />
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </div>
                     ))
+                ) : error ? (
+                    <div
+                        className={`
+                            text-center py-8
+                            ${getThemeStyles(
+                            'text-red-500',
+                            'text-red-400'
+                        )}
+                        `}
+                    >
+                        {error}
+                    </div>
                 ) : comments.length > 0 ? (
-                    comments.map((comment) => (
-                        <CommentComponent
-                            key={comment._id}
-                            comment={comment}
-                            onDelete={handleDeleteComment}
-                            onReply={handleReply}
-                            onEdit={handleEditComment}
-                            session={session}
-                        />
+                    comments.map(comment => (
+                        <CommentItem key={comment._id} comment={comment} />
                     ))
                 ) : (
-                    <Card className="w-full">
-                        <CardContent className="p-8 text-center text-gray-500">
-                            No comments yet. Be the first to share your thoughts!
-                        </CardContent>
-                    </Card>
+                    <div
+                        className={`
+                            text-center py-8
+                            ${getThemeStyles(
+                            'text-gray-500',
+                            'text-gray-400'
+                        )}
+                        `}
+                    >
+                        No comments yet. Be the first to comment!
+                    </div>
                 )}
             </div>
         </div>
     );
 };
-
-export default CommentSection;

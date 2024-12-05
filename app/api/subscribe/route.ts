@@ -28,15 +28,15 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  if (email !== session?.user?.email) {
-    return NextResponse.json(
-      {
-        message: "You can only subscribe with your own email",
-        success: false,
-      },
-      { status: 401 }
-    );
-  }
+  // if (email !== session?.user?.email) {
+  //   return NextResponse.json(
+  //     {
+  //       message: "You can only subscribe with your own email",
+  //       success: false,
+  //     },
+  //     { status: 401 }
+  //   );
+  // }
 
   try {
     const existingSubscriber = await Newsletter.findOne({ email });
@@ -71,13 +71,13 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/subscribe
-export async function GET(request: NextRequest) {
+export async function GET() {
   const session = await getSessionAtHome();
 
   if (!session) {
     return NextResponse.json(
       {
-        message: "Unauthorized",
+        message: "You are not authenticated",
         success: false,
       },
       { status: 401 }
