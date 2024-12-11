@@ -195,14 +195,14 @@ export default function Auth() {
                             onClick={() => signIn('google')}
                             disabled={isLoading}
                         >
-                            <FaGoogle className="mr-2" /> Google
+                            <FaGoogle className="h-5 w-5 mr-2 text-red-500" /> Google
                         </Button>
                         <Button
                             variant="outline"
                             onClick={() => signIn('github')}
                             disabled={isLoading}
                         >
-                            <FaGithub className="mr-2" /> GitHub
+                            <FaGithub className="h-5 w-5 mr-2 text-gray-700" /> GitHub
                         </Button>
                     </div>
 
