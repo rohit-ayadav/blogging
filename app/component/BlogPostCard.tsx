@@ -207,7 +207,7 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                                 <button
                                     onClick={() => {
                                         navigator.clipboard.writeText(
-                                            `${post.title}\nRead here: ${window.location.origin}/blogs/${post._id}\n\n`
+                                            `${post.title}\nRead here: ${window.location.origin}/blogs/${post.slug}\n\n`
                                         );
                                         toast.success('Blog link copied!', {
                                             icon: '📋',

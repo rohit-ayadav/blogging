@@ -13,10 +13,10 @@ const RenderContent = (post: BlogPostType) => {
             const heading = match[0];
             const textContent = match[1];
             const id = textContent
-                .replace(/ /g, '-')
-                .replace(/[^a-zA-Z0-9-]/g, '')
-                .toLowerCase()
-                .trim();
+                .replace(/ /g, '-') // Replace spaces with hyphens
+                .replace(/[^a-zA-Z0-9-]/g, '') // Remove non-alphanumeric characters
+                .toLowerCase() // Convert to lowercase
+                .trim(); // Remove leading/trailing whitespace
             content = content.replace(
                 heading,
                 heading.replace(

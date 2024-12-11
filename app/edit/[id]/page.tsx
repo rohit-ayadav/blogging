@@ -20,6 +20,7 @@ import TurndownService from 'turndown';
 import { CATEGORIES } from '@/types/blogs-types';
 import LoadingSpinner from '@/app/create/component/LoadingSpinner';
 import UrlSection from '@/app/create/component/CustomURL';
+import { updateBlog } from '@/action/updateBlog';
 
 const DEFAULT_CONTENT = {
     markdown: `# Welcome to the blog post editor\nStart writing your blog post here...`,
@@ -126,9 +127,9 @@ export default function EditBlog() {
         return null;
     };
 
-    const handleSave = async (isDraft: boolean) => {
+    const handleSave = async () => {
         const validationError = validateForm();
-        if (validationError && !isDraft) {
+        if (validationError) {
             toast.error(validationError);
             return;
         }
@@ -141,35 +142,31 @@ export default function EditBlog() {
 
         updateState({ isLoading: true });
 
-        try {
-            const blogPostData = {
-                title: sanitizeContent.title(state.title),
-                content: sanitizeContent.content(
-                    state.editorMode === 'markdown' ? state.markdownContent : state.htmlContent
-                ),
-                thumbnail: state.thumbnail,
-                tags: state.tags.map(sanitizeContent.tags),
-                category: state.category,
-                status: isDraft ? 'draft' : 'published',
-                language: state.editorMode === 'markdown' ? 'markdown' : 'html',
-            };
+        const blogPostData = {
+            title: sanitizeContent.title(state.title),
+            content: sanitizeContent.content(
+                state.editorMode === 'markdown' ? state.markdownContent : state.htmlContent
+            ),
+            thumbnail: state.thumbnail,
+            tags: state.tags.map(sanitizeContent.tags),
+            category: state.category,
+            status: 'published',
+            language: state.editorMode === 'markdown' ? 'markdown' : 'html',
+            id: state.blogId,
+            slug: state.slug,
+        };
 
-            const response = await fetch(`/api/blog/${state.blogId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(blogPostData),
-            });
+        const response = await updateBlog(blogPostData);
 
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'Failed to update blog post');
-
-            toast.success('Blog post updated successfully');
-            router.push(`/blogs/${state.blogId}`);
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'An unknown error occurred');
-        } finally {
+        if (response.error) {
             updateState({ isLoading: false });
+            toast.error(response.error);
+            return;
         }
+        updateState({ isLoading: false });
+        toast.success(`${response.message}`);
+        router.push(`/blogs/${state.blogId}`);
+
     };
 
     const clearDraft = () => {
@@ -275,7 +272,7 @@ export default function EditBlog() {
 
                         <ActionButtons
                             loading={state.isLoading}
-                            handleSubmit={() => handleSave(false)}
+                            handleSubmit={() => handleSave()}
                             isDarkMode={isDarkMode}
                             mode="edit"
                             clearDraft={() => clearDraft()}
