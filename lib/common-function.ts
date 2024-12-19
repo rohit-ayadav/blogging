@@ -17,13 +17,18 @@ const makeValidSlug = (slug: string) => {
   return processedSlug;
 };
 
-function isValidUrl(url:string) {
+function isValidUrl(url: string) {
   try {
-      new URL(url);
-      return true;
+    new URL(url);
+    return true;
   } catch {
-      return false;
+    return false;
   }
 }
 
-export { isValidSlug, makeValidSlug, isValidUrl };
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(email);
+}
+
+export { isValidSlug, makeValidSlug, isValidUrl, isValidEmail };

@@ -7,10 +7,7 @@ import { FaGithub, FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { findEmailFromUserName } from '@/action/checkUserNameAvailability';
-
-const isValidEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
+import { isValidEmail } from '@/lib/common-function';
 
 const validatePassword = (password: string) => {
     return password.length >= 8;
