@@ -45,7 +45,7 @@ async function registerServiceWorker(): Promise<
   }
 
   try {
-    const registration = await navigator.serviceWorker.register("/sw.js?v=2", {
+    const registration = await navigator.serviceWorker.register("/sw.js?v=3", {
       scope: "/"
     });
     console.log("Service Worker registered successfully");
