@@ -166,7 +166,8 @@ export default function Auth() {
                                     const message = `Hello, I forgot my password. My registered email is ${email || '[Enter Your Email]'}. Please help me reset it.`;
                                     const encodedMessage = encodeURIComponent(message);
                                     const whatsappLink = `http://wa.me/+916392177974?text=${encodedMessage}`;
-                                    window.open(whatsappLink, '_blank');
+                                    // window.open(whatsappLink, '_blank');
+                                    router.push('/forgot-password');
                                 }}
                                 className="font-medium text-indigo-600 hover:text-indigo-500"
                             >

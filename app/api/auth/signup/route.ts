@@ -1,3 +1,4 @@
+import { sendEmail, emailTemplate } from "@/action/email/SendEmail";
 import User from "@/models/users.models";
 import { connectDB } from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
@@ -70,6 +71,11 @@ export async function POST(request: NextRequest) {
 
 
     await User.create(newUser);
+    sendEmail({
+      to: email,
+      subject: "Welcome to DevBlogger, Registration Successful",
+      message: emailTemplate(name, email),
+    });
 
     return NextResponse.json(
       {

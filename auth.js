@@ -1,9 +1,11 @@
+// auth.js
 import { getServerSession } from "next-auth";
 import GitHub from 'next-auth/providers/github';
 import Google from 'next-auth/providers/google';
 import Credentials from 'next-auth/providers/credentials';
 import User from '@/models/users.models';
 import { rateLimit } from "@/utils/rate-limit";
+import { emailTemplate, loginSuccessEmail, sendEmail } from "./action/email/SendEmail";
 
 export const authOptions = {
     providers: [
@@ -31,6 +33,17 @@ export const authOptions = {
                 if (!isValid) {
                     throw new Error('Invalid credentials');
                 }
+                console.log('Credentials authorize\n\n\n');
+                try {
+                    sendEmail({
+                        to: user.email,
+                        subject: "Login successful ✔ | Dev Blog",
+                        message: loginSuccessEmail({ name: user.name, email: user.email }),
+                    });
+                } catch (error) {
+                    console.error("Failed to send login email:", error);
+                }
+                
                 return {
                     email: user.email,
                     name: user.name,
@@ -55,8 +68,10 @@ export const authOptions = {
         secret: process.env.JWT_SECRET,
         maxAge: 5 * 24 * 60 * 60, // 5 days
     },
+
     callbacks: {
         async jwt({ token, user }) {
+            console.log('jwt callback\n\n\n');
             if (user) {
                 token.email = user.email;
                 token.name = user.name;
@@ -69,6 +84,7 @@ export const authOptions = {
         },
 
         async session({ session, token }) {
+            console.log('session callback\n\n\n');
             if (token?.email) {
                 session.user.email = token.email;
                 session.user.name = token.name;
@@ -81,6 +97,7 @@ export const authOptions = {
         },
         async signIn({ user, account, profile }) {
             const { email } = user;
+            console.log('signIn callback\n\n\n');
 
             try {
                 const existingUser = await User.findOne({ email });
@@ -99,6 +116,11 @@ export const authOptions = {
                 };
 
                 await User.create(newUser);
+                sendEmail({
+                    to: email,
+                    subject: "Registration successful ✔ | Dev Blog",
+                    message: emailTemplate({ name: newUser.name, email: newUser.email }),
+                });
                 console.log('User created');
                 return true;
             } catch (error) {

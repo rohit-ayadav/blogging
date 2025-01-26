@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import { trim } from "lodash";
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -13,7 +14,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: function(this: any) {
+    required: function (this: any) {
       return this.provider === "credentials";
     }
   },
@@ -66,10 +67,27 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "user",
     required: true
-  }
+  },
+  resetPasswordToken: {
+    type: String,
+    required: false,
+    trim: true,
+    default: ""
+  },
 });
 
-userSchema.pre("save", async function(next) {
+// Delete reset password token after password reset or after 10 minutes
+userSchema.pre("save", async function (next) {
+  if (this.isModified("password")) {
+    this.resetPasswordToken = "";
+  }
+  next(); // move to the next middleware
+});
+
+// Add TTL index for resetPasswordToken
+userSchema.index({ resetPasswordToken: 1 }, { expireAfterSeconds: 600 }); // 10 minutes
+
+userSchema.pre("save", async function (next) {
   this.updatedAt = new Date();
 
   if (this.isModified("password")) {
@@ -82,7 +100,7 @@ userSchema.pre("save", async function(next) {
   next();
 });
 
-userSchema.methods.comparePassword = async function(password: string) {
+userSchema.methods.comparePassword = async function (password: string) {
   if (typeof this.password !== "string") {
     throw new Error("Password is not a string");
   }
