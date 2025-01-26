@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { sendEmail } from '@/action/email/SendEmail';
+import { confirmationToUser, copyToAdmin } from '@/utils/EmailTemplate/contact-email';
 
 const ContactPage = () => {
     const [formData, setFormData] = useState({
@@ -35,6 +37,17 @@ const ContactPage = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData),
         });
+        await sendEmail({
+            to: formData.email,
+            subject: `Thank you for contacting us! | DevBlogger`,
+            message: confirmationToUser(formData.name, formData.email, Date.now().toString()),
+        });
+        await sendEmail({
+            to: 'rohitkuyada@gmail.com',
+            subject: `New Contact Form Submission | DevBlogger`,
+            message: copyToAdmin(formData.name, formData.email, Date.now().toString(), formData.subject, formData.message),
+        });
+
         if (response.ok) {
             setSubmitStatus('success');
             setFormData({ name: '', email: '', subject: '', message: '' });

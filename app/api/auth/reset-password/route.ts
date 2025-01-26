@@ -3,7 +3,7 @@ import { connectDB } from "@/utils/db";
 import Cryptr from "cryptr";
 import { NextRequest, NextResponse } from "next/server";
 import { sendEmail } from "@/action/email/SendEmail";
-import { FPSuccesfullyResetPassword } from "../forgot-password/FPEmailTemplate";
+import { FPSuccesfullyResetPassword } from "@/utils/EmailTemplate/auth";
 
 connectDB();
 

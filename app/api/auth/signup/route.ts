@@ -1,6 +1,7 @@
-import { sendEmail, emailTemplate } from "@/action/email/SendEmail";
+import { sendEmail } from "@/action/email/SendEmail";
 import User from "@/models/users.models";
 import { connectDB } from "@/utils/db";
+import { SignUpEmailTemplate } from "@/utils/EmailTemplate/auth";
 import { NextRequest, NextResponse } from "next/server";
 await connectDB();
 
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
     sendEmail({
       to: email,
       subject: "Welcome to DevBlogger, Registration Successful",
-      message: emailTemplate(name, email),
+      message: SignUpEmailTemplate(name, email),
     });
 
     return NextResponse.json(

@@ -5,7 +5,6 @@ import Google from 'next-auth/providers/google';
 import Credentials from 'next-auth/providers/credentials';
 import User from '@/models/users.models';
 import { rateLimit } from "@/utils/rate-limit";
-import { emailTemplate, loginSuccessEmail, sendEmail } from "./action/email/SendEmail";
 
 export const authOptions = {
     providers: [

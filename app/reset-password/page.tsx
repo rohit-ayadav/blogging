@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
+import { set } from 'lodash';
 
 function PasswordResetContent() {
     const [password, setPassword] = useState('');
@@ -16,7 +17,7 @@ function PasswordResetContent() {
 
     const router = useRouter();
     const searchParams = useSearchParams();
-    
+
     useEffect(() => {
         if (!searchParams.has('token') || !searchParams.has('email')) {
             setError('Invalid reset link');
@@ -39,7 +40,10 @@ function PasswordResetContent() {
         if (!/[a-z]/.test(pwd)) errors.push("Must contain a lowercase letter");
         if (!/[0-9]/.test(pwd)) errors.push("Must contain a number");
         if (!/[!@#$%^&*]/.test(pwd)) errors.push("Must contain a special character");
-        return errors;
+        if (password !== confirmPassword) errors.push("Passwords do not match");
+        if (errors.length === 0) setError(null);
+        else
+            setError(errors.join(', '));
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -56,11 +60,7 @@ function PasswordResetContent() {
             return;
         }
 
-        const passwordErrors = validatePassword(password);
-        if (passwordErrors.length > 0) {
-            setError(passwordErrors.join(', '));
-            return;
-        }
+        validatePassword(password);
 
         setIsLoading(true);
 
