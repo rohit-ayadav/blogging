@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     const decryptedEmail = new Cryptr(process.env.CRYPTO_SECRET).decrypt(email);
+    const decryptedToken = new Cryptr(process.env.CRYPTO_SECRET).decrypt(token);
 
     const user = await User.findOne({ email: decryptedEmail });
     console.log(`Email: ${email}, Decrypted Email: ${decryptedEmail}, User: ${user}\n\n`);
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
         }, { status: 400 });
     }
 
-    if (user.resetPasswordToken !== token) {
+    if (user.resetPasswordToken !== decryptedToken) {
         return NextResponse.json({
             error: "You are not authorized to reset the password"
         }, { status: 400 });

@@ -29,8 +29,14 @@ export default function ForgotPassword() {
             }, 1000);
         }
         return () => {
-            if (timer) clearInterval(timer);
-        };
+            if (timer) {
+                clearInterval(timer); // Clear interval on unmount
+                // Reset cooldown time
+                setCooldownTime(0);
+                // Reset attempts
+                localStorage.setItem('passwordResetAttempts', '0');
+            }
+        }
     }, [cooldownTime]);
 
     // Check if request is allowed based on local storage
@@ -38,7 +44,7 @@ export default function ForgotPassword() {
         const lastRequestTime = localStorage.getItem('lastPasswordResetRequest');
         if (lastRequestTime) {
             const timeSinceLastRequest = Date.now() - parseInt(lastRequestTime);
-            return timeSinceLastRequest > 30000; // 30 seconds between requests
+            return timeSinceLastRequest > 60000; // 60 seconds between requests
         }
         return true;
     };
@@ -50,16 +56,16 @@ export default function ForgotPassword() {
 
         // Check if another request is too soon
         if (!checkRequestAllowed()) {
-            setError('Please wait 30 seconds between reset requests');
+            setError('Please wait 60 seconds between reset requests');
             return;
         }
 
         // Check if we've exceeded max attempts
         const attempts = parseInt(localStorage.getItem('passwordResetAttempts') || '0');
         if (attempts >= 3) {
-            setError('Too many reset attempts. Please try again later.');
-            setCooldownTime(300); // 5-minute cooldown
-            return;
+            // setError('Too many reset attempts. Please try again later.');
+            // setCooldownTime(300); // 5-minute cooldown
+            // return;
         }
 
         setIsLoading(true);
@@ -151,8 +157,8 @@ export default function ForgotPassword() {
                         disabled={isLoading || cooldownTime > 0}
                         className="w-full"
                     >
-                        {cooldownTime > 0 
-                            ? `Try again in ${cooldownTime} seconds` 
+                        {cooldownTime > 0
+                            ? `Try again in ${cooldownTime} seconds`
                             : (isLoading ? 'Sending Reset Request...' : 'Reset Password')
                         }
                     </Button>
