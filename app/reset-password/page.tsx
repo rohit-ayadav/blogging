@@ -115,6 +115,7 @@ function PasswordResetContent() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 pr-10"
                                 required
+                                autoComplete='new-password'
                             />
                             <button
                                 type="button"
@@ -133,6 +134,7 @@ function PasswordResetContent() {
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                             required
+                            autoComplete='new-password'
                         />
                     </div>
 

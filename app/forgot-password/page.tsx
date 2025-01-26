@@ -149,6 +149,7 @@ export default function ForgotPassword() {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                             aria-label="Email or Username"
                             required
+                            autoComplete='email'
                         />
                     </div>
 
