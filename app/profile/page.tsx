@@ -211,6 +211,8 @@ export default function UserProfile() {
     const deleteAccount = async () => {
         console.log("Deleting account");
 
+        toast.loading("We are not deleting your account. Write to us if you want to delete your account.");
+        return;
 
         try {
             await toast.promise(deleteAllBlogsRequest(), {
