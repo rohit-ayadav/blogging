@@ -208,45 +208,45 @@ export default function UserProfile() {
         }
     };
 
-    const deleteAccount = async () => {
-        console.log("Deleting account");
+    // const deleteAccount = async () => {
+    //     console.log("Deleting account");
 
-        toast.loading("We are not deleting your account. Write to us if you want to delete your account.");
-        return;
+    //     toast.loading("We are not deleting your account. Write to us if you want to delete your account.");
+    //     return;
 
-        try {
-            await toast.promise(deleteAllBlogsRequest(), {
-                loading: 'Deleting blogs...',
-                success: 'Blogs deleted successfully',
-                error: 'Failed to delete blogs',
-            });
-        } catch (error) {
-            if (error instanceof Error) {
-                console.error('Blog deletion failed:', error.message);
-            } else {
-                console.error('Blog deletion failed:', error);
-            }
-            toast.error('Cannot delete account until all blogs are deleted.');
-            return;
-        }
+    //     try {
+    //         await toast.promise(deleteAllBlogsRequest(), {
+    //             loading: 'Deleting blogs...',
+    //             success: 'Blogs deleted successfully',
+    //             error: 'Failed to delete blogs',
+    //         });
+    //     } catch (error) {
+    //         if (error instanceof Error) {
+    //             console.error('Blog deletion failed:', error.message);
+    //         } else {
+    //             console.error('Blog deletion failed:', error);
+    //         }
+    //         toast.error('Cannot delete account until all blogs are deleted.');
+    //         return;
+    //     }
 
 
-        try {
-            await toast.promise(deleteAccountRequest(), {
-                loading: 'Deleting account...',
-                success: 'Account deleted successfully',
-                error: 'Failed to delete account',
-            });
-            await signOut();
-            router.push('/');
-        } catch (error) {
-            if (error instanceof Error)
-                console.error('Account deletion failed:', error.message);
-            else
-                console.error('Account deletion failed:', error);
-            toast.error('Failed to delete account.');
-        }
-    };
+    //     try {
+    //         await toast.promise(deleteAccountRequest(), {
+    //             loading: 'Deleting account...',
+    //             success: 'Account deleted successfully',
+    //             error: 'Failed to delete account',
+    //         });
+    //         await signOut();
+    //         router.push('/');
+    //     } catch (error) {
+    //         if (error instanceof Error)
+    //             console.error('Account deletion failed:', error.message);
+    //         else
+    //             console.error('Account deletion failed:', error);
+    //         toast.error('Failed to delete account.');
+    //     }
+    // };
 
     const handleEditBlog = (blogId: string) => {
         router.push(`/edit/${blogId}`);
@@ -603,7 +603,8 @@ export default function UserProfile() {
                                                     </AlertDialogHeader>
                                                     <AlertDialogFooter>
                                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={deleteAccount}>Delete Account</AlertDialogAction>
+                                                        {/* <AlertDialogAction onClick={deleteAccount}>Delete Account</AlertDialogAction> */}
+                                                        <AlertDialogAction>Delete Account</AlertDialogAction>
                                                     </AlertDialogFooter>
                                                 </AlertDialogContent>
                                             </AlertDialog>
