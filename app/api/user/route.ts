@@ -117,9 +117,21 @@ export async function DELETE(request: NextRequest) {
 }
 
 async function getUserByEmail(email: string) {
+  console.log(`\nSearching for user with email: ${email}\n`);
+  if(!email) {
+    return NextResponse.json(
+      {
+        message: "Email is required",
+        success: false
+      },
+      { status: 400 }
+    );
+  }
+
   try {
     const user = await User.findOne({ email });
     if (!user) {
+      console.log(`\nUser with email: ${email} not found\n`);
       return NextResponse.json(
         {
           message: "User not found",
@@ -128,6 +140,7 @@ async function getUserByEmail(email: string) {
         { status: 404 }
       );
     }
+    console.log(`\nUser with email: ${email} found\n`);
     return NextResponse.json({ user, success: true });
   } catch (error: any) {
     console.error("Error fetching user by email:", error);

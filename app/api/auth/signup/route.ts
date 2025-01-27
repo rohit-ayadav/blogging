@@ -1,13 +1,15 @@
 import { sendEmail } from "@/action/email/SendEmail";
+import sendOtpModels from "@/models/send-otp.models";
 import User from "@/models/users.models";
 import { connectDB } from "@/utils/db";
 import { SignUpEmailTemplate } from "@/utils/EmailTemplate/auth";
 import { NextRequest, NextResponse } from "next/server";
 await connectDB();
+import bcrypt from "bcrypt";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  let { name, email, username, password, image, bio } = body;
+  let { name, email, username, password, image, bio, otp } = body;
   if (!username) {
     username = email.split("@")[0];
   } else if (username.trim() === "") {
@@ -35,6 +37,16 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
+  if (!otp) {
+    return NextResponse.json(
+      {
+        message: "Enter the OTP sent to your email",
+        success: false,
+      },
+      { status: 400 }
+    );
+  }
+
   try {
 
     const existingUsername = await User.findOne({ username: username });
@@ -59,7 +71,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const user = await sendOtpModels.findOne({ email, isUsed: false });
+    if (!user) {
+      return NextResponse.json(
+        {
+          message: "Please request for OTP again",
+          success: false,
+        },
+        { status: 400 }
+      );
+    }
 
+    const isValidOtp = await bcrypt.compare(otp, user.otp);
+    if (!isValidOtp) {
+      return NextResponse.json(
+        {
+          message: "Invalid OTP",
+          success: false,
+        },
+        { status: 400 }
+      );
+    }
+
+
+    user.isUsed = true;
+    await user.save();
     const newUser = {
       name,
       email,
@@ -68,6 +104,7 @@ export async function POST(request: NextRequest) {
       image,
       providers: "credentials",
       username,
+      resetPasswordTokenDate: null,
     };
 
 
