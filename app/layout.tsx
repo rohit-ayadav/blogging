@@ -9,6 +9,7 @@ import { Toaster } from 'react-hot-toast';
 import SessionWrapper from "./component/sessionWrapper";
 import { Analytics } from "@vercel/analytics/react"
 import { ThemeProvider } from "@/context/ThemeContext";
+import Script from "next/script";
 
 declare global {
   interface Window {
@@ -153,6 +154,11 @@ export default function RootLayout({
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8778160378200057"
           crossOrigin="anonymous">
         </script>
+        
+        <Script
+          src="//code.tidio.co/l6g8cbi3bveugsuepmvcwmmvim0muhdb.js"
+          strategy="afterInteractive"
+        />
         <meta name="google-adsense-account" content="ca-pub-8778160378200057"></meta>
       </head>
       <body
