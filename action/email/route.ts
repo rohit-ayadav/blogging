@@ -36,9 +36,6 @@ export async function POST(request: NextRequest) {
             html: message,
         });
 
-        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-        console.log(info);
-        console.log("Message sent: %s", info.messageId);
 
         return NextResponse.json({
             success: true,

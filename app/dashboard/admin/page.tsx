@@ -193,9 +193,7 @@ const OptimizedAdminDashboard = () => {
                 unresolved: contactUsData.data.filter((c: { resolved: boolean }) => !c.resolved).length
             });
             setcontactUsDataPage(contactUsData.data);
-            console.log("contactUsDataPage" + contactUsDataPage);
             setNewsLetterDataPage(subscriberData.subscribers);
-            console.log("newsLetterDataPage" + newsLetterDataPage);
 
         } catch (error) {
             console.error('Error fetching additional data:', error);

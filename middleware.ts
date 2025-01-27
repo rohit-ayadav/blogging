@@ -24,7 +24,6 @@ export async function middleware(req: NextRequest) {
   }
 
   const { name, email, role } = token;
-  // console.log(`\nSession Details:\nName:${name}\nEmail:${email}\nRole:${role}\n`);
 
   if (
     !token &&

@@ -11,10 +11,8 @@ export async function GET(
     await connectDB();
 
     if (!params.category) {
-      console.log(`Category not found,${params.category}`);
       params.category = "all";
     }
-    console.log(`Found, ${params.category}`);
 
     const query = params.category ? { category: params.category } : {};
     let blogs;

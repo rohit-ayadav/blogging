@@ -29,7 +29,6 @@ const isValidSubscription = (subscription: any) => {
 };
 
 export async function POST(req: NextRequest, res: NextResponse) {
-  console.log("req.body" + req.body);
   if (!req.body) {
     return NextResponse.json(
       { message: "Invalid request", success: false },
@@ -38,7 +37,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
   }
 
   const { subscription } = await req.json();
-  console.log("subscription" + subscription);
 
   if (Object.keys(subscription).length === 0) {
     // if (!subscription) {

@@ -194,7 +194,6 @@ export async function POST(request: NextRequest) {
 
       await Promise.all(notificationPromises);
       await Notification.deleteMany({ active: false });
-      console.log("Notifications sent successfully");
     } else {
       console.log("No active subscriptions found");
     }

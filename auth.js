@@ -65,12 +65,6 @@ export const authOptions = {
 
     callbacks: {
         async jwt({ token, user, account }) {
-            console.log('JWT Callback - Input:', {
-                hasUser: !!user,
-                hasToken: !!token,
-                hasAccount: !!account
-            });
-
             if (user) {
                 token.id = user.id;
                 token.email = user.email;
@@ -79,15 +73,10 @@ export const authOptions = {
                 token.provider = user.provider;
                 token.role = user.role;
             }
-            // console.log('JWT Callback - Output Token:', token);
             return token;
         },
 
         async session({ session, token }) {
-            console.log('Session Callback - Input:', {
-                hasSession: !!session,
-                hasToken: !!token
-            });
 
             if (token) {
                 session.user.id = token.id;
@@ -97,19 +86,13 @@ export const authOptions = {
                 session.user.provider = token.provider;
                 session.user.role = token.role;
             }
-            // console.log('Session Callback - Output Session:', session);
             return session;
         },
 
         async signIn({ user, account, profile }) {
-            console.log('SignIn Callback - Starting');
-            // console.log('User:', { email: user.email, name: user.name }); // Don't log full user object for security
-            console.log('Account:', account);
-
             const { email } = user;
 
             try {
-                console.log('Sending email');
                 // Send email
                 await sendEmail({
                     to: email,
@@ -120,11 +103,9 @@ export const authOptions = {
                         location: 'Progressive Web App',
                     }),
                 });
-                console.log('Login email sent successfully');
 
                 const existingUser = await User.findOne({ email });
                 if (existingUser) {
-                    console.log('Existing user found, updating details');
                     existingUser.provider = account?.provider || existingUser.provider;
                     if (profile) {
                         existingUser.image = profile.picture || profile.avatar_url || existingUser.image;
@@ -132,8 +113,6 @@ export const authOptions = {
                     await existingUser.save();
                     return true;
                 }
-
-                console.log('Creating new user');
 
                 const newUser = {
                     name: profile.name || profile.login || null,
@@ -145,7 +124,6 @@ export const authOptions = {
                 };
 
                 await User.create(newUser);
-                console.log('User created');
                 sendEmail({
                     to: email,
                     subject: "Registration successful ✔ | Dev Blog 🚀",
@@ -154,12 +132,9 @@ export const authOptions = {
                         email: newUser.email,
                     }),
                 });
-                console.log('User created');
                 return true;
             } catch (error) {
-                console.log('Error creating user');
-
-                console.error(error);
+                console.error(`Error sending email: ${error}`);
                 return false;
                 // return true; // Continue sign in process
             }

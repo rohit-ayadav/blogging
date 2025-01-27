@@ -58,7 +58,6 @@ export default function NewsletterAdminPage({ subscribers }: NewsletterAdminPage
     // Usage in useEffect
     useEffect(() => {
         setSubscriberGrowth(findSubscriberGrowth());
-        console.log(subscriberGrowth);
     }, [subscribers]);
 
     const engagementRate = [
@@ -71,8 +70,6 @@ export default function NewsletterAdminPage({ subscribers }: NewsletterAdminPage
     const handleSendEmail = () => {
         // Logic to send email to selected subscribers
         toast.success('Email sent successfully!')
-        console.log('Sending email to:', selectedSubscribers)
-        console.log('Email content:', emailContent)
     }
 
     const toggleSubscriberSelection = (email: string) => {

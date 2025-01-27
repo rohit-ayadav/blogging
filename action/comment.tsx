@@ -42,7 +42,6 @@ async function getComment(id: string) {
             return response;
         }
         const comments = await Comment.find({ postId: id });
-        console.log(`Comments for post ${id}:`, comments);
         response.comments = comments;
         return response;
     } catch (error) {

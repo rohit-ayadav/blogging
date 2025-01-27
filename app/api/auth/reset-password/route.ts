@@ -25,7 +25,6 @@ export async function POST(req: NextRequest) {
     const decryptedToken = new Cryptr(process.env.CRYPTO_SECRET).decrypt(token);
 
     const user = await User.findOne({ email: decryptedEmail });
-    // console.log(`Email: ${email}, Decrypted Email: ${decryptedEmail}, User: ${user}\n\n`);
 
     if (decryptedEmail !== user.email) {
         return NextResponse.json({

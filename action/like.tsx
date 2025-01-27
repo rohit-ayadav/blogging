@@ -31,7 +31,6 @@ async function likePost(id: string) {
         }
         post.likes = (post.likes || 0) + 1
         await post.save()
-        console.log("Post liked successfully")
         return true;
     } catch (error) {
         console.error("Error saving blog post:", error)
@@ -68,7 +67,6 @@ async function dislikePost(id: string) {
         }
 
         await post.save()
-        console.log("Post disliked successfully")
         return true;
     } catch (error) {
         console.error("Error saving blog post:", error)

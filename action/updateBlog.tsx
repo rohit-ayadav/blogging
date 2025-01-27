@@ -92,7 +92,6 @@ export async function updateBlog(Post: UpdatePostType) {
         blog.slug = Post.slug;
 
         await blog.save();
-        console.log("Blog updated successfully");
         return {
             message: "Blog updated successfully",
             error: ""

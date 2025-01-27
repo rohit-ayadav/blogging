@@ -39,7 +39,6 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  console.log("id", id);
   let blog;
   if (isSlug) {
     blog = await Blog.findOne({ slug: id });
@@ -214,7 +213,6 @@ export async function PATCH(request: NextRequest) {
     return createResponse({ message: "Unauthorized", success: false }, 401);
   }
   const id = request.nextUrl.pathname.split("/").pop();
-  console.log("id", id);
   if (!id) {
     return createResponse(
       { message: "Blog ID is required", success: false },
@@ -251,11 +249,6 @@ export async function PATCH(request: NextRequest) {
         500
       );
     }
-    console.log(
-      `result.category === data.category`,
-      result.category,
-      data.category
-    );
     if (result.category === data.category) {
       return createResponse(
         {

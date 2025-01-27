@@ -9,7 +9,6 @@ import bcrypt from "bcrypt";
 export async function POST(request: NextRequest) {
     try {
         await connectDB();
-        console.log(`request: ${request}`);
         if (!request.body) {
             return NextResponse.json({
                 message: 'Invalid request body'
@@ -42,7 +41,6 @@ export async function POST(request: NextRequest) {
         }
         let otp = crypto.getRandomValues(new Uint32Array(1))[0].toString().substring(0, 6);
 
-        console.log(`OTP: ${otp}`);
         sendEmail({
             to: email,
             subject: 'OTP for Email Verification',
@@ -59,7 +57,6 @@ export async function POST(request: NextRequest) {
         }, { status: 200 });
     }
     catch (error) {
-        console.log(`Error while sending OTP\n\n${error}\n\n`);
         return NextResponse.json({
             message: 'Something went wrong. Please try again'
         }, { status: 500 });

@@ -86,7 +86,6 @@ export default function ContactFormPage({ data: initialData }: ContactFormPagePr
         if (initialData && initialData.length > 0) {
             setData(initialData)
         }
-        console.log('Initial data changed '+initialData+ ' '+data)
     }, [initialData])
 
     const handleSort = (key: keyof Message) => {

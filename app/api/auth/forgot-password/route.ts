@@ -25,7 +25,6 @@ const resetPasswordRequest = async (user: any, req: NextRequest) => {
 
         resetPasswordToken = user.resetPasswordToken;
         subject = "Password Reset Request for DevBlogger 01 (Extra Email)";
-        console.log(`New Token is not generated\n\n`);
     } else {
         // Generate a random token for password reset
         resetPasswordToken = cryptoRandomString({ length: 32, type: 'url-safe' });
@@ -77,7 +76,6 @@ export async function POST(req: NextRequest) {
     }
 
     const url = new URL(req.url, `http://${req.headers.get('host')}`);
-    console.log(`Request from ${url.origin}\n\nin ${url.pathname}\n\n`);
 
     try {
         // Look for user by email or username

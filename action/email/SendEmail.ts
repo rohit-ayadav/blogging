@@ -41,9 +41,6 @@ const sendEmail = async ({ to, subject, message }: EmailParams) => {
             html: message,
         });
 
-        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-        console.log(info);
-        console.log("Message sent: %s", info.messageId);
     } catch (error) {
         console.error("Error sending email:", error);
         return { message: "Email sending failed", error: error };
