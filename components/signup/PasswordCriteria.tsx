@@ -1,16 +1,17 @@
 // components/auth/SignupForm/PasswordCriteria.tsx
 import { FaCheck, FaTimes } from 'react-icons/fa';
+import { PasswordCriteriaType } from './useSignupForm';
 
-interface Criteria {
-    hasUpperCase: boolean;
-    hasLowerCase: boolean;
-    hasNumber: boolean;
-    hasSpecialChar: boolean;
-    minLength: boolean;
-}
-
-const PasswordCriteria = ({ criteria }: { criteria: Criteria }) => {
+const PasswordCriteria = ({ criteria }: { criteria: PasswordCriteriaType }) => {
     const allCriteriaMet = Object.values(criteria).every(c => c);
+    console.log(`
+        hasUppercase: ${criteria.hasUppercase}
+        hasLowercase: ${criteria.hasLowercase}
+        hasNumber: ${criteria.hasNumber}
+        hasSpecialChar: ${criteria.hasSpecialChar}
+        hasEightChars: ${criteria.hasEightChars}
+        on allCriteriaMet: ${allCriteriaMet}
+        client side`)
 
     if (allCriteriaMet) {
         return (
@@ -23,13 +24,13 @@ const PasswordCriteria = ({ criteria }: { criteria: Criteria }) => {
 
     return (
         <div className="space-y-1 text-sm">
-            {!criteria.hasUpperCase && (
+            {!criteria.hasUppercase && (
                 <div className="flex items-center">
                     <FaTimes className="text-red-500" />
                     <span className="ml-2">At least one uppercase letter</span>
                 </div>
             )}
-            {!criteria.hasLowerCase && (
+            {!criteria.hasLowercase && (
                 <div className="flex items-center">
                     <FaTimes className="text-red-500" />
                     <span className="ml-2">At least one lowercase letter</span>
@@ -47,7 +48,7 @@ const PasswordCriteria = ({ criteria }: { criteria: Criteria }) => {
                     <span className="ml-2">At least one special character</span>
                 </div>
             )}
-            {!criteria.minLength && (
+            {!criteria.hasEightChars && (
                 <div className="flex items-center">
                     <FaTimes className="text-red-500" />
                     <span className="ml-2">At least 8 characters</span>

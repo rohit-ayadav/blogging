@@ -2,12 +2,12 @@
 import { FC } from 'react';
 import PasswordInput from './PasswordInput';
 import PasswordCriteria from './PasswordCriteria';
-import { FormData } from './useSignupForm';
+import { FormData, PasswordCriteriaType } from './useSignupForm';
 
 interface FormFieldsProps {
     formData: FormData
     handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    passwordCriteria: any;
+    passwordCriteria: PasswordCriteriaType;
     usernameAvailable: boolean;
 }
 
@@ -71,12 +71,12 @@ const FormFields: FC<FormFieldsProps> = ({
                 <PasswordCriteria criteria={passwordCriteria} />
             )}
             <PasswordInput
-            name='confirmPass'
-            placeholder='Confirm Password'
-            value={formData.confirmPass}
-            onChange={handleChange}
-            showPassword={false}
-            togglePassword={() => {}}
+                name='confirmPass'
+                placeholder='Confirm Password'
+                value={formData.confirmPass}
+                onChange={handleChange}
+                showPassword={false}
+                togglePassword={() => { }}
             />
             {formData.password !== formData.confirmPass && formData.confirmPass && (
                 <p className="text-sm text-red-500">Passwords do not match</p>

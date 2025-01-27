@@ -12,7 +12,7 @@ interface FormData {
     otp: string;
 }
 
-interface PasswordCriteria {
+interface PasswordCriteriaType {
     hasLowercase: boolean;
     hasUppercase: boolean;
     hasNumber: boolean;
@@ -60,6 +60,16 @@ const useSignupForm = () => {
             );
         }
     }, [formData.username]);
+
+    useEffect(() => {
+        setPasswordCriteria({
+            hasLowercase: /[a-z]/.test(formData.password),
+            hasUppercase: /[A-Z]/.test(formData.password),
+            hasNumber: /\d/.test(formData.password),
+            hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(formData.password),
+            hasEightChars: formData.password.length >= 8
+        });
+    }, [formData.password]);
 
     const validateForm = (): boolean => {
         if (formData.password !== formData.confirmPass) {
@@ -126,13 +136,13 @@ const useSignupForm = () => {
             };
 
             if (name === 'password') {
-                setPasswordCriteria({
-                    hasLowercase: /[a-z]/.test(value),
-                    hasUppercase: /[A-Z]/.test(value),
-                    hasNumber: /\d/.test(value),
-                    hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value),
-                    hasEightChars: value.length >= 8
-                });
+                // setPasswordCriteria({
+                //     hasLowercase: /[a-z]/.test(value),
+                //     hasUppercase: /[A-Z]/.test(value),
+                //     hasNumber: /\d/.test(value),
+                //     hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value),
+                //     hasEightChars: value.length >= 8
+                // });
                 console.log(`\nThe password criteria are as follows:
                     Lowercase: ${/[a-z]/.test(value)}
                     Uppercase: ${/[A-Z]/.test(value)}
@@ -279,4 +289,4 @@ const useSignupForm = () => {
 }
 
 export default useSignupForm;
-export type { FormData, PasswordCriteria, Error };
+export type { FormData, PasswordCriteriaType, Error };
