@@ -30,20 +30,20 @@ function PasswordResetContent() {
     }, [searchParams]);
 
     useEffect(() => {
-        validatePassword(password);
+        if (password)
+            validatePassword(password);
     }, [password]);
 
     const validatePassword = (pwd: string) => {
         const errors: string[] = [];
-        if (pwd.length < 8) errors.push("Password must be at least 8 characters");
         if (!/[A-Z]/.test(pwd)) errors.push("Must contain an uppercase letter");
         if (!/[a-z]/.test(pwd)) errors.push("Must contain a lowercase letter");
         if (!/[0-9]/.test(pwd)) errors.push("Must contain a number");
         if (!/[!@#$%^&*]/.test(pwd)) errors.push("Must contain a special character");
-        if (password !== confirmPassword) errors.push("Passwords do not match");
+        if (pwd.length < 8) errors.push("Password must be at least 8 characters");
         if (errors.length === 0) setError(null);
         else
-            setError(errors.join(', '));
+            setError(errors[0]);
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -100,7 +100,7 @@ function PasswordResetContent() {
                     Reset Your Password
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {error && (
+                    {error && password.length > 0 && (
                         <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded relative" role="alert">
                             {error}
                         </div>
