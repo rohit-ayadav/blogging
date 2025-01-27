@@ -448,11 +448,11 @@ export default function UserProfile() {
                                                         </div>
                                                         <div>
                                                             <Label htmlFor="new-password">New Password</Label>
-                                                            <Input id="new-password" type="password" />
+                                                            <Input id="new-password" type="password" autoComplete="new-password" />
                                                         </div>
                                                         <div>
                                                             <Label htmlFor="confirm-password">Confirm New Password</Label>
-                                                            <Input id="confirm-password" type="password" />
+                                                            <Input id="confirm-password" type="password" autoComplete="new-password" />
                                                         </div>
                                                     </div>
                                                     <DialogFooter>
