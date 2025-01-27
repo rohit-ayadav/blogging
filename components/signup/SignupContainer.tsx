@@ -67,7 +67,9 @@ const SignupContainer: FC = () => {
                                                     onError={(e) => {
                                                         e.currentTarget.onerror = null;
                                                         e.currentTarget.src = '';
-                                                        e.currentTarget.parentElement!.innerHTML = `<span class="text-indigo-600">${String.fromCharCode(65 + i)}</span>`;
+                                                        if (e.currentTarget.parentElement) {
+                                                            e.currentTarget.parentElement.innerHTML = `<span class="text-indigo-600">${String.fromCharCode(65 + i)}</span>`;
+                                                        }
                                                     }}
                                                 />
                                             </div>

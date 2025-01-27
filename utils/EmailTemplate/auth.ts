@@ -235,46 +235,86 @@ const SignUpEmailTemplate = (name: string, email: string) => {
     `;
 };
 
-const LoginSuccessEmailTemplateF
-    = (name: string, loginTime: string, deviceInfo: string) => {
-        return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-          <meta charset="utf-8">
-          <title>New Login Detected</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
-              <h2 style="color: #2d3748;">New Login Detected</h2>
-              
-              <p>Hi ${name},</p>
-              
-              <p>We detected a new login to your DevBlogger account.</p>
-              
-              <div style="background: white; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                  <p style="margin: 5px 0;"><strong>Login Time:</strong> ${loginTime}</p>
-                  <p style="margin: 5px 0;"><strong>Device Info:</strong> ${deviceInfo}</p>
-              </div>
-  
-              <p>If this wasn't you, please secure your account immediately by:</p>
-              <ol style="padding-left: 20px; margin: 10px 0;">
-                  <li>Changing your password</li>
-                  <li>Enabling two-factor authentication</li>
-                  <li>Contacting our support team</li>
-              </ol>
-  
-              <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
-                  <p>Join our community:</p>
-                  <a href="https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t" 
-                     style="color: #25D366; text-decoration: none;">
-                      WhatsApp Channel →
-                  </a>
-              </div>
-          </div>
-      </body>
-      </html>
+interface LoginEmailProps {
+    name: string;
+    loginTime: string;
+    location?: string;
+}
+
+const LoginSuccessEmailTemplateF = ({ name, loginTime, location = 'Unknown location' }: LoginEmailProps) => {
+    const formattedDate = new Date(loginTime).toLocaleString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short'
+    });
+
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>New Login Alert - DevBlogger</title>
+    </head>
+    <body style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1a2027; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+        <div style="background-color: white; padding: 32px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="color: #0f172a; margin: 0; font-size: 24px; font-weight: 600;">New Login Alert</h1>
+                <p style="color: #64748b; margin-top: 8px;">Security Notification</p>
+            </div>
+
+            <!-- Main Content -->
+            <div style="margin-bottom: 24px;">
+                <p style="margin-bottom: 16px;">Hello ${name},</p>
+                <p style="margin-bottom: 24px;">We noticed a new sign-in to your DevBlogger account. Here are the details:</p>
+                
+                <!-- Login Details Box -->
+                <div style="background-color: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: #0f172a;">📅 Date & Time:</strong>
+                        <div style="color: #475569; margin-top: 4px;">${formattedDate}</div>
+                    </div>
+                    <div>
+                        <strong style="color: #0f172a;">📍 Location:</strong>
+                        <div style="color: #475569; margin-top: 4px;">${location}</div>
+                    </div>
+                </div>
+
+                <!-- Security Notice -->
+                <div style="background-color: #fff7ed; border-left: 4px solid #f97316; padding: 16px; margin-bottom: 24px;">
+                    <p style="margin: 0; color: #9a3412; font-weight: 500;">Was this you?</p>
+                    <p style="margin-top: 8px; color: #713f12;">If you don't recognize this activity, please take these steps immediately:</p>
+                    <ul style="margin: 12px 0 0; padding-left: 20px; color: #713f12;">
+                        <li>Change your password</li>
+                        <li>Enable two-factor authentication</li>
+                        <li>Contact our support team</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 24px; text-align: center;">
+                <p style="margin-bottom: 16px; color: #64748b;">Stay connected with our community</p>
+                <a href="https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t" 
+                   style="display: inline-block; padding: 8px 16px; background-color: #25D366; color: white; text-decoration: none; border-radius: 6px; font-weight: 500;">
+                    Join our WhatsApp Channel
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer Text -->
+        <div style="text-align: center; margin-top: 24px; color: #64748b; font-size: 14px;">
+            <p>This is an automated message, please do not reply directly to this email.</p>
+        </div>
+    </body>
+    </html>
     `;
-    };
+};
+
+export default LoginSuccessEmailTemplateF;
 
 export { FPEmailTemplate, FPSuccesfullyResetPassword, SignUpEmailTemplate, LoginSuccessEmailTemplateF }

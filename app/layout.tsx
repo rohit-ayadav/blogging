@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Navbar from "./navComponent/navigation/navbar";
+import Navbar from "./navComponent/navigation/navbar/page";
 import Footer from "./footer/page";
 import { Toaster } from 'react-hot-toast';
 import SessionWrapper from "./component/sessionWrapper";
