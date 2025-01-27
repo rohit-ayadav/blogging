@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 interface PasswordInputProps {
@@ -10,7 +11,9 @@ interface PasswordInputProps {
 }
 
 
-const PasswordInput = ({ name, placeholder, value, onChange, showPassword, togglePassword }: PasswordInputProps) => {
+const PasswordInput = ({ name, placeholder, value, onChange }: PasswordInputProps) => {
+    const [showPassword, setShowPassword] = useState(false);
+    const togglePassword = () => setShowPassword(!showPassword);
     return (
         <div className="relative">
             <input
