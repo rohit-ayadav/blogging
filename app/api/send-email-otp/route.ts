@@ -29,13 +29,13 @@ export async function POST(request: NextRequest) {
             sendEmail({
                 to: email,
                 subject: 'OTP for Email Verification - Resend',
-                message: await sendOTP(email, newOtp, name)
+                message: await sendOTP({ email, otp: newOtp, userName: name })
             });
             const otp = await bcrypt.hash(newOtp, 10);
             await sendOtpModels.findOneAndUpdate({ email }, { otp });
             await sendOtpModels.findOneAndUpdate({ email }, { isUsed: false });
             await sendOtpModels.findOneAndUpdate({ email }, { expiredAt: new Date(Date.now() + 5 * 60 * 1000) });
-            
+
             return NextResponse.json({
                 message: 'OTP resent successfully to your email'
             }, { status: 200 });
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         sendEmail({
             to: email,
             subject: 'OTP for Email Verification',
-            message: await sendOTP(email, otp, name)
+            message: await sendOTP({ email, otp, userName: name })
         });
 
         otp = await bcrypt.hash(otp, 10);
