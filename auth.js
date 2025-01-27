@@ -97,13 +97,27 @@ export const authOptions = {
         async signIn({ user, account, profile }) {
             const { email } = user;
             console.log('signIn callback\n\n\n');
+            // send email to user on successful login
+            try {
+                sendEmail({
+                    to: email,
+                    subject: "Login successful ✔ | Dev Blog",
+                    message: loginSuccessEmail({ name: user.name, email: user.email }),
+                });
+            } catch (error) {
+                console.error("Failed to send login email:", error);
+            }
 
             try {
                 const existingUser = await User.findOne({ email });
+                // update user's image and provider
                 if (existingUser) {
-                    console.log('User already exists');
+                    existingUser.image = profile.picture || profile.avatar_url || existingUser.image;
+                    existingUser.provider = account.provider;
+                    await existingUser.save();
                     return true;
                 }
+
 
                 const newUser = {
                     name: profile.name || profile.login || null,
