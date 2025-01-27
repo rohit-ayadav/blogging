@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { getSessionAtHome } from "@/auth";
 
 export default function Button() {
     const router = useRouter();
