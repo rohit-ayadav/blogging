@@ -1,17 +1,21 @@
 {
     "id": "com.devbloggers.app",
-    "name": "Dev Bloggers",
+    "name": "Dev Blogger",
     "short_name": "DevBlog",
     "description": "Your go-to platform for tech blogs, coding tutorials, and developer insights. Join the global dev community to read, write, and share knowledge.",
     "start_url": "/blogs",
     "scope": "/",
     "display": "standalone",
-    "display_override": [
-        "window-controls-overlay"
-    ],
+    "display_override": ["standalone", "minimal-ui", "fullscreen"],
     "background_color": "#ffffff",
-    "theme_color": "#0f172a",
-    "orientation": "portrait",
+    "theme_color": "#ffffff",
+    "dark_theme_color": "#0f172a",
+    "orientation": [
+        "portrait-primary",
+        "portrait-secondary",
+        "landscape-primary",
+        "landscape-secondary"
+    ],
     "launch_handler": {
         "client_mode": [
             "focus-existing",
@@ -141,7 +145,7 @@
             "url": "/blogs?source=pwa",
             "icons": [
                 {
-                    "src": "/icons/blogs-96x96.png",
+                    "src": "/icons/all-blogs-96x96.png",
                     "sizes": "96x96"
                 }
             ]
@@ -151,7 +155,22 @@
         "education",
         "productivity",
         "developer-tools",
-        "social"
+        "social",
+        "news",
+        "tech",
+        "coding",
+        "programming",
+        "web-development",
+        "software-engineering",
+        "javascript",
+        "python",
+        "react",
+        "angular",
+        "vue",
+        "nodejs",
+        "express",
+        "mongodb",
+        "sql"
     ],
     "share_target": {
         "action": "/api/share",
@@ -177,6 +196,22 @@
             "url": "/blogs/%s"
         }
     ],
+    "display_features": [
+        "fullscreen",
+        "standalone",
+        "minimal-ui",
+        "browser",
+        "window-controls-overlay"
+    ],
+    "capture_links": "active",
+    "offline_enabled": true,
+    "navigation_preload": true,
+    "theme_color_adjustment": "lighten",
+    "permissions": [
+        "clipboard-read",
+        "clipboard-write"
+    ],
+    "dark-mode": "media",
     "edge_side_panel": {
         "preferred_width": 400
     },
