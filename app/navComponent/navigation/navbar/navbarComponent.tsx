@@ -10,10 +10,12 @@ import UserMenu from './User';
 interface NavLinkProps {
   href: string;
   children: React.ReactNode;
+  setIsMobileMenuOpen?: (isOpen: boolean) => void;
 }
 
-const NavLink = ({ href, children }: NavLinkProps) => (
+const NavLink = ({ href, children, setIsMobileMenuOpen }: NavLinkProps) => (
   <Link
+    onClick={() => setIsMobileMenuOpen && setIsMobileMenuOpen(false)}
     href={href}
     className="text-white hover:text-emerald-200 transition-colors duration-200"
   >
@@ -30,6 +32,10 @@ function NavbarComponent() {
     { href: '/about', label: 'About Us' },
     { href: '/services', label: 'Services' },
     { href: '/contacts', label: 'Contacts' },
+    { href: '/blogs', label: 'Blog' },
+    { href: '/profile', label: 'Profile' },
+    { href: '/profile#settings', label: 'Settings' },
+    { href: `${session ? '/signout' : '/login'}`, label: `${session ? 'Sign Out' : 'Login'}` },
   ];
 
   return (
@@ -41,9 +47,9 @@ function NavbarComponent() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <ul className="flex space-x-6">
-              {navLinks.map(({ href, label }) => (
+              {navLinks.slice(0, 3).map(({ href, label }) => (
                 <li key={href}>
-                  <NavLink href={href}>{label}</NavLink>
+                  <NavLink href={href} setIsMobileMenuOpen={setIsMobileMenuOpen}>{label}</NavLink>
                 </li>
               ))}
             </ul>
@@ -55,6 +61,7 @@ function NavbarComponent() {
               />
             ) : (
               <Link
+                onClick={() => setIsMobileMenuOpen(false)}
                 href="/login"
                 className="bg-white text-emerald-800 px-4 py-2 rounded-md hover:bg-emerald-50 transition-colors duration-200"
               >
@@ -80,7 +87,7 @@ function NavbarComponent() {
             <ul className="flex flex-col space-y-4">
               {navLinks.map(({ href, label }) => (
                 <li key={href}>
-                  <NavLink href={href}>{label}</NavLink>
+                  <NavLink href={href} setIsMobileMenuOpen={setIsMobileMenuOpen}>{label}</NavLink>
                 </li>
               ))}
             </ul>
@@ -93,6 +100,7 @@ function NavbarComponent() {
               </div>
             ) : (
               <Link
+                onClick={() => setIsMobileMenuOpen(false)}
                 href="/login"
                 className="block mt-4 bg-white text-emerald-800 px-4 py-2 rounded-md text-center"
               >

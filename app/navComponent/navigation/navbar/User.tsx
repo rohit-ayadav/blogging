@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -12,14 +13,16 @@ interface UserMenuProps {
     user: User;
     onSignOut: () => void;
 }
-
 const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
+
+    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
 
     return (
         <div className="relative">
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                // onClick={() => setIsOpen(!isOpen)}
+                onClick={() => router.push('/profile')}
                 className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
                 aria-expanded={isOpen}
                 aria-haspopup="true"
@@ -65,7 +68,6 @@ const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
             )}
         </div>
     );
-};
-
+}
 
 export default UserMenu;
