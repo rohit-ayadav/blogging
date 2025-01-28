@@ -32,6 +32,7 @@ const sendEmail = async ({ to, subject, message }: EmailParams) => {
     });
 
     try {
+        const uniqueId = Date.now(); // Unique ID for email
         const info = await transporter.sendMail({
             // from: '"DevBlogger" <info@devblogger.com>',
             from: '"DevBlogger" <rohitkuyada@gmail.com>',
@@ -39,6 +40,13 @@ const sendEmail = async ({ to, subject, message }: EmailParams) => {
             subject: subject,
             text: message,
             html: message,
+            messageId: uniqueId.toString(),
+
+            headers: {
+                "X-Entity-Ref-ID": uniqueId.toString(),
+                "X-Entity-Ref-Type": "email",
+            },
+            date: new Date(),
         });
 
     } catch (error) {

@@ -155,10 +155,10 @@ export default function RootLayout({
           crossOrigin="anonymous">
         </script>
         
-        <Script
+        {/* <Script
           src="//code.tidio.co/l6g8cbi3bveugsuepmvcwmmvim0muhdb.js"
           strategy="afterInteractive"
-        />
+        /> */}
         <meta name="google-adsense-account" content="ca-pub-8778160378200057"></meta>
       </head>
       <body
