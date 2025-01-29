@@ -35,7 +35,7 @@ function NavbarComponent() {
     { href: '/blogs', label: 'Blog' },
     { href: '/profile', label: 'Profile' },
     { href: '/profile#settings', label: 'Settings' },
-    { href: `${session ? '/signout' : '/login'}`, label: `${session ? 'Sign Out' : 'Login'}` },
+    { href: `${session ? '/signout' : '/login'}`, label: `${session ? 'Sign Out' : 'Login'}`, onClick: session ? () => signOut() : undefined },
   ];
 
   return (

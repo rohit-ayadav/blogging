@@ -1,4 +1,5 @@
 // components/signup/SignupForm.tsx
+// 'use client';
 import { FC } from 'react';
 import FormHeader from './FormHeader';
 import FormFields from './FormFields';

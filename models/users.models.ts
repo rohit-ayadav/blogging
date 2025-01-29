@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import { trim } from "lodash";
 
 const userSchema = new mongoose.Schema({
   name: {
