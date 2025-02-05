@@ -39,11 +39,20 @@ async function getPostData(id: string): Promise<ApiResponse> {
         }
         // Increment views
         await Blog.findOneAndUpdate({ slug: id }, { $inc: { views: 1 } });
-        const author = await User.findOne({ email: post.createdBy });
+        let author: Author = await User.findOne({ email: post.createdBy }) as Author;
 
+        if (!author) {
+            author = {
+                name: 'Anonymous',
+                image: '/default-profile.jpg',
+                _id: '0',
+                likes: 0,
+                views: 0
+            };
+        }
 
         const plainPost = JSON.parse(JSON.stringify(post));
-        const plainAuthor = JSON.parse(JSON.stringify(author));
+        const plainAuthor: Author = JSON.parse(JSON.stringify(author));
         // await disconnectDB();
         return {
             success: true,
@@ -115,7 +124,7 @@ export default async function IndividualBlogPost({ params }: { params: { id: str
 
     const response = await getPostData(params.id);
 
-    if (!response.success) {
+    if (!response || !response.success) {
         switch (response.statusCode) {
             case 404:
                 notFound();

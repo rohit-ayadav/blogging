@@ -25,15 +25,13 @@ const sendOtpSchema = new mongoose.Schema({
 
 sendOtpSchema.pre('save', function (next) {
     if (!this.expiredAt) {
-        this.expiredAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+        this.expiredAt = new Date(Date.now() + 5 * 60 * 1000);
     }
     next();
 });
 
-// Add TTL index for expiredAt field to expire documents after 5 minutes
-sendOtpSchema.index({ expiredAt: 1 }, { expireAfterSeconds: 300 }); // Delete token after 5 minutes
+sendOtpSchema.index({ expiredAt: 1 }, { expireAfterSeconds: 300 });
 
-// Additional index for email field to make search faster
-sendOtpSchema.index({ email: 1 , isUsed: 1 });
+sendOtpSchema.index({ email: 1, isUsed: 1 });
 
 export default mongoose.models.SendOtp || mongoose.model('SendOtp', sendOtpSchema);
