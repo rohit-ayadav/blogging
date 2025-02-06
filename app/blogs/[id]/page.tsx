@@ -127,7 +127,7 @@ export default async function IndividualBlogPost({ params }: { params: { id: str
     if (!response || !response.success) {
         switch (response.statusCode) {
             case 404:
-                notFound();
+                notFound(); // This will render the 404 page
             case 403:
                 return <ErrorMessage message="You don't have permission to view this blog post" />;
             case 401:

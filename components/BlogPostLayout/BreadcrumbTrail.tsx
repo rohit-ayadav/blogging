@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react';
-import { Home, ChevronRight } from 'lucide-react';
+import { Home, ChevronRight, Text } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BlogPostType } from '@/types/blogs-types';
 import Link from 'next/link';
-import cn from 'classnames'; 
+import cn from 'classnames';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const getBreadcrumbClasses = (isDarkMode: boolean) => ({
@@ -49,19 +49,6 @@ const Breadcrumb = ({ href, isDarkMode, text, children }: { href: string; isDark
         </Tooltip>
     </TooltipProvider>
 );
-// <Link
-//     href={href}
-//     className={cn(
-//         "flex items-center",
-//         "text-gray-600 dark:text-gray-300",
-//         // "hover:text-gray-900 dark:hover:text-white",
-//         isDarkMode ? "hover:text-gray-300 dark:hover:text-white" : "hover:text-gray-900 dark:hover:text-white",
-//         "transition-colors duration-300"
-//     )}
-// >
-//     {children}
-// </Link>
-// );
 
 export const BreadcrumbTrail: React.FC<{
     post: BlogPostType;
@@ -83,6 +70,7 @@ export const BreadcrumbTrail: React.FC<{
             />
 
             <Breadcrumb href="/blogs" isDarkMode={isDarkMode} text='Go to Blogs'>
+                <Text className={classes.homeIcon} />
                 <span className="hidden md:inline">Blogs</span>
             </Breadcrumb>
 
