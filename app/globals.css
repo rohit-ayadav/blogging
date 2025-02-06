@@ -113,10 +113,17 @@
   }
 }
 
-:root {
+/* :root {
   color-scheme: light dark;
-}
+} */
 
+:root {
+  --tw-ring-color: rgba(59, 130, 246, 0.5); /* This is the default ring color */
+  --tw-ring-offset-width: 0px; /* This is the default ring offset width */
+  --tw-ring-offset-color: #fff; /* This is the default ring offset color */
+  --tw-ring-offset-shadow: 0 0 #0000; /* This is the default ring offset shadow */
+  --tw-ring-shadow: 0 0 #0000; /* This is the default ring shadow */
+}
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
