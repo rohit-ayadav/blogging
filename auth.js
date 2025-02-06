@@ -94,16 +94,6 @@ export const authOptions = {
 
             try {
                 // Send email
-                await sendEmail({
-                    to: email,
-                    subject: "New Login Alert 🚨 | Dev Blog",
-                    message: LoginSuccessEmailTemplateF({
-                        name: user.name,
-                        loginTime: new Date(),
-                        location: 'Progressive Web App',
-                    }),
-                });
-
                 const existingUser = await User.findOne({ email });
                 if (existingUser) {
                     existingUser.provider = account?.provider || existingUser.provider;
@@ -111,6 +101,15 @@ export const authOptions = {
                         existingUser.image = profile.picture || profile.avatar_url || existingUser.image;
                     }
                     await existingUser.save();
+                    await sendEmail({
+                        to: email,
+                        subject: "New Login Alert 🚨 | Dev Blog",
+                        message: LoginSuccessEmailTemplateF({
+                            name: user.name,
+                            loginTime: new Date(),
+                            location: 'Progressive Web App',
+                        }),
+                    });
                     return true;
                 }
 
