@@ -15,7 +15,7 @@ import { BlogPostType, UserType } from "@/types/blogs-types";
 
 export default function UserProfile() {
     const { isDarkMode, toggleDarkMode } = useTheme();
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
 
     const [userData, setUserData] = useState<UserType | null>(null);
@@ -35,7 +35,7 @@ export default function UserProfile() {
             }
         };
         fetchData();
-    }, [session]);
+    }, [session, status]);
 
     const fetchBlogs = async () => {
         if (session?.user) {
