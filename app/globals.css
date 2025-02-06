@@ -131,3 +131,13 @@
     max-width: 1200px;
   }
 }
+
+@layer utilities {
+  ::selection {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .dark ::selection {
+    @apply bg-secondary text-secondary-foreground;
+  }
+}
