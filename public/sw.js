@@ -1,3 +1,5 @@
+const exp = require("constants");
+
 // Utility function to validate URLs
 function isValidUrl(url) {
     try {
@@ -43,6 +45,7 @@ self.addEventListener('push', event => {
 
 self.addEventListener('notificationclick', event => {
     event.notification.close();
+    console.log('Notification clicked:', event.notification.data);
 
     const url = event.notification.data?.url || event.url || '/';
     if (!isValidUrl(url)) {
@@ -66,7 +69,14 @@ self.addEventListener('notificationclick', event => {
         explore: () => clients.openWindow('/'),
         discover: () => clients.openWindow('/'),
         search: () => clients.openWindow('/'),
-        find: () => clients.openWindow('/')
+        find: () => clients.openWindow('/'),
+        explore: () => clients.openWindow('/'),
+        discover: () => clients.openWindow('/'),
+        search: () => clients.openWindow('/'),
+        find: () => clients.openWindow('/'),
+        home: () => clients.openWindow('/'),
+        dashboard: () => clients.openWindow('/dashboard'),
+        admin: () => clients.openWindow('/admin'),
     };
 
     if (event.action && actionMap[event.action]) {
