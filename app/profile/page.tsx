@@ -30,6 +30,10 @@ export default function UserProfile() {
             if (session?.user) {
                 const response = await fetch(`/api/user?email=${session.user.email}`);
                 const data = await response.json();
+                if (!response.ok) {
+                    console.error("Failed to fetch user data:", data.message);
+                    return;
+                }
                 setUserData(data.user);
                 setEditData(data.user);
             }
@@ -41,6 +45,10 @@ export default function UserProfile() {
         if (session?.user) {
             const response = await fetch(`/api/blogpost?email=${session.user.email}`);
             const data = await response.json();
+            if (!response.ok) {
+                console.error('Failed to fetch user blogs:', data.message);
+                return;
+            }
             setUserBlogs(data.blogs.map((blog: BlogPostType) => ({
                 id: blog._id,
                 title: blog.title,
