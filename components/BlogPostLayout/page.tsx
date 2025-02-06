@@ -97,24 +97,6 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
           )}
         </div>
       </main>
-      <style jsx global>{`
-        :root {
-          color-scheme: ${isDarkMode ? 'dark' : 'light'};
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-       
-        @media (min-width: 1024px) {
-          .container {
-            max-width: 1200px;
-          }
-        }
-      `}</style>
     </div>
   );
 };

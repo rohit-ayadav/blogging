@@ -1,26 +1,16 @@
 "use client";
 
 import React, { Suspense, useMemo } from 'react';
-import dynamic from 'next/dynamic';
 import { Author, BlogPostType } from '@/types/blogs-types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ErrorBoundary } from 'react-error-boundary';
 import BlogPostHeader from '../BlogPostHeader/page';
-import BlogPostContent from '../BlogPostContent011/page';
 import BlogPostFooter from '../BlogPostFooter/page';
 import RenderContent from '@/app/blogs/components/RenderContent';
 import { useTheme } from '@/context/ThemeContext';
-// const CommentSection = dynamic(
-//     () => import('@/app/component/commentsection'),
-//     {
-//         loading: () => <SectionSkeleton />,
-//         ssr: false
-//     }
-// );
 import { CommentSection } from '@/app/component/commentsection';
 
 const SKELETON_COUNT = 3;
-
 interface BlogPostClientContentProps {
     initialData: BlogPostType;
     id: string;

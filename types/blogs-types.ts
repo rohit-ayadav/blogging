@@ -65,7 +65,6 @@ interface TOCItem {
   id: string;
 }
 
-
 interface ThemeClasses {
   layout: string;
   container: string;
