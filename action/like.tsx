@@ -1,77 +1,70 @@
-"use server"
+"use server";
 
-import { connectDB } from "@/utils/db"
-import Blog from "@/models/blogs.models"
-import { isValidObjectId } from "mongoose"
-import { isValidSlug } from "@/lib/common-function"
+import { connectDB } from "@/utils/db";
+import Blog from "@/models/blogs.models";
+import { isValidObjectId } from "mongoose";
+import { isValidSlug } from "@/lib/common-function";
 
-await connectDB()
+await connectDB();
 
-async function likePost(id: string) {
-    let post
-
-    if (!id) {
-        return false;
-    }
-
+async function likePost(id: string): Promise<boolean> {
+    if (!id) return false;
     try {
-        if (!isValidObjectId(id)) {
-            if (!isValidSlug(id)) {
-                return false;
-            }
-        }
-        if (isValidObjectId(id)) {
-            post = await Blog.findById(id)
-        } else {
-            post = await Blog.findOne({ slug: id })
-        }
+        const filter = isValidObjectId(id)
+            ? { _id: id }
+            : isValidSlug(id)
+                ? { slug: id }
+                : null;
 
-        if (!post) {
-            return false;
-        }
-        post.likes = (post.likes || 0) + 1
-        await post.save()
-        return true;
+        if (!filter) return false;
+        const post = await Blog.findOneAndUpdate(
+            filter,
+            { $inc: { likes: 1 } },
+            { new: true }
+        );
+        // console.log(post);
+        return !!post;
     } catch (error) {
-        console.error("Error saving blog post:", error)
+        console.error("Error liking blog post:", error);
         return false;
     }
 }
 
-async function dislikePost(id: string) {
-    let post
-
-    if (!id) {
-        return false;
-    }
+async function dislikePost(id: string): Promise<boolean> {
+    if (!id) return false;
 
     try {
-        if (!isValidObjectId(id)) {
-            if (!isValidSlug(id)) {
-                return false;
+        const filter = isValidObjectId(id)
+            ? { _id: id }
+            : isValidSlug(id)
+                ? { slug: id }
+                : null;
+
+        if (!filter) return false;
+
+
+        const post = await Blog.findOneAndUpdate(
+            filter,
+            { $inc: { likes: -1 } },
+            {
+                new: true,
+                upsert: false,
+                runValidators: true,
             }
-        }
-        if (isValidObjectId(id)) {
-            post = await Blog.findById(id)
-        } else {
-            post = await Blog.findOne({ slug: id })
+        );
+
+
+        if (post && post.likes < 0) {
+            post.likes = 0;
+            await post.save();
         }
 
-        if (!post) {
-            return false;
-        }
-        if (post.likes > 0) {
-            post.likes = post.likes - 1
-        } else {
-            post.likes = 0
-        }
-
-        await post.save()
-        return true;
+        // console.log(post);
+        return !!post;
     } catch (error) {
-        console.error("Error saving blog post:", error)
+        console.error("Error disliking blog post:", error);
         return false;
     }
 }
 
-export { likePost, dislikePost }
+export { likePost, dislikePost };

@@ -28,7 +28,6 @@ interface BlogPostFooterProps {
   id: string;
   className?: string;
 }
-
 interface ShareOption {
   name: string;
   icon: React.ReactNode;
