@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 
 interface User {
     name?: string | null;
@@ -28,12 +27,10 @@ const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
                 aria-haspopup="true"
             >
                 <span className="text-white font-semibold">{user.name}</span>
-                <Image
-                    src={user.image ?? '/default-profile.jpg'}
-                    alt="Profile"
-                    width={40}
-                    height={40}
-                    className="rounded-full"
+                <img
+                    src={user.image || "/default-profile.jpg"}
+                    alt="User Avatar"
+                    className="w-8 h-8 rounded-full"
                 />
             </button>
 

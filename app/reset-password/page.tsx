@@ -4,7 +4,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
-import { set } from 'lodash';
+import { useSession } from 'next-auth/react';
+import { stat } from 'fs';
+import { time } from 'console';
 
 function PasswordResetContent() {
     const [password, setPassword] = useState('');
@@ -14,11 +16,18 @@ function PasswordResetContent() {
     const [isLoading, setIsLoading] = useState(false);
     const [token, setToken] = useState<string | null>(null);
     const [email, setEmail] = useState<string | null>(null);
+    const { data, status } = useSession();
 
     const router = useRouter();
     const searchParams = useSearchParams();
 
     useEffect(() => {
+        if (status === 'authenticated') {
+            setError('You are already logged in, you can change your password in your profile');
+            toast.error('You are already logged in, you can change your password in your profile');
+            new Promise(resolve => setTimeout(resolve, 3000)).then(() =>
+                router.push('/profile'));
+        }
         if (!searchParams.has('token') || !searchParams.has('email')) {
             setError('Invalid reset link');
             return;
@@ -27,7 +36,7 @@ function PasswordResetContent() {
         const email = searchParams.get('email');
         setToken(token);
         setEmail(email);
-    }, [searchParams]);
+    }, [searchParams, status]);
 
     useEffect(() => {
         if (password)
