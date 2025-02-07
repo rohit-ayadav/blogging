@@ -1,17 +1,15 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, {  } from 'react';
 import { Moon, Sun, Mail, Globe, ArrowLeft, Eye, ThumbsUp, Facebook, Twitter } from 'lucide-react';
 import { SiLinkedin } from 'react-icons/si';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { toast } from 'react-hot-toast';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Newsletter from '@/app/component/newsletter';
 import { BlogPostType } from '@/types/blogs-types';
 import { useTheme } from '@/context/ThemeContext';
-import { Skeleton } from '@/components/ui/skeleton';
 import { ErrorBoundary } from 'react-error-boundary';
 
 interface Author {
@@ -19,7 +17,7 @@ interface Author {
     name: string;
     email: string;
     image: string;
-    bio: string;
+    bio?: string;
     website?: string;
     socialLinks?: {
         facebook?: string;
@@ -77,59 +75,14 @@ const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error, resetError
     </div>
 );
 
-const AuthorPage = () => {
-    const [author, setAuthor] = useState<Author | null>(null);
-    const [authorPosts, setAuthorPosts] = useState<BlogPostType[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+const AuthorPage = ({ authorPosts, author }: { authorPosts: BlogPostType[], author: Author }) => {
     const { isDarkMode: darkMode, toggleDarkMode } = useTheme();
-    const { id } = useParams();
     const router = useRouter();
 
-    useEffect(() => {
-        const fetchAuthorAndPosts = async () => {
-            if (!id) return;
-
-            try {
-                setIsLoading(true);
-                const [authorResponse, postsResponse] = await Promise.all([
-                    fetch(`/api/user/${id}`),
-                    fetch(`/api/blogpost?email=${author?.email}`)
-                ]);
-
-                if (!authorResponse.ok) {
-                    throw new Error(`Failed to fetch author data: ${authorResponse.statusText}`);
-                }
-                if (!postsResponse.ok) {
-                    throw new Error(`Failed to fetch posts: ${postsResponse.statusText}`);
-                }
-
-                const [authorData, postsData] = await Promise.all([
-                    authorResponse.json(),
-                    postsResponse.json()
-                ]);
-
-                setAuthor(authorData.user);
-                setAuthorPosts(postsData.blogs);
-            } catch (error: any) {
-                console.error('Error fetching data:', error);
-                toast.error(error.message);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchAuthorAndPosts();
-    }, [id, author?.email]);
 
     const handleSocialLinkClick = (url?: string) => {
-        if (url) {
-            window.open(url, '_blank', 'noopener noreferrer');
-        }
+        if (url) window.open(url, '_blank', 'noopener noreferrer');
     };
-
-    if (isLoading) {
-        return <AuthorLoadingSkeleton />;
-    }
 
     if (!author) {
         return (
@@ -265,34 +218,4 @@ const AuthorPage = () => {
 };
 
 export default AuthorPage;
-
-const AuthorLoadingSkeleton = () => (
-    <div className="container mx-auto px-4 py-8">
-        <div className="space-y-8">
-            <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
-                <Skeleton className="h-24 w-24 rounded-full" />
-                <div className="space-y-4 flex-1">
-                    <Skeleton className="h-8 w-48" />
-                    <Skeleton className="h-4 w-full max-w-2xl" />
-                    <Skeleton className="h-4 w-full max-w-xl" />
-                    <div className="flex space-x-2">
-                        <Skeleton className="h-8 w-32" />
-                        <Skeleton className="h-8 w-32" />
-                    </div>
-                </div>
-            </div>
-            <div className="space-y-4">
-                <Skeleton className="h-8 w-48" />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[1, 2, 3].map((i) => (
-                        <div key={i} className="space-y-3">
-                            <Skeleton className="h-32 w-full" />
-                            <Skeleton className="h-4 w-3/4" />
-                            <Skeleton className="h-4 w-1/2" />
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    </div>
-);
+export type { Author };

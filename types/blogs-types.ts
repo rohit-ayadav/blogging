@@ -2,6 +2,7 @@ type BlogPostType = {
   _id: string;
   title: string;
   createdAt: string;
+  updatedAt?: string;
   tags?: string[];
   content: string;
   createdBy: string;
