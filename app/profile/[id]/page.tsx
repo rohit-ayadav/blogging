@@ -6,6 +6,7 @@ import { connectDB } from "@/utils/db";
 import Blog from "@/models/blogs.models";
 import User from "@/models/users.models";
 import { Author } from "./component/Profile";
+import { Metadata } from "next";
 
 async function getPostData(id: string) {
     try {
@@ -40,6 +41,34 @@ async function getPostData(id: string) {
     }
 }
 
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+    const response = await getPostData(params.id);
+    if (!response || !response.success) {
+        return {
+            title: "Not Found",
+            description: "The requested page could not be found."
+        };
+    }
+    if (!response.author) {
+        return {
+            title: "Not Found",
+            description: "The requested page could not be found."
+        };
+    }
+    const title = `${response.author.name}'s Profile`;
+    const description = `View all posts by ${response.author.name}`;
+    const thumbnail = response.author.image;
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            images: [{ url: thumbnail }]
+        }
+    };
+}
 
 export async function generateStaticParams() {
     await connectDB();
