@@ -7,7 +7,7 @@ import Blog from "@/models/blogs.models";
 import User from "@/models/users.models";
 import { Author } from "./component/Profile";
 
-export async function getPostData(id: string) {
+async function getPostData(id: string) {
     try {
         await connectDB();
 
