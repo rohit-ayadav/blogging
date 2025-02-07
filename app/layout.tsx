@@ -1,5 +1,3 @@
-// "use client";
-
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -30,7 +28,7 @@ const geistMono = localFont({
 
 
 export async function generateMetadata({
-  title = "Write & Share: Next.js Blogging Platform",
+  title = "DevBlogger - A Blogging Platform for Developers",
   description = "Explore a user-friendly blogging platform built with Next.js. Effortlessly create, update, and share blogs on diverse topics with customizable features and an interactive interface.",
   slug = "",
   imageUrl = "/default-thumbnail.png",
@@ -48,7 +46,7 @@ export async function generateMetadata({
     title,
     description,
     // Manifest
-    manifest: "/manifest.json?v=1.0.5",
+    manifest: "/manifest.json?v=1.0.6",
     // themeColor: "#000000",
     appleWebApp: {
       capable: true,
@@ -57,29 +55,43 @@ export async function generateMetadata({
     },
     icons: {
       icon: [
-        { url: "/icons/android-icon-36x36.png", sizes: "36x36", type: "image/png" },
-        { url: "/icons/android-icon-48x48.png", sizes: "48x48", type: "image/png" },
-        { url: "/icons/android-icon-72x72.png", sizes: "72x72", type: "image/png" },
-        { url: "/icons/android-icon-96x96.png", sizes: "96x96", type: "image/png" },
-        { url: "/icons/android-icon-144x144.png", sizes: "144x144", type: "image/png" },
-        { url: "/icons/android-icon-192x192.png", sizes: "192x192", type: "image/png" },
-        { url: "/icons/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
+        { url: "/icons/android/android-launchericon-48x48.png", sizes: "48x48", type: "image/png" },
+        { url: "/icons/android/android-launchericon-72x72.png", sizes: "72x72", type: "image/png" },
+        { url: "/icons/android/android-launchericon-96x96.png", sizes: "96x96", type: "image/png" },
+        { url: "/icons/android/android-launchericon-144x144.png", sizes: "144x144", type: "image/png" },
+        { url: "/icons/android/android-launchericon-192x192.png", sizes: "192x192", type: "image/png" },
+        { url: "/icons/android/android-launchericon-512x512.png", sizes: "512x512", type: "image/png" },
       ],
 
       apple: [
-        { url: "/icons/apple-icon-57x57.png", sizes: "57x57", type: "image/png" },
-        { url: "/icons/apple-icon-60x60.png", sizes: "60x60", type: "image/png" },
-        { url: "/icons/apple-icon-72x72.png", sizes: "72x72", type: "image/png" },
-        { url: "/icons/apple-icon-76x76.png", sizes: "76x76", type: "image/png" },
-        { url: "/icons/apple-icon-114x114.png", sizes: "114x114", type: "image/png" },
-        { url: "/icons/apple-icon-120x120.png", sizes: "120x120", type: "image/png" },
-        { url: "/icons/apple-icon-144x144.png", sizes: "144x144", type: "image/png" },
-        { url: "/icons/apple-icon-152x152.png", sizes: "152x152", type: "image/png" },
-        { url: "/icons/apple-icon-180x180.png", sizes: "180x180", type: "image/png" },
+        // 16 20 29 32 40  50 57 58 60 64 72 76 80 87 100 114 120 128 144 152 167 180 192 256 512 1024
+        { url: "/icons/ios/16.png", sizes: "16x16", type: "image/png" },
+        { url: "/icons/ios/20.png", sizes: "20x20", type: "image/png" },
+        { url: "/icons/ios/29.png", sizes: "29x29", type: "image/png" },
+        { url: "/icons/ios/32.png", sizes: "32x32", type: "image/png" },
+        { url: "/icons/ios/40.png", sizes: "40x40", type: "image/png" },
+        { url: "/icons/ios/50.png", sizes: "50x50", type: "image/png" },
+        { url: "/icons/ios/57.png", sizes: "57x57", type: "image/png" },
+        { url: "/icons/ios/60.png", sizes: "60x60", type: "image/png" },
+        { url: "/icons/ios/72.png", sizes: "72x72", type: "image/png" },
+        { url: "/icons/ios/76.png", sizes: "76x76", type: "image/png" },
+        { url: "/icons/ios/80.png", sizes: "80x80", type: "image/png" },
+        { url: "/icons/ios/87.png", sizes: "87x87", type: "image/png" },
+        { url: "/icons/ios/100.png", sizes: "100x100", type: "image/png" },
+        { url: "/icons/ios/114.png", sizes: "114x114", type: "image/png" },
+        { url: "/icons/ios/120.png", sizes: "120x120", type: "image/png" },
+        { url: "/icons/ios/144.png", sizes: "144x144", type: "image/png" },
+        { url: "/icons/ios/152.png", sizes: "152x152", type: "image/png" },
+        { url: "/icons/ios/167.png", sizes: "167x167", type: "image/png" },
+        { url: "/icons/ios/180.png", sizes: "180x180", type: "image/png" },
+        { url: "/icons/ios/192.png", sizes: "192x192", type: "image/png" },
+        { url: "/icons/ios/256.png", sizes: "256x256", type: "image/png" },
+        { url: "/icons/ios/512.png", sizes: "512x512", type: "image/png" },
+        { url: "/icons/ios/1024.png", sizes: "1024x1024", type: "image/png" },
       ],
-      shortcut: ["/icons/android-chrome-192x192.png"],
+      shortcut: ["/icons/ios/152.png"],
     },
-    applicationName: "Blog Website",
+    applicationName: "DevBlogger",
     // viewport: {
     //   width: "device-width",
     //   initialScale: 1,
@@ -104,7 +116,7 @@ export async function generateMetadata({
           alt: title,
         },
       ],
-      siteName: "Blog Website",
+      siteName: "DevBlogger",
     },
     twitter: {
       card: "summary_large_image",
@@ -151,10 +163,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8778160378200057"
+        {/* <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8778160378200057"
           crossOrigin="anonymous">
-        </script>
+        </script> */}
         
+        <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8778160378200057" />
         {/* <Script
           src="//code.tidio.co/l6g8cbi3bveugsuepmvcwmmvim0muhdb.js"
           strategy="afterInteractive"
