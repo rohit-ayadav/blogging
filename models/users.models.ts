@@ -28,7 +28,6 @@ const userSchema = new mongoose.Schema({
   providerId: {
     type: String
   },
-
   username: {
     type: String,
     unique: false,
@@ -81,6 +80,32 @@ const userSchema = new mongoose.Schema({
   isEmailVerified: {
     type: Boolean,
     default: false
+  },
+  website: {
+    type: String,
+    default: ""
+  },
+  socialLinks: {
+    github: {
+      type: String,
+      default: ""
+    },
+    twitter: {
+      type: String,
+      default: ""
+    },
+    linkedin: {
+      type: String,
+      default: ""
+    },
+    facebook: {
+      type: String,
+      default: ""
+    },
+    instagram: {
+      type: String,
+      default: ""
+    }
   }
 });
 
@@ -94,7 +119,7 @@ userSchema.pre("save", async function (next) {
 
 // Add TTL index for resetPasswordToken
 userSchema.index({ resetPasswordToken: 1 }, { expireAfterSeconds: 600 }); // Delete token after 10 minutes
-userSchema.index({ resetPasswordTokenDate: 1 }, { expireAfterSeconds: 600 }); // Delete token after 10 minutes
+userSchema.index({ resetPasswordTokenDate: 1 }, { expireAfterSeconds: 600 }); // Delete token date after 10 minutes
 
 userSchema.pre("save", async function (next) {
   this.updatedAt = new Date();

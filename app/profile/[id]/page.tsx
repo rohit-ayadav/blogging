@@ -74,6 +74,7 @@ export async function generateStaticParams() {
     await connectDB();
     const users = await User.find();
     return users.map((user) => ({ params: { id: user._id.toString() } }));
+    // Return an array of objects containing the params which is the id of the user
 }
 
 export default async function IndividualProfile({ params }: { params: { id: string } }) {

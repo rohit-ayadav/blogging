@@ -27,6 +27,17 @@ type UserType = {
   updatedAt: string;
   theme: string;
   _id: string;
+  website?: string;
+  socialLinks?: {
+    linkedin?: string;
+    github?: string;
+    twitter?: string;
+    instagram?: string;
+    facebook?: string;
+  };
+  isEmailVerified: boolean;
+  username: string;
+  role: string;
 };
 
 type StatsType = {
