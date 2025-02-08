@@ -315,6 +315,105 @@ const LoginSuccessEmailTemplateF = ({ name, loginTime, location = 'Unknown locat
     `;
 };
 
+function EmailVerificationTemplate(username: string, verificationLink: string) {
+    const currentYear = new Date().getFullYear();
+    return (
+        `
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>DevBlogger - Email Verification</title>
+                <style>
+                    * {
+                        box-sizing: border-box;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    body {
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        background-color: #f4f6f9;
+                    }
+                    .email-container {
+                        width: 100%;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        background-color: white;
+                        border-radius: 12px;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+                        overflow: hidden;
+                    }
+                    .email-header {
+                        background-color: #4338ca;
+                        color: white;
+                        text-align: center;
+                        padding: 20px;
+                    }
+                    .email-body {
+                        padding: 30px;
+                    }
+                    .verify-button {
+                        display: inline-block;
+                        background-color: #4338ca;
+                        color: white !important;
+                        text-decoration: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                        font-weight: 600;
+                        text-align: center;
+                        width: 100%;
+                    }
+                    .footer {
+                        background-color: #f1f5f9;
+                        text-align: center;
+                        padding: 15px;
+                        font-size: 12px;
+                        color: #64748b;
+                    }
+                    @media only screen and (max-width: 600px) {
+                        .email-container {
+                            width: 100%;
+                            border-radius: 0;
+                        }
+                        .email-body {
+                            padding: 20px;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="email-header">
+                        <h1>DevBlogger</h1>
+                        <p>Email Verification</p>
+                    </div>
+                    <div class="email-body">
+                        <h2>Hi ${username},</h2>
+
+                        <p>Welcome to DevBlogger! Please verify your email address by clicking the button below:</p>
+
+                        <a href="${verificationLink}" class="verify-button">Verify Email</a>
+
+                        <p>If you didn't sign up for DevBlogger, you can ignore this email.</p>
+
+                        <p>This link expires in 15 minutes for security reasons.</p>
+
+                        <p>Best regards,<br>DevBlogger Team</p>
+                    </div>
+                    <div class="footer">
+                        © ${currentYear} DevBlogger. All rights reserved.
+                    </div>
+                </div>
+            </body>
+        </html>`
+    );
+}
+
+export { EmailVerificationTemplate };
 export default LoginSuccessEmailTemplateF;
 
 export { FPEmailTemplate, FPSuccesfullyResetPassword, SignUpEmailTemplate, LoginSuccessEmailTemplateF }

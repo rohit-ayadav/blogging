@@ -75,8 +75,6 @@ export async function POST(req: NextRequest) {
         }, { status: 400 });
     }
 
-    const url = new URL(req.url, `http://${req.headers.get('host')}`);
-
     try {
         // Look for user by email or username
         let user = await User.findOne({ $or: [{ email }, { username }] });
@@ -91,6 +89,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(response);
 
     } catch (error: any) {
+        console.error(`\nError in forgotPassword: ${error}`);
         return NextResponse.json({
             error: error.message || "An error occurred"
         }, { status: 500 });

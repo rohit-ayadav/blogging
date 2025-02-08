@@ -82,7 +82,8 @@ export default async function IndividualProfile() {
     if (!response || !response.success) {
         switch (response.statusCode) {
             case 404:
-                notFound(); // This will render the 404 page
+            // notFound(); // This will render the 404 page
+                return <ErrorMessage message="User not found" />; // This will render the error message
             case 403:
                 return <ErrorMessage message="You don't have permission to view this blog post" />;
             case 401:

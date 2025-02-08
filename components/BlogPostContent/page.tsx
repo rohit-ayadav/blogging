@@ -137,12 +137,4 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({
     );
 };
 
-// export default React.memo(BlogPostClientContent, (prevProps, nextProps) => {
-//     return (
-//         prevProps.id === nextProps.id &&
-//         prevProps.initialData.likes === nextProps.initialData.likes &&
-//         prevProps.initialData.views === nextProps.initialData.views
-//     );
-// });
-
 export default BlogPostClientContent;
