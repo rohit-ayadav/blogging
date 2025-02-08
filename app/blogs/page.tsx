@@ -20,6 +20,16 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+interface PostsData {
+    success: boolean;
+    data: BlogPostType[];
+    metadata: {
+        currentPage: number;
+        totalPages: number;
+        totalPosts: number;
+        hasMore: boolean;
+    };
+}
 class DataCache<T> {
     private cache: Map<string, { data: T; timestamp: number }>;
     private readonly timeout: number;
@@ -216,17 +226,6 @@ const BlogCollection = () => {
 
             if (!postsData.success) {
                 throw new Error('Failed to fetch blog posts');
-            }
-
-            interface PostsData {
-                success: boolean;
-                data: BlogPostType[];
-                metadata: {
-                    currentPage: number;
-                    totalPages: number;
-                    totalPosts: number;
-                    hasMore: boolean;
-                };
             }
 
             const newPosts: BlogPostType[] = isInitialLoad
