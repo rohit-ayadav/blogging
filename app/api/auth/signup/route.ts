@@ -105,8 +105,10 @@ export async function POST(request: NextRequest) {
       providers: "credentials",
       username,
       resetPasswordTokenDate: null,
+      resetPasswordToken: null,
+      role: "user",
+      isEmailVerified: true,
     };
-
 
     await User.create(newUser);
     sendEmail({
