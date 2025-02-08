@@ -42,6 +42,5 @@ export default async function HomePage1() {
     if (!success) {
         return <ErrorMessage message="An error occurred while fetching data. Please try again later." />
     }
-
     return <HomePage posts={posts} users={users} totalLikes={totalLikes} totalViews={totalViews} totalBlogs={totalBlogs} totalUsers={totalUsers} />;
 }
