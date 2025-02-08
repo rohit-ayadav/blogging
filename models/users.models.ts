@@ -140,7 +140,7 @@ userSchema.pre("save", async function (next) {
 
 userSchema.methods.comparePassword = async function (password: string) {
   if (typeof this.password !== "string") {
-    throw new Error("Password is not a string");
+    throw new Error("Kindly login using your social account");
   }
   return await bcrypt.compare(password, this.password);
 };
