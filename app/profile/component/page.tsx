@@ -60,8 +60,8 @@ export default function UserProfile({ userData, userBlogs }: UserProfileProps) {
         router.push(`/blogs/${blogId}`);
     };
 
-    if (!userData) return <ErrorFallback error={new Error("User not found")} resetErrorBoundary={() => { }} />;
-    if (!userBlogs) return <ErrorFallback error={new Error("User blogs not found")} resetErrorBoundary={() => { }} />;
+    if (!userData) return <ErrorFallback error={new Error("User not found")} resetErrorBoundary={() => {window.location.reload()}} />;
+    if (!userBlogs) return <ErrorFallback error={new Error("User blogs not found")} resetErrorBoundary={() => {window.location.reload()}} />;
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
