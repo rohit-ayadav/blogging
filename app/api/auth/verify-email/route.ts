@@ -1,9 +1,11 @@
-"use server";
+// "use server";
 
 import { connectDB } from "@/utils/db";
 import User from "@/models/users.models";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
     try {
