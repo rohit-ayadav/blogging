@@ -201,7 +201,7 @@ export const ProfileInfoTab = ({ userData, editMode, setEditMode }: ProfileInfoT
         <Card className="w-full max-w-2xl mx-auto p-6">
             <div className="mb-6">
                 <h2 className="text-2xl font-bold mb-2">Profile Information</h2>
-                {!userData.isEmailVerified && (
+                {/* {!userData.isEmailVerified && ( */}
                     <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6">
                         <div className="flex items-center">
                             <AlertCircle className="h-5 w-5 text-amber-400 mr-2" />
@@ -216,7 +216,7 @@ export const ProfileInfoTab = ({ userData, editMode, setEditMode }: ProfileInfoT
                             </p>
                         </div>
                     </div>
-                )}
+                {/* )} */}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -257,7 +257,7 @@ export const ProfileInfoTab = ({ userData, editMode, setEditMode }: ProfileInfoT
                     disabled={true}
                     icon={<Mail className="h-4 w-4" />}
                     rightElement={
-                        !userData.isEmailVerified && (
+                        // !userData.isEmailVerified && (
                             <Button
                                 type="button"
                                 variant="ghost"
@@ -267,7 +267,7 @@ export const ProfileInfoTab = ({ userData, editMode, setEditMode }: ProfileInfoT
                             >
                                 Verify
                             </Button>
-                        )
+                        // )
                     }
                 />
 

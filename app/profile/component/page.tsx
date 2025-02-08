@@ -1,18 +1,16 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, BookOpen, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/context/ThemeContext";
-import toast from "react-hot-toast";
 import { ProfileCard } from "./ProfileCard";
 import { ProfileInfoTab } from "./ProfileInfoTab";
 import { BlogsTab } from "./BlogsTab";
 import { SettingsTab } from "./SettingsTab";
 import { BlogPostType, UserType } from "@/types/blogs-types";
-import { ProfileFormData } from "./types";
-import { saveEdit } from "@/action/my-profile-action";
+import { ErrorFallback } from "../[id]/component/ErrorFallback";
 
 interface UserProfileProps {
     userData: UserType;
@@ -20,8 +18,8 @@ interface UserProfileProps {
 }
 
 export default function UserProfile({ userData, userBlogs }: UserProfileProps) {
-    const { isDarkMode, toggleDarkMode } = useTheme();
-    const { data: session, status } = useSession();
+    const { toggleDarkMode } = useTheme();
+    const { data: session } = useSession();
     const router = useRouter();
     const [editMode, setEditMode] = useState(false);
     const [editData, setEditData] = useState<UserType | null>(null);
@@ -62,6 +60,8 @@ export default function UserProfile({ userData, userBlogs }: UserProfileProps) {
         router.push(`/blogs/${blogId}`);
     };
 
+    if (!userData) return <ErrorFallback error={new Error("User not found")} resetErrorBoundary={() => { }} />;
+    if (!userBlogs) return <ErrorFallback error={new Error("User blogs not found")} resetErrorBoundary={() => { }} />;
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
