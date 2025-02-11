@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import { BlogPostType } from "@/types/blogs-types";
 
 const useBlogPost = ({ email, tags, id }: { email: string; tags: string[]; id: string }) => {
@@ -12,10 +12,7 @@ const useBlogPost = ({ email, tags, id }: { email: string; tags: string[]; id: s
     const [error, setError] = useState<Error | null>(null);
 
     const RelatedData = async () => {
-        if (!id || !email) {
-            router.push('/404');
-            return;
-        }
+        if (!id || !email) notFound();
 
         try {
             const [authorPostsResponse, relatedPostsResponse] = await Promise.all([

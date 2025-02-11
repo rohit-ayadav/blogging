@@ -48,10 +48,10 @@ self.addEventListener('notificationclick', event => {
     console.log('Notification clicked:', event.notification.data);
 
     const url = event.notification.data?.url || event.url || '/';
-    if (!isValidUrl(url)) {
-        console.warn('Invalid URL in notification:', url);
-        return;
-    }
+    // if (!isValidUrl(url)) {
+    //     console.warn('Invalid URL in notification:', url);
+    //     return;
+    // }
 
     const actionMap = {
         dismiss: () => { },
@@ -80,8 +80,9 @@ self.addEventListener('notificationclick', event => {
     };
 
     if (event.action && actionMap[event.action]) {
+        console.log('Executing action:', event.action);
         event.waitUntil(actionMap[event.action]());
-    } else {
+    } else if (clients && clients.openWindow) {
         event.waitUntil(clients.openWindow(url));
     }
     event.waitUntil(clients.openWindow(url));

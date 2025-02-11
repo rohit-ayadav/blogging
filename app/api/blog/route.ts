@@ -1,7 +1,7 @@
 // app/api/blog/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import Blog from "../../../models/blogs.models";
-import { connectDB } from "../../../utils/db";
+import Blog from "@/models/blogs.models";
+import { connectDB } from "@/utils/db";
 import Joi from "joi";
 import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
@@ -32,23 +32,18 @@ export async function POST(request: NextRequest) {
   const session = await getSessionAtHome();
 
   if (!session) {
-    return NextResponse.json(
-      {
-        message: "You need to be logged in to create a blog post",
-        success: false
-      },
-      { status: 401 }
-    );
+    return NextResponse.json({
+      message: "You need to be logged in to create a blog post",
+      success: false
+    }, { status: 401 });
   }
 
+
   if (!session.user.email) {
-    return NextResponse.json(
-      {
-        message: "You need to be logged in to create a blog post",
-        success: false
-      },
-      { status: 401 }
-    );
+    return NextResponse.json({
+      message: "You need to be logged in to create a blog post",
+      success: false
+    }, { status: 401 });
   }
 
   let {
@@ -62,62 +57,12 @@ export async function POST(request: NextRequest) {
     slug
   } = body;
 
-  if (!content) {
-    return NextResponse.json(
-      {
-        message: "Content is required",
-        success: false
-      },
-      { status: 400 }
-    );
-  }
+  const { error } = blogSchema.validate({ title, content, status, tags, language });
 
-  if (!title) {
-    return NextResponse.json(
-      {
-        message: "Title is required",
-        success: false
-      },
-      { status: 400 }
-    );
-  }
+  if (error) return NextResponse.json({ message: error.message, success: false }, { status: 400 });
 
-  const { error } = blogSchema.validate({
-    title,
-    content,
-    status,
-    tags,
-    language
-  });
-
-  if (error) {
-    return NextResponse.json(
-      {
-        message: error.message,
-        success: false
-      },
-      { status: 400 }
-    );
-  }
-  if (!slug) {
-    slug = title
-      .trim() // Remove leading and trailing spaces
-      .replace(/\s+/g, "-") // Replace spaces with hyphens
-      .replace(/[^a-zA-Z0-9-]/g, "") // Remove special characters
-      .toLowerCase() // Convert to lowercase
-      .replace(/-{2,}/g, "-") // Replace multiple hyphens with a single hyphen
-      .replace(/_{2,}/g, "_") // Replace multiple underscores with a single underscore
-      .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
-
-  }else{
-    slug = slug
-    .toLowerCase()
-    .replace(/[^a-zA-Z0-9-]/g, "")
-    .replace(/\s+/g, "-")
-    .trim()
-    .replace(/-{2,}/g, "-")
-    .replace(/_{2,}/g, "_")
-  }
+  slug = slug || title;
+  slug = slug.trim().toLowerCase().replace(/[^a-z0-9-]+/g, "").replace(/\s+/g, "-").replace(/-{2,}/g, "-").replace(/^-+|-+$/g, "");
 
   const { window } = new JSDOM("");
   const purify = DOMPurify(window);
@@ -128,15 +73,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const existingBlog = await Blog.findOne({ slug });
-    if (existingBlog) {
-      let counter = 1;
-      let newSlug = `${slug}-${counter}`;
-      while (await Blog.findOne({ slug: newSlug })) {
-        counter++;
-        newSlug = `${slug}-${counter}`;
-      }
-      slug = newSlug;
-    }
+    if (existingBlog) slug = `${slug}-${Date.now()}`;
 
     const blogPost = {
       title: sanitizedTitle,
@@ -157,12 +94,9 @@ export async function POST(request: NextRequest) {
     await newBlogPost.save();
     const blogPostId = newBlogPost.slug;
 
-    await User.findOneAndUpdate(
-      { email: session.user.email },
-      {
-        $inc: { noOfBlogs: 1 }
-      }
-    );
+    await User.findOneAndUpdate({ email: session.user.email }, {
+      $inc: { noOfBlogs: 1 }
+    });
 
     // Send notifications to subscribers
     const subscriptions = await Notification.find({});
@@ -209,14 +143,11 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error("Error saving blog post:", error);
-    return NextResponse.json(
-      {
-        message: (error as Error).message,
-        success: false,
-        error
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      message: (error as Error).message,
+      success: false,
+      error
+    }, { status: 500 });
   }
 }
 
@@ -390,7 +321,7 @@ export async function GET(request: Request) {
   try {
     // Extract and validate query parameters
     const { searchParams } = new URL(request.url);
-    if(searchParams.get("admin") === "true") {
+    if (searchParams.get("admin") === "true") {
       // return all blogs
       const blogs = await Blog.find().select("-__v");
       return NextResponse.json(
