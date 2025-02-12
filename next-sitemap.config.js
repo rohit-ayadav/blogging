@@ -1,20 +1,27 @@
+const fetchBlogSlugs = async () => {
+    const res = await fetch('https://blogging-one-omega.vercel.app/api/getpostslug');
+    const posts = await res.json();
+    return posts.map(post => `/blogs/${post.slug}`);
+};
+
 /** @type {import('next-sitemap').IConfig} */
-module.exports = {
-    siteUrl: 'https://blogging-one-omega.vercel.app',
-    generateRobotsTxt: true,
-    sitemapSize: 5000,
-    exclude: ['/admin', '/dashboard'],
-    robotsTxtOptions: {
-        policies: [
-            { userAgent: '*', allow: '/', disallow: ['/admin', '/dashboard'] },
-        ],
-    },
-    transform: async (config, path) => {
-        return {
-            loc: path, // URL location
-            lastmod: new Date().toISOString(), // Last modified date
-            priority: path.startsWith('/blog/') ? 0.9 : (path === '/' ? 1.0 : 0.8), // High priority for blog posts
-            changefreq: 'daily', // How often it updates
-        };
-    },
+module.exports = async () => {
+    const blogPaths = await fetchBlogSlugs();
+
+    return {
+        siteUrl: 'https://blogging-one-omega.vercel.app',
+        generateRobotsTxt: true,
+        exclude: ['/admin', '/dashboard'],
+        robotsTxtOptions: {
+            policies: [
+                { userAgent: '*', allow: '/', disallow: ['/admin', '/dashboard'] },
+            ],
+        },
+        additionalPaths: async () => blogPaths.map(slug => ({
+            loc: slug,
+            lastmod: new Date().toISOString(),
+            priority: 0.9,
+            changefreq: 'daily',
+        })),
+    };
 };
