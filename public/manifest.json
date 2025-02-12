@@ -83,36 +83,7 @@
             "purpose": "any maskable"
         }
     ],
-    "screenshots": [
-        {
-            "src": "/screenshots/desktop-home.webp",
-            "sizes": "1280x720",
-            "type": "image/webp",
-            "form_factor": "wide",
-            "label": "Home page - Discover trending developer stories"
-        },
-        {
-            "src": "/screenshots/desktop-editor.webp",
-            "sizes": "1280x720",
-            "type": "image/webp",
-            "form_factor": "wide",
-            "label": "Rich markdown editor for writing blogs"
-        },
-        {
-            "src": "/screenshots/mobile-home.webp",
-            "sizes": "750x1334",
-            "type": "image/webp",
-            "form_factor": "narrow",
-            "label": "Mobile home feed with trending posts"
-        },
-        {
-            "src": "/screenshots/mobile-editor.webp",
-            "sizes": "750x1334",
-            "type": "image/webp",
-            "form_factor": "narrow",
-            "label": "Mobile-optimized blog editor"
-        }
-    ],
+   
     "shortcuts": [
         {
             "name": "New Blog Post",

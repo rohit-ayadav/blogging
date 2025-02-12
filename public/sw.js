@@ -1,5 +1,3 @@
-const exp = require("constants");
-
 // Utility function to validate URLs
 function isValidUrl(url) {
     try {
@@ -33,10 +31,13 @@ self.addEventListener('push', event => {
         };
 
         event.waitUntil(
-            self.registration.showNotification(options.title, options)
-                .catch(error => {
+            (async () => {
+                try {
+                    await self.registration.showNotification(options.title, options);
+                } catch (error) {
                     console.error('Error showing notification:', error);
-                })
+                }
+            })()
         );
     } catch (error) {
         console.error('Error processing push notification:', error);
@@ -47,11 +48,12 @@ self.addEventListener('notificationclick', event => {
     event.notification.close();
     console.log('Notification clicked:', event.notification.data);
 
-    const url = event.notification.data?.url || event.url || '/';
-    // if (!isValidUrl(url)) {
-    //     console.warn('Invalid URL in notification:', url);
-    //     return;
-    // }
+    const url = event.notification.data?.url || '/';
+
+    if (!isValidUrl(url)) {
+        console.warn('Invalid URL in notification:', url);
+        return;
+    }
 
     const actionMap = {
         dismiss: () => { },
@@ -62,14 +64,8 @@ self.addEventListener('notificationclick', event => {
         read: () => clients.openWindow(url),
         show: () => clients.openWindow(url),
         settings: () => clients.openWindow('/settings'),
-        setting: () => clients.openWindow('/settings'),
         config: () => clients.openWindow('/settings'),
-        configure: () => clients.openWindow('/settings'),
         profile: () => clients.openWindow('/profile'),
-        explore: () => clients.openWindow('/'),
-        discover: () => clients.openWindow('/'),
-        search: () => clients.openWindow('/'),
-        find: () => clients.openWindow('/'),
         explore: () => clients.openWindow('/'),
         discover: () => clients.openWindow('/'),
         search: () => clients.openWindow('/'),
@@ -82,8 +78,7 @@ self.addEventListener('notificationclick', event => {
     if (event.action && actionMap[event.action]) {
         console.log('Executing action:', event.action);
         event.waitUntil(actionMap[event.action]());
-    } else if (clients && clients.openWindow) {
+    } else if (clients.openWindow) {
         event.waitUntil(clients.openWindow(url));
     }
-    event.waitUntil(clients.openWindow(url));
 });
