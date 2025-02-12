@@ -40,7 +40,7 @@ function NavbarComponent() {
 
   return (
     <nav className="bg-emerald-800 z-50">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 select-none">
         <div className="flex justify-between items-center h-20">
           <Logo />
 
@@ -63,7 +63,7 @@ function NavbarComponent() {
               <Link
                 onClick={() => setIsMobileMenuOpen(false)}
                 href="/login"
-                className="bg-white text-emerald-800 px-4 py-2 rounded-md hover:bg-emerald-50 transition-colors duration-200"
+                className="bg-white text-emerald-800 px-4 py-2 rounded-md hover:bg-emerald-50 transition-colors duration-200 select-none"
               >
                 Get Started
               </Link>

@@ -13,14 +13,14 @@ const Logo = () => {
     }, []);
 
     return (
-        <Link href="/" className="flex items-center space-x-2">
+        <Link href="/" className="flex items-center space-x-2 select-none">
             <Image
-            src="/logo.png"
-            alt="Company Logo"
-            width={width < 768 ? 50 : 60}
-            height={width < 768 ? 50 : 60}
-            className="rounded-full"
-            priority
+                src="/logo.png"
+                alt="Company Logo"
+                width={width < 768 ? 50 : 60}
+                height={width < 768 ? 50 : 60}
+                className="rounded-full"
+                priority
             />
             <span className="text-white text-xl font-bold">DevBlogger</span>
         </Link>

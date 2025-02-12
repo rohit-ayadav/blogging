@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Navbar from "./navComponent/navigation/navbar/page";
 import Footer from "./footer/page";
 import { Toaster } from 'react-hot-toast';
 import SessionWrapper from "./component/sessionWrapper";
 import { Analytics } from "@vercel/analytics/react"
 import { ThemeProvider } from "@/context/ThemeContext";
 import Script from "next/script";
+import NavbarComponent from "./navComponent/navigation/navbar/navbarComponent";
 
 declare global {
   interface Window {
@@ -177,7 +177,7 @@ export default function RootLayout({
         />
         <ThemeProvider>
           <SessionWrapper>
-              <Navbar />
+              <NavbarComponent />
               {children}
               <Footer />
           </SessionWrapper>
