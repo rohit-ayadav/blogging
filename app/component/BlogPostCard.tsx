@@ -1,10 +1,9 @@
 import Link from 'next/link';
-import { FaCalendarAlt, FaClipboard, FaEye, FaThumbsUp, FaUserCircle } from 'react-icons/fa';
+import { FaCalendarAlt, FaEye, FaThumbsUp, FaUserCircle } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Calendar, Eye, ImageIcon, ThumbsUp, User } from 'lucide-react';
-import { ArrowRight } from 'lucide-react';
+import { ImageIcon, ArrowRight, Clipboard } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardTitle, CardHeader } from '@/components/ui/card';
 import { UserType, BlogPostType } from '@/types/blogs-types';
 import {
@@ -13,74 +12,14 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { formatDate, getCategoryColor } from '@/lib/formatDate';
 
-
-const getCategoryColor = (category: string): { bg: string; text: string; border: string } => {
-    const colors: { [key: string]: { bg: string; text: string; border: string } } = {
-        DSA: {
-            bg: 'bg-blue-100/90 dark:bg-blue-900/90',
-            text: 'text-blue-800 dark:text-blue-200',
-            border: 'border-blue-200 dark:border-blue-800'
-        },
-        WebDev: {
-            bg: 'bg-purple-100/90 dark:bg-purple-900/90',
-            text: 'text-purple-800 dark:text-purple-200',
-            border: 'border-purple-200 dark:border-purple-800'
-        },
-        "Job Posting": {
-            bg: 'bg-green-100/90 dark:bg-green-900/90',
-            text: 'text-green-800 dark:text-green-200',
-            border: 'border-green-200 dark:border-green-800'
-        },
-        AI: {
-            bg: 'bg-orange-100/90 dark:bg-orange-900/90',
-            text: 'text-orange-800 dark:text-orange-200',
-            border: 'border-orange-200 dark:border-orange-800'
-        },
-        ML: {
-            bg: 'bg-red-100/90 dark:bg-red-900/90',
-            text: 'text-red-800 dark:text-red-200',
-            border: 'border-red-200 dark:border-red-800'
-        },
-        "Skill Development": {
-            bg: 'bg-yellow-100/90 dark:bg-yellow-900/90',
-            text: 'text-yellow-800 dark:text-yellow-200',
-            border: 'border-yellow-200 dark:border-yellow-800'
-        },
-        "Resume and Cover Letter Guidance": {
-            bg: 'bg-indigo-100/90 dark:bg-indigo-900/90',
-            text: 'text-indigo-800 dark:text-indigo-200',
-            border: 'border-indigo-200 dark:border-indigo-800'
-        },
-        "Interview Preparation": {
-            bg: 'bg-pink-100/90 dark:bg-pink-900/90',
-            text: 'text-pink-800 dark:text-pink-200',
-            border: 'border-pink-200 dark:border-pink-800'
-        },
-        "Tech-news": {
-            bg: 'bg-cyan-100/90 dark:bg-cyan-900/90',
-            text: 'text-cyan-800 dark:text-cyan-200',
-            border: 'border-cyan-200 dark:border-cyan-800'
-        },
-        Internship: {
-            bg: 'bg-teal-100/90 dark:bg-teal-900/90',
-            text: 'text-teal-800 dark:text-teal-200',
-            border: 'border-teal-200 dark:border-teal-800'
-        },
-        Others: {
-            bg: 'bg-gray-100/90 dark:bg-gray-800/90',
-            text: 'text-gray-800 dark:text-gray-200',
-            border: 'border-gray-200 dark:border-gray-700'
-        }
-    };
-    return colors[category] || colors.Others;
-};
 
 const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) => {
     const categoryColors = getCategoryColor(post.category);
+    const formattedDate = formatDate(post.createdAt);
 
     return (
-
         <TooltipProvider>
             <Card className="group relative overflow-hidden transition-all duration-300 flex flex-col h-full 
             bg-white dark:bg-gray-900 
@@ -88,7 +27,7 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
             hover:shadow-2xl hover:border-opacity-50 
             rounded-xl 
             transform hover:-translate-y-2 hover:scale-[1.02]">
-                {/* Thumbnail Section with Improved Overlay */}
+                {/* Thumbnail Section */}
                 <div className="relative h-56 lg:h-64 overflow-hidden rounded-t-xl">
                     {post.thumbnail ? (
                         <img
@@ -126,21 +65,14 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                     </div>
 
                     <div className="absolute bottom-4 left-4 right-4 text-white">
-                        <CardTitle className="
-                        text-2xl font-bold 
-                        line-clamp-2 
-                        mb-3 
-                        drop-shadow-lg 
-                        transition-all duration-300 
-                        group-hover:text-opacity-90
-                    ">
+                        <CardTitle className="text-2xl font-bold line-clamp-2 mb-3 drop-shadow-lg transition-all duration-300 group-hover:text-opacity-90">
                             {post.title}
                         </CardTitle>
 
                         <div className="flex items-center justify-between text-gray-100 text-sm">
                             <div className="flex items-center space-x-2">
                                 <FaCalendarAlt className="h-4 w-4 opacity-80" />
-                                <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                                <span>{formattedDate}</span>
                             </div>
                             <div className="flex items-center space-x-3">
                                 <div className="flex items-center space-x-1">
@@ -157,30 +89,15 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                 </div>
 
                 <CardContent className="flex-grow p-6">
-                    <p className="
-                    line-clamp-4 
-                    text-gray-700 dark:text-gray-300 
-                    text-base 
-                    leading-relaxed
-                ">
+                    <p className="line-clamp-4 text-gray-700 dark:text-gray-300 text-base leading-relaxed">
                         {post.content.replace(/<[^>]+>/g, '')}
                     </p>
                 </CardContent>
 
-                <CardFooter className="
-                flex flex-col sm:flex-row 
-                justify-between 
-                items-center 
-                p-6 pt-0 
-                space-y-4 sm:space-y-0
-            ">
+                <CardFooter className="flex flex-col sm:flex-row justify-between items-center p-6 pt-0 space-y-4 sm:space-y-0">
                     {/* User Section */}
                     <div className="flex items-center space-x-3 w-full sm:w-auto">
-                        <Avatar className="
-                        w-10 h-10 
-                        ring-2 ring-offset-2 
-                        ring-blue-100 dark:ring-blue-900
-                    ">
+                        <Avatar className="w-10 h-10 ring-2 ring-offset-2 ring-blue-100 dark:ring-blue-900">
                             <AvatarImage
                                 src={user?.image}
                                 alt={user?.name}
@@ -192,7 +109,7 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                         </Avatar>
                         <div className="flex flex-col">
                             <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                                {user?.name || 'Unknown Author'}
+                                {user?.name || 'Anonymous'}
                             </span>
                             <span className="text-xs text-gray-500 dark:text-gray-400">
                                 {user?.bio?.slice(0, 30) || 'No bio available'}
@@ -204,57 +121,32 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                     <div className="flex items-center space-x-3 mt-4 sm:mt-0">
                         <Tooltip>
                             <TooltipTrigger>
-                                <button
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(
-                                            `${post.title}\nRead here: ${window.location.origin}/blogs/${post.slug}\n\n`
-                                        );
-                                        toast.success('Blog link copied!', {
-                                            icon: '📋',
-                                            style: {
-                                                borderRadius: '10px',
-                                                background: '#333',
-                                                color: '#fff',
-                                            }
-                                        });
-                                    }}
-                                    className="
-                            p-2 rounded-full 
-                            hover:bg-gray-100 dark:hover:bg-gray-800 
-                            transition-all duration-300 
-                            hover:scale-110
-                        "
+                                {/* since button can not be inserted into tooltip, we need to use something else then button here */}
+                                <div
+                                    className="flex items-center space-x-1 cursor-pointer"
+                                    onClick={() => toast.success('Copied to clipboard!')}
                                 >
-                                    <FaClipboard className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                                </button>
+                                    <Clipboard className="h-5 w-5" />
+                                    <TooltipContent>Copy Link to Share</TooltipContent>
+                                </div>
+
                             </TooltipTrigger>
-                            <TooltipContent>
-                                <span className='text-xs'>Copy post link to clip board</span>
-                            </TooltipContent>
                         </Tooltip>
-
-                        {/* <Link href={`/blogs/${post._id}`} className="w-full"> */}
-                        {/* <Link href={`/blogs/${post.slug}`} className="w-full"> */}
-                        <Link href={`/blogs/${post.slug}`} passHref>
-
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="
-                                group 
-                                w-full 
-                                hover:bg-blue-500 hover:text-white 
-                                dark:hover:bg-blue-600 
-                                text-gray-800 dark:text-gray-200 
-                                border-gray-300 dark:border-gray-600 
-                                transition-all duration-300 
-                                rounded-full
-                            "
-                            >
-                                Read More
-                                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                            </Button>
-                        </Link>
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <Link href={`/blogs/${post.slug}`} passHref>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="group w-full hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600 transition-all duration-300 rounded-full"
+                                    >
+                                        Read More
+                                        <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                                    </Button>
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent>Click to read the full post</TooltipContent>
+                        </Tooltip>
                     </div>
                 </CardFooter>
             </Card>

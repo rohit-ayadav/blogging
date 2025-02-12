@@ -154,7 +154,6 @@ export async function generateMetadata({
   };
 }
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -163,10 +162,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8778160378200057"
-          crossOrigin="anonymous">
-        </script> */}
-        
         <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8778160378200057" />
         {/* <Script
           src="//code.tidio.co/l6g8cbi3bveugsuepmvcwmmvim0muhdb.js"
@@ -182,9 +177,9 @@ export default function RootLayout({
         />
         <ThemeProvider>
           <SessionWrapper>
-            <Navbar />
-            {children}
-            <Footer />
+              <Navbar />
+              {children}
+              <Footer />
           </SessionWrapper>
         </ThemeProvider>
         <Analytics />

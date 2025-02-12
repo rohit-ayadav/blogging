@@ -13,7 +13,46 @@ import { BlogPostCard } from '../app/component/BlogPostCard';
 import { BlogPostType, UserType } from '@/types/blogs-types';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 
-const HomePage = ({ posts, users, totalLikes, totalViews, totalBlogs, totalUsers }: HomePageProps) => {
+// Define interfaces at the top
+interface FeatureCardProps {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    action: string;
+    onClick: () => void;
+}
+
+interface HomePageProps {
+    posts: BlogPostType[];
+    users: UserType[];
+    totalLikes: number;
+    totalViews: number;
+    totalBlogs: number;
+    totalUsers: number;
+}
+
+// Separate FeatureCard component with fixed button implementation
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, action, onClick }) => {
+    const { isDarkMode } = useTheme();
+    return (
+        <Card className={`text-center h-full flex flex-col justify-between transition-all duration-300 hover:shadow-lg ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white'}`}>
+            <CardContent className="pt-6">
+                <div className="text-blue-600 mb-4">{icon}</div>
+                <CardTitle className="text-2xl font-semibold mb-2">{title}</CardTitle>
+                <p className="mb-4">{description}</p>
+            </CardContent>
+            <CardContent className="pt-0">
+                <div className="w-full">
+                    <Button onClick={onClick} className="w-full">
+                        {action} <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
+
+const HomePage: React.FC<HomePageProps> = ({ posts, users, totalLikes, totalViews, totalBlogs, totalUsers }) => {
     const { isDarkMode } = useTheme();
     const router = useRouter();
 
@@ -33,10 +72,18 @@ const HomePage = ({ posts, users, totalLikes, totalViews, totalBlogs, totalUsers
                     <h1 className="text-4xl font-bold mb-4 md:text-5xl lg:text-6xl">Empower Your Developer Journey</h1>
                     <p className="text-xl mb-8 md:text-2xl max-w-3xl mx-auto">Join our thriving community of passionate developers. Share knowledge, learn from peers, and accelerate your career growth.</p>
                     <div className="space-y-4 md:space-y-0 md:space-x-4 flex flex-col md:flex-row justify-center">
-                        <Button size="lg" variant={isDarkMode ? "outline" : "secondary"} onClick={() => router.push('https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t')}>
+                        <Button
+                            size="lg"
+                            variant={isDarkMode ? "outline" : "secondary"}
+                            onClick={() => router.push('https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t')}
+                        >
                             Join the Community
                         </Button>
-                        <Button size="lg" variant={isDarkMode ? "outline" : "secondary"} onClick={() => { router.push('/blogs') }}>
+                        <Button
+                            size="lg"
+                            variant={isDarkMode ? "outline" : "secondary"}
+                            onClick={() => router.push('/blogs')}
+                        >
                             Explore Blogs
                         </Button>
                     </div>
@@ -47,9 +94,9 @@ const HomePage = ({ posts, users, totalLikes, totalViews, totalBlogs, totalUsers
                 <div className="container mx-auto px-6">
                     <h2 className="text-3xl font-bold mb-8 text-center">Featured Blogs</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <BlogPostCard post={posts[0]} user={users[0]} />
-                        <BlogPostCard post={posts[1]} user={users[1]} />
-                        <BlogPostCard post={posts[2]} user={users[2]} />
+                        {posts.slice(0, 3).map((post, index) => (
+                            <BlogPostCard key={post._id || index} post={post} user={users[index]} />
+                        ))}
                     </div>
                     <div className="text-center mt-12">
                         <Button size="lg" onClick={() => router.push('/blogs')}>
@@ -124,42 +171,4 @@ const HomePage = ({ posts, users, totalLikes, totalViews, totalBlogs, totalUsers
     );
 };
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, action, onClick }) => {
-    const { isDarkMode } = useTheme();
-
-    return (
-        <Card className={`text-center h-full flex flex-col justify-between transition-all duration-300 hover:shadow-lg ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white'}`}>
-            <CardContent className="pt-6">
-                <div className="text-blue-600 mb-4">{icon}</div>
-                <CardTitle className="text-2xl font-semibold mb-2">{title}</CardTitle>
-                <p className="mb-4">{description}</p>
-            </CardContent>
-            <CardContent className="pt-0">
-                <Button onClick={onClick} className="w-full">
-                    {action} <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-            </CardContent>
-        </Card>
-    );
-};
-
 export default HomePage;
-
-// Types
-
-interface FeatureCardProps {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
-    action: string;
-    onClick: () => void;
-}
-
-interface HomePageProps {
-    posts: BlogPostType[];
-    users: UserType[];
-    totalLikes: number;
-    totalViews: number;
-    totalBlogs: number;
-    totalUsers: number;
-}
