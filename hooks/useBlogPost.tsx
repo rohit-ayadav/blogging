@@ -49,7 +49,7 @@ const useBlogPost = ({ email, tags, id }: { email: string; tags: string[]; id: s
 
     useEffect(() => {
         RelatedData();
-    }, [id, email, tags]);
+    }, [id, email, tags, error]); 
 
     return {
         authorPosts,
