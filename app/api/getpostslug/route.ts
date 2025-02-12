@@ -4,7 +4,7 @@ import Blog from "@/models/blogs.models";
 
 await connectDB();
 
-export default async function GET(request: NextRequest) {
+export async function GET(request: NextRequest) {
 
     const posts = await Blog.find({}, { slug: 1, _id: 1 });
     const paths = posts.map(post => ({
