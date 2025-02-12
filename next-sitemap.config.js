@@ -13,7 +13,7 @@ module.exports = {
         return {
             loc: path, // URL location
             lastmod: new Date().toISOString(), // Last modified date
-            priority: path === '/' ? 1.0 : 0.8, // Higher priority for homepage
+            priority: path.startsWith('/blog/') ? 0.9 : (path === '/' ? 1.0 : 0.8), // High priority for blog posts
             changefreq: 'daily', // How often it updates
         };
     },

@@ -81,9 +81,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     }
 
     const postData = response.data;
-    const title = postData?.title || 'Next.js Blog Post';
+    const title = postData?.title || 'DevBlogger Blog Post';
     const thumbnailUrl = postData?.thumbnail || '/default-thumbnail.png';
     const description = postData?.content.replace(/<[^>]*>?/gm, '').substring(0, 200);
+    const url = `hhttps://blogging-one-omega.vercel.app/blogs/${response.data.slug}`;
 
     return {
         title: title,
@@ -92,7 +93,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
             title: title,
             description: description,
             images: [thumbnailUrl],
-            url: `https://blogging-one-omega.vercel.app/blogs/${params.id}`,
+            url: url,
         },
         twitter: {
             card: 'summary_large_image',
@@ -101,8 +102,12 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
             images: [thumbnailUrl],
         },
         keywords: postData?.tags?.join(', '),
+        alternates: {
+            canonical: url,
+        },
     };
 }
+
 
 export async function generateStaticParams() {
 
