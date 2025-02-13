@@ -83,8 +83,6 @@ const EditorCard: React.FC<EditorCardProps> = ({
                             tags={state.tags}
                             setTags={(tags) => updateState({ tags })}
                             content={getContent()}
-                            tagAutoGen={state.tagAutoGen}
-                            setTagAutoGen={(tagAutoGen) => updateState({ tagAutoGen })}
                             isDarkMode={isDarkMode}
                         />
 
