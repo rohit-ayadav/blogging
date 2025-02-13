@@ -4,7 +4,6 @@ import { isValidObjectId } from "mongoose";
 import { isValidSlug } from "@/lib/common-function";
 import EditBlogComponent from "./editBlog";
 import { getSessionAtHome } from "@/auth";
-import LoadingSpinner from "@/app/create/component/LoadingSpinner";
 
 await connectDB();
 interface EditBlogState {

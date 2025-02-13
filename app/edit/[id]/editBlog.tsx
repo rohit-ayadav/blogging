@@ -1,8 +1,7 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter, useParams } from 'next/navigation';
-import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import { TitleSection } from '@/app/create/component/TitleSection';
 import { ThumbnailSection } from '@/app/create/component/ThumbnailSection';
@@ -10,8 +9,6 @@ import { EditorSection } from '@/app/create/component/EditorSection';
 import { TagsSection } from '@/app/create/component/TagsSection';
 import { CategorySection } from '@/app/create/component/CategorySection';
 import { ActionButtons } from '@/app/create/component/ActionButtons';
-import DOMPurify from 'dompurify';
-import MarkdownIt from 'markdown-it';
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -19,79 +16,15 @@ import { cn } from "@/lib/utils";
 import { CATEGORIES, EditBlogState } from '@/types/blogs-types';
 import LoadingSpinner from '@/app/create/component/LoadingSpinner';
 import UrlSection from '@/app/create/component/CustomURL';
-import { updateBlog } from '@/action/updateBlog';
+import useEditBlog from '@/hooks/useEditBlog';
 
 export default function EditBlogComponent(BlogData: EditBlogState) {
     const router = useRouter();
     const { data: session, status } = useSession();
     const { isDarkMode } = useTheme();
     const [state, setState] = useState({ ...BlogData });
+    const { handleSave, updateState } = useEditBlog(state, setState);
 
-    const updateState = (updates: Partial<typeof state>) => {
-        setState(prev => ({ ...prev, ...updates }));
-    };
-
-    const sanitizeContent = {
-        title: (title: string) => DOMPurify.sanitize(title.slice(0, 250)),
-        tags: (tag: string) => DOMPurify.sanitize(tag),
-        content: (value: string) => {
-            if (state.editorMode === 'markdown') {
-                const md = new MarkdownIt({ html: true });
-                return DOMPurify.sanitize(md.render(value));
-            }
-            return DOMPurify.sanitize(value);
-        }
-    };
-
-    const validateForm = () => {
-        if (!state.title) return 'Title is required';
-        if (!state.htmlContent && !state.markdownContent) return 'Content is required';
-        if (!state.category) return 'Category is required';
-        if (state.tags.length < 1) return 'At least one tag is required';
-        return null;
-    };
-
-    const handleSave = async () => {
-        const validationError = validateForm();
-        if (validationError) {
-            toast.error(validationError);
-            return;
-        }
-
-        // Check authorization
-        if (session && session?.user?.email !== state.createdBy) {
-            toast.error('You are not authorized to edit this blog post');
-            return;
-        }
-
-        updateState({ isLoading: true });
-
-        const blogPostData = {
-            title: sanitizeContent.title(state.title),
-            content: sanitizeContent.content(
-                state.editorMode === 'markdown' ? state.markdownContent : state.htmlContent
-            ),
-            thumbnail: state.thumbnail,
-            tags: state.tags.map(sanitizeContent.tags),
-            category: state.category,
-            status: 'published',
-            language: state.editorMode === 'markdown' ? 'markdown' : 'html',
-            id: state.blogId,
-            slug: state.slug,
-        };
-
-        const response = await updateBlog(blogPostData);
-
-        if (response.error) {
-            updateState({ isLoading: false });
-            toast.error(response.error);
-            return;
-        }
-        updateState({ isLoading: false });
-        toast.success(`${response.message}`);
-        router.push(`/blogs/${state.blogId}`);
-
-    };
 
     if (state.isInitializing) {
         return (
