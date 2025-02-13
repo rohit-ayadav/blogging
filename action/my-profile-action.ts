@@ -7,7 +7,6 @@ import { ProfileFormData } from "@/app/profile/component/types";
 
 export async function saveEdit(data: ProfileFormData) {
     try {
-        console.log(`\nData received from the client: ${JSON.stringify(data)}`);
 
         if (!data) throw new Error("Data is required");
         if (!data.email) throw new Error("Email is required");
@@ -39,7 +38,6 @@ export async function saveEdit(data: ProfileFormData) {
             throw new Error("Failed to update profile");
         }
 
-        console.log(`\nUpdated user: ${JSON.stringify(updatedUser)}`);
         return { success: true };
     } catch (error) {
         console.error(`\nError in saveEdit: ${error}`);

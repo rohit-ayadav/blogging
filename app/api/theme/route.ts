@@ -52,7 +52,6 @@ export async function POST(request: NextRequest) {
 
     user.theme = theme;
     await user.save();
-    console.log(`Theme selected: ${theme}`);
 
     return NextResponse.json(
       {

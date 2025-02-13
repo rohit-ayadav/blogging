@@ -53,7 +53,6 @@ const useSignupForm = () => {
     const router = useRouter();
     useEffect(() => {
         if (formData.username !== '') {
-            console.log(`Checking username availability for ${formData.username}`);
             checkUsernameAvailability(formData.username).then((isAvailable) => {
                 setIsUsernameAvailable(isAvailable);
             }
@@ -128,28 +127,11 @@ const useSignupForm = () => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         const { name, value } = e.target;
-        console.log(`Value of ${name} is changed to ${value}`);
         setFormData((prevFormData) => {
             const updatedFormData = {
                 ...prevFormData,
                 [name]: value
             };
-
-            if (name === 'password') {
-                // setPasswordCriteria({
-                //     hasLowercase: /[a-z]/.test(value),
-                //     hasUppercase: /[A-Z]/.test(value),
-                //     hasNumber: /\d/.test(value),
-                //     hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value),
-                //     hasEightChars: value.length >= 8
-                // });
-                console.log(`\nThe password criteria are as follows:
-                    Lowercase: ${/[a-z]/.test(value)}
-                    Uppercase: ${/[A-Z]/.test(value)}
-                    Number: ${/\d/.test(value)}
-                    Special Character: ${/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value)}
-                    Eight Characters: ${value.length >= 8}`);
-            }
 
             if (name === 'confirmPass' && updatedFormData.password !== value) {
                 setError({

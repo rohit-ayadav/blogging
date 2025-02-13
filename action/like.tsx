@@ -22,7 +22,6 @@ async function likePost(id: string): Promise<boolean> {
             { $inc: { likes: 1 } },
             { new: true }
         );
-        // console.log(post);
         return !!post;
     } catch (error) {
         console.error("Error liking blog post:", error);
@@ -59,7 +58,6 @@ async function dislikePost(id: string): Promise<boolean> {
             await post.save();
         }
 
-        // console.log(post);
         return !!post;
     } catch (error) {
         console.error("Error disliking blog post:", error);

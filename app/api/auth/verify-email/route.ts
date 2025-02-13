@@ -12,7 +12,6 @@ export async function GET(req: NextRequest) {
         // Extract token from query string
         const { searchParams } = new URL(req.url);
         const token = searchParams.get("token");
-        // console.log(`\nToken received from the client: ${token}`);
 
         if (!token) {
             return new Response(JSON.stringify({ error: "Token is required" }), { status: 400 });
@@ -29,8 +28,6 @@ export async function GET(req: NextRequest) {
         }
         const email = (decoded as jwt.JwtPayload).email; // Extract email from decoded token
 
-        console.log(`\nDecoded email: ${email}`);
-
         // Connect to database
         await connectDB();
         const user = await User.findOne({ email });
@@ -46,8 +43,7 @@ export async function GET(req: NextRequest) {
         // Update user email verification status
         user.isEmailVerified = true;
         await user.save();
-
-        console.log(`\nUser verified: ${JSON.stringify(user)}`);
+        
         return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/login?verified=true`);
         return new Response(JSON.stringify({ message: "Email verified successfully!" }), { status: 200 });
 

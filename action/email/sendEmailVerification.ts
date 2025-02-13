@@ -14,12 +14,8 @@ import { EmailVerificationTemplate } from "@/utils/EmailTemplate/auth";
 
 export async function sendEmailVerification(email: string) {
     try {
-        console.log(`\nEmail received from the client: ${email}`);
-
         if (!email) throw new Error("Email is required");
-
         await connectDB();
-
         const user = await User.findOne({ email });
         if (!user) {
             throw new Error("User not found");
@@ -33,16 +29,13 @@ export async function sendEmailVerification(email: string) {
         const jwtToken = jwt.sign({ email }, process.env.JWT_SECRET, {
             expiresIn: '15m'
         });
-        console.log(`\nJWT Token: ${jwtToken}`);
         const verifyUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email?token=${jwtToken}`;
 
-        console.log(`\nVerification URL: ${verifyUrl}`);
         sendEmail({
             to: user.email,
             subject: "Email Verification Link - DevBlogger",
             message: EmailVerificationTemplate(user.name, verifyUrl)
         });
-        console.log(`\nUser found: ${JSON.stringify(user)}`);
         return { success: true };
     } catch (error) {
         console.error(`\nError in sendEmailVerification: ${error}`);

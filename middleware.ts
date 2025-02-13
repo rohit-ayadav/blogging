@@ -9,8 +9,6 @@ export async function middleware(req: NextRequest) {
   const adminRoutes = ["/dashboard/admin"];
   const protectedRoutes = ["/create", "/profile", "/dashboard", "/edit"];
 
-  console.log(`Middleware called for ${pathname}`);
-
   const token = await getToken({ req, secret: process.env.JWT_SECRET });
   // if token is available and user tries to access public routes, redirect to dashboard
   if (token && publicRoutes.includes(pathname)) {
@@ -24,7 +22,6 @@ export async function middleware(req: NextRequest) {
       "You must be logged in to access this page."
     );
     loginUrl.searchParams.set("callbackUrl", pathname);
-    console.log(`Redirecting to ${loginUrl} from ${pathname}`);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -33,7 +30,6 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/unauthorized", req.url));
   }
 
-  console.log(`Allowing access to ${pathname}`);
   return NextResponse.next();
 }
 

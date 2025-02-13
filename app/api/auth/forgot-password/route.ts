@@ -33,11 +33,9 @@ const resetPasswordRequest = async (user: any, req: NextRequest) => {
         try {
             await user.save();
         } catch (error) {
-            console.log(`Error while saving the user\n\n${error}\n\n`);
             throw new Error("Error while saving the user");
         }
         subject = "Password Reset Request for DevBlogger";
-        console.log(`New Token is generated\n\n`);
     }
 
     // Encrypt the token and email

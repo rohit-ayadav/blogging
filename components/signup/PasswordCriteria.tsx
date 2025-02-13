@@ -4,15 +4,7 @@ import { PasswordCriteriaType } from './useSignupForm';
 
 const PasswordCriteria = ({ criteria }: { criteria: PasswordCriteriaType }) => {
     const allCriteriaMet = Object.values(criteria).every(c => c);
-    console.log(`
-        hasUppercase: ${criteria.hasUppercase}
-        hasLowercase: ${criteria.hasLowercase}
-        hasNumber: ${criteria.hasNumber}
-        hasSpecialChar: ${criteria.hasSpecialChar}
-        hasEightChars: ${criteria.hasEightChars}
-        on allCriteriaMet: ${allCriteriaMet}
-        client side`)
-
+  
     if (allCriteriaMet) {
         return (
             <div className="flex items-center text-sm">

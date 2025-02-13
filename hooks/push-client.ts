@@ -48,7 +48,6 @@ async function registerServiceWorker(): Promise<
     const registration = await navigator.serviceWorker.register("/sw.js?v=3", {
       scope: "/"
     });
-    console.log("Service Worker registered successfully");
     await navigator.serviceWorker.ready;
     return registration;
   } catch (error) {

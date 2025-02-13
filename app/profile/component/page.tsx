@@ -11,6 +11,7 @@ import { BlogsTab } from "./BlogsTab";
 import { SettingsTab } from "./SettingsTab";
 import { BlogPostType, UserType } from "@/types/blogs-types";
 import { ErrorFallback } from "../[id]/component/ErrorFallback";
+import toast from "react-hot-toast";
 
 interface UserProfileProps {
     userData: UserType;
@@ -48,8 +49,7 @@ export default function UserProfile({ userData, userBlogs }: UserProfileProps) {
     };
 
     const manageLinkedAccounts = () => {
-        // Will be implemented in future
-        console.log("Managing linked accounts");
+        toast.error('We are working on this feature. Please check back later.');
     };
 
     const handleEditBlog = (blogId: string) => {
