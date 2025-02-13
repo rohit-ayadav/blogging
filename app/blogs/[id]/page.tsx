@@ -84,7 +84,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     const title = postData?.title || 'DevBlogger Blog Post';
     const thumbnailUrl = postData?.thumbnail || '/default-thumbnail.png';
     const description = postData?.content.replace(/<[^>]*>?/gm, '').substring(0, 200);
-    const url = `hhttps://blogging-one-omega.vercel.app/blogs/${response.data.slug}`;
+    const url = `https://blogging-one-omega.vercel.app/blogs/${response.data.slug}`;
 
     return {
         title: title,
