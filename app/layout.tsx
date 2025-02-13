@@ -19,13 +19,15 @@ const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
+  display: "swap",
 });
+
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
+  display: "swap",
 });
-
 
 export async function generateMetadata({
   title = "DevBlogger - A Blogging Platform for Developers",
@@ -44,10 +46,9 @@ export async function generateMetadata({
 
   return {
     title,
+    keywords: "blogging, developer, blog, next.js, react, typescript, mongodb, vercel, nextjs, next,js, next-js, next.js blog, next.js blogging, next.js blog website, next.js blog platform, next.js blog app, next.js blog template, next.js blog example, next.js blog post, next.js blog tutorial, next.js blog website template, next.js blog website example, next.js blog website tutorial, next.js blog website project, next.js blog website code, next.js blog website design, next.js blog website development, next.js blog website app, next.js blog website platform, next.js blog website features, next.js blog website interface, next.js blog website user-friendly, next.js blog website customizable, next.js blog website interactive, next.js blog website share, next.js blog website update, next.js blog website create, next.js blog website effortlessly, next.js blog website diverse, next.js blog website topics, next.js blog website built, next.js blog website explore,DevBlogger, Dev Blogger, Developer Blogger, Dev Blog, Developer Blog, Blog for Developers, Blogging",
     description,
-    // Manifest
     manifest: "/manifest.json?v=1.0.6",
-    // themeColor: "#000000",
     appleWebApp: {
       capable: true,
       statusBarStyle: "black",
@@ -62,9 +63,7 @@ export async function generateMetadata({
         { url: "/icons/android/android-launchericon-192-192.png", sizes: "192x192", type: "image/png" },
         { url: "/icons/android/android-launchericon-512-512.png", sizes: "512x512", type: "image/png" },
       ],
-
       apple: [
-        // 16 20 29 32 40  50 57 58 60 64 72 76 80 87 100 114 120 128 144 152 167 180 192 256 512 1024
         { url: "/icons/ios/16.png", sizes: "16x16", type: "image/png" },
         { url: "/icons/ios/20.png", sizes: "20x20", type: "image/png" },
         { url: "/icons/ios/29.png", sizes: "29x29", type: "image/png" },
@@ -92,14 +91,6 @@ export async function generateMetadata({
       shortcut: ["/icons/ios/152.png"],
     },
     applicationName: "DevBlogger",
-    // viewport: {
-    //   width: "device-width",
-    //   initialScale: 1,
-    //   maximumScale: 1,
-    //   minimumScale: 1,
-    //   userScalable: false,
-    //   viewportFit: "cover",
-    // },
     formatDetection: {
       telephone: false,
     },
@@ -140,9 +131,6 @@ export async function generateMetadata({
         "max-snippet": -1,
       },
     },
-    verification: {
-      // google: "your-google-site-verification",
-    },
     category: "blogging",
     other: {
       "apple-mobile-web-app-capable": "yes",
@@ -159,27 +147,94 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "DevBlogger",
+    "alternateName": [
+      "Dev Blogger",
+      "Developer Blogger",
+      "Dev Blog",
+      "Developer Blog",
+      "Blog for Developers",
+      "Blogging",
+    ],
+    url: "https://blogging-one-omega.vercel.app",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: "https://blogging-one-omega.vercel.app/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "DevBlogger",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://blogging-one-omega.vercel.app/icons/android/android-launchericon-192-192.png",
+        width: 192,
+        height: 192
+      }
+    },
+    sameAs: [
+      "https://twitter.com/rohit.ayadav",
+      // Add other social media links here
+    ],
+    mainEntity: {
+      "@type": "Blog",
+      name: "DevBlogger",
+      description: "Explore a user-friendly blogging platform built with Next.js. Effortlessly create, update, and share blogs on diverse topics with customizable features and an interactive interface.",
+      url: "https://blogging-one-omega.vercel.app",
+      inLanguage: "en",
+      isAccessibleForFree: "True",
+      creator: {
+        "@type": "Person",
+        name: "Rohit Ayadav"
+      }
+    }
+  };
+
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "DevBlogger",
+    url: "https://blogging-one-omega.vercel.app",
+    logo: "https://blogging-one-omega.vercel.app/icons/android/android-launchericon-192-192.png",
+    sameAs: [
+      "https://twitter.com/rohit.ayadav",
+      // Add other social media links here
+    ]
+  };
+
   return (
     <html lang="en">
       <head>
         <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8778160378200057" />
-        {/* <Script
-          src="//code.tidio.co/l6g8cbi3bveugsuepmvcwmmvim0muhdb.js"
-          strategy="afterInteractive"
-        /> */}
         <meta name="google-adsense-account" content="ca-pub-8778160378200057"></meta>
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      > <Toaster
-          position="top-right"
-          reverseOrder={false}
+        <Script
+          id="json-ld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          strategy="afterInteractive"
         />
+        <Script
+          id="organization-json-ld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+          strategy="afterInteractive"
+        />
+      </head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
+        <Toaster position="top-right" reverseOrder={false} />
         <ThemeProvider>
           <SessionWrapper>
-              <NavbarComponent />
+            <NavbarComponent />
+            <main className="flex-grow">
               {children}
-              <Footer />
+            </main>
+            <Footer />
           </SessionWrapper>
         </ThemeProvider>
         <Analytics />
