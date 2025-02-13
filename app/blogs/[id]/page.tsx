@@ -5,7 +5,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Blog from '@/models/blogs.models';
 import User from '@/models/users.models';
-import { connectDB, disconnectDB } from '@/utils/db';
+import { connectDB } from '@/utils/db';
 import { isValidObjectId } from 'mongoose';
 import { Author } from '@/types/blogs-types';
 import { ErrorMessage } from './ErrorMessage';
@@ -24,22 +24,22 @@ async function getPostData(id: string): Promise<ApiResponse> {
     try {
         await connectDB();
         let post;
-        if (isValidObjectId(id))
+        if (isValidObjectId(id)) {
             post = await Blog.findById(id);
-        else
-            if (isValidSlug(id)) post = await Blog.findOne({ slug: id });
+        } else if (isValidSlug(id)) {
+            post = await Blog.findOne({ slug: id });
+        }
 
         if (!post) {
             return {
                 success: false,
                 statusCode: 404,
                 error: 'Blog post not found',
-
             };
         }
         // Increment views
         await Blog.findOneAndUpdate({ slug: id }, { $inc: { views: 1 } });
-        let author: Author = await User.findOne({ email: post.createdBy }) as Author;
+        let author: Author = (await User.findOne({ email: post.createdBy })) as Author;
 
         if (!author) {
             author = {
@@ -47,21 +47,19 @@ async function getPostData(id: string): Promise<ApiResponse> {
                 image: '/default-profile.jpg',
                 _id: '0',
                 likes: 0,
-                views: 0
+                views: 0,
             };
         }
 
         const plainPost = JSON.parse(JSON.stringify(post));
         const plainAuthor: Author = JSON.parse(JSON.stringify(author));
-        // await disconnectDB();
         return {
             success: true,
             data: plainPost,
             author: plainAuthor,
             statusCode: 200,
         };
-    }
-    catch (error) {
+    } catch (error) {
         return {
             success: false,
             error: (error as Error).message,
@@ -76,7 +74,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     if (!response.success || !response.data) {
         return {
             title: 'Error | Blog Post',
-            description: 'Unable to load blog post'
+            description: 'Unable to load blog post',
         };
     }
 
@@ -87,18 +85,18 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     const url = `https://blogging-one-omega.vercel.app/blogs/${response.data.slug}`;
 
     return {
-        title: title,
-        description: description,
+        title,
+        description,
         openGraph: {
-            title: title,
-            description: description,
+            title,
+            description,
             images: [thumbnailUrl],
-            url: url,
+            url,
         },
         twitter: {
             card: 'summary_large_image',
-            title: title,
-            description: description,
+            title,
+            description,
             images: [thumbnailUrl],
         },
         keywords: postData?.tags?.join(', '),
@@ -108,25 +106,19 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     };
 }
 
-
 export async function generateStaticParams() {
-
-    let posts = [];
-    let paths = [];
     await connectDB();
-    posts = await Blog.find({}, { slug: 1, _id: 1 });
-    paths = posts.map(post => ({
+    const posts = await Blog.find({}, { slug: 1, _id: 1 });
+    const paths = posts.map(post => ({
         params: {
             id: post._id.toString(),
-            slug: post.slug
-        }
+            slug: post.slug,
+        },
     }));
-    // await disconnectDB();
     return paths;
 }
 
 export default async function IndividualBlogPost({ params }: { params: { id: string } }) {
-
     const response = await getPostData(params.id);
 
     if (!response || !response.success) {
@@ -142,9 +134,62 @@ export default async function IndividualBlogPost({ params }: { params: { id: str
         }
     }
 
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: response.data.title,
+        image: response.data.thumbnail,
+        datePublished: response.data.createdAt,
+        dateModified: response.data.updatedAt,
+        description: response.data.content.replace(/<[^>]*>?/gm, '').substring(0, 250),
+        author: {
+            '@type': 'Person',
+            name: response.author?.name || 'Anonymous',
+        },
+        publisher: {
+            '@type': 'Organization',
+            name: 'DevBlogger',
+            logo: {
+                '@type': 'ImageObject',
+                url: 'https://blogging-one-omega.vercel.app/path/to/logo.png',
+            },
+        },
+    };
+
     return (
-        <BlogPostLayout post={response.data} id={params.id} isLoading={false} author={response.author || { name: 'Anonymous', image: '/default-profile.jpg', _id: '0', likes: 0, views: 0 }}>
-            <BlogPostClientContent initialData={response.data} id={params.id} author={response.author || { name: 'Anonymous', image: '/default-profile.jpg', _id: '0', likes: 0, views: 0 }} />
-        </BlogPostLayout>
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <BlogPostLayout
+                post={response.data}
+                id={params.id}
+                isLoading={false}
+                author={
+                    response.author || {
+                        name: 'Anonymous',
+                        image: '/default-profile.jpg',
+                        _id: '0',
+                        likes: 0,
+                        views: 0,
+                    }
+                }
+            >
+                <BlogPostClientContent
+                    initialData={response.data}
+                    id={params.id}
+                    author={
+                        response.author || {
+                            name: 'Anonymous',
+                            image: '/default-profile.jpg',
+                            _id: '0',
+                            likes: 0,
+                            views: 0,
+                        }
+                    }
+                />
+            </BlogPostLayout>
+        </>
     );
 }
