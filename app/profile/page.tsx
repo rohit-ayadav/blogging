@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import { BlogPostType, UserType } from "@/types/blogs-types";
 import { ErrorMessage } from "@/app/blogs/[id]/ErrorMessage";
 import { connectDB } from "@/utils/db";
