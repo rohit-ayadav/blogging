@@ -5,7 +5,7 @@ import { AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
-export default function UnauthorizedPage() {
+export default function UnauthorizedPage(message: string | null) {
     const router = useRouter()
 
     return (
@@ -19,7 +19,8 @@ export default function UnauthorizedPage() {
                 </CardHeader>
                 <CardContent>
                     <p className="text-muted-foreground">
-                        Sorry, you don't have permission to access this page. If you believe this is an error, please contact the administrator.
+                        {message || "Sorry, you don't have permission to access this page. If you believe this is an error, please contact the administrator."}
+                        {/* Sorry, you don't have permission to access this page. If you believe this is an error, please contact the administrator. */}
                     </p>
                 </CardContent>
                 <CardFooter className="flex justify-between">

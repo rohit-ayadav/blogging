@@ -10,8 +10,6 @@ interface TagsSectionProps {
     tags: string[];
     setTags: (tags: string[]) => void;
     content: string;
-    tagAutoGen: boolean;
-    setTagAutoGen: (value: boolean) => void;
     isDarkMode?: boolean;
 }
 
@@ -19,10 +17,9 @@ export const TagsSection = ({
     tags,
     setTags,
     content,
-    tagAutoGen,
-    setTagAutoGen
 }: TagsSectionProps) => {
     const [isLoading, setIsLoading] = useState(false);
+    const [tagAutoGen, setTagAutoGen] = useState(false);
 
     const generateTags = async () => {
         if (content.length < 50) {

@@ -105,5 +105,21 @@ interface BlogState {
   editorMode: 'markdown' | 'visual' | 'html';
 }
 
+export interface EditBlogState {
+  isInitializing: boolean;
+  isLoading: boolean;
+  error: string | null;
+  title: string;
+  thumbnail: string | null;
+  htmlContent: string;
+  markdownContent: string;
+  tags: string[];
+  category: string;
+  blogId: string;
+  createdBy: string;
+  editorMode: 'markdown' | 'visual' | 'html';
+  slug: string;
+}
+
 export type { BlogPostType, UserType, StatsType, Author, TOCItem, ThemeClasses, BlogState };
 export { CATEGORIES };
