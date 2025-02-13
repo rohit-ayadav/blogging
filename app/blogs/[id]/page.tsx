@@ -1,6 +1,6 @@
 // app/blogs/[id]/page.tsx
 import React from 'react';
-import BlogPostLayout from '../../../components/BlogPostLayout/page';
+import BlogPostLayout from '@/components/BlogPostLayout/page';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Blog from '@/models/blogs.models';
