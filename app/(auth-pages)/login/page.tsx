@@ -220,13 +220,7 @@ export default function Auth() {
                             'Sign in'
                         )}
                     </Button>
-
-                    <Separator>
-                        <span className="px-2 text-sm text-gray-500">Or continue with</span>
-                    </Separator>
-
                     <SocialLogin isLoading={isLoading} />
-
                     <div className="text-center">
                         <Button
                             type="button"
