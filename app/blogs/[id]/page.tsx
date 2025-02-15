@@ -39,7 +39,8 @@ async function getPostData(id: string): Promise<ApiResponse> {
         }
         // Increment views
         await Blog.findOneAndUpdate({ slug: id }, { $inc: { views: 1 } });
-        let author: Author = (await User.findOne({ email: post.createdBy })) as Author;
+        let createdBy = Array.isArray(post) ? post[0]?.createdBy : post?.createdBy;
+        let author: Author = (await User.findOne({ email: createdBy })) as Author;
 
         if (!author) {
             author = {
@@ -50,6 +51,15 @@ async function getPostData(id: string): Promise<ApiResponse> {
                 views: 0,
             };
         }
+
+        // Convert Mongoose document to plain object
+        if (!Array.isArray(post)) {
+            post.createdAt = post.createdAt.toISOString();
+            post.updatedAt = post.updatedAt.toISOString();
+            (post as any)._id = (post as any)._id.toString();
+        }
+
+        author._id = author._id.toString();
 
         const plainPost = JSON.parse(JSON.stringify(post));
         const plainAuthor: Author = JSON.parse(JSON.stringify(author));

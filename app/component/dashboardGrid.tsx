@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import CountUp from 'react-countup';

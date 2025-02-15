@@ -22,10 +22,6 @@ const themeClasses: (isDarkMode: boolean) => ThemeClasses = (isDarkMode: boolean
     return themeClasses;
 };
 
-
-
-
-
 // Loading state component
 const LoadingState = ({ message }: { message: string }) => (
     <div className="flex items-center justify-center space-x-2 py-4">

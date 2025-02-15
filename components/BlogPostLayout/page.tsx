@@ -67,8 +67,6 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
         post={post}
         isLoading={isLoading}
         onShare={handleShare}
-        // isDarkMode={isDarkMode}
-        // onToggleTheme={toggleDarkMode}
       />
       <main className={cn(
         "container mx-auto px-4 lg:px-8 py-8",

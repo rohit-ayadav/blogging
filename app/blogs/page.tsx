@@ -1,28 +1,14 @@
 "use client";
-import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { Moon, Sun, Search, RefreshCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast, Toaster } from 'react-hot-toast';
-import DashboardGrid from '../component/dashboardGrid';
-import BlogPostGrid from '../component/BlogPostGrid';
-import { useTheme } from '@/context/ThemeContext';
-import { CATEGORIES } from '@/types/blogs-types';
-import debounce from 'lodash/debounce';
-import { themeClasses } from './themeClass';
-import { EmptyState, NoMorePosts, LoadingState } from './themeClass';
-import { StatsType, BlogPostType, UserType } from '@/types/blogs-types';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
+import React, { use, useCallback, useEffect, useState } from 'react'
+import { StatsType } from '@/types/blogs-types';
+import { BlogPostType, UserType } from '@/types/blogs-types';
+import { useInView } from '@react-spring/web';
+import HomePageBlogCollection from './components/HomePageBlogCollection';
 
 interface PostsData {
     success: boolean;
     data: BlogPostType[];
+    stats: StatsType;
     metadata: {
         currentPage: number;
         totalPages: number;
@@ -30,99 +16,9 @@ interface PostsData {
         hasMore: boolean;
     };
 }
-class DataCache<T> {
-    private cache: Map<string, { data: T; timestamp: number }>;
-    private readonly timeout: number;
-    private readonly storageKey: string;
-
-    constructor(timeoutMinutes: number, storageKey: string) {
-        this.timeout = timeoutMinutes * 60 * 1000; // Convert minutes to milliseconds
-        this.storageKey = storageKey;
-        this.cache = new Map();
-        this.loadFromStorage();
-    }
-
-    private loadFromStorage(): void {
-        try {
-            // Load cache from local storage on client side
-            if (typeof window === 'undefined') return;
-            const stored = localStorage.getItem(this.storageKey);
-            if (stored) {
-                const data = JSON.parse(stored);
-                this.cache = new Map(Object.entries(data));
-                this.clearExpired(); // Clean up on load
-            }
-        } catch (error) {
-            console.warn('Failed to load cache from storage:', error);
-            this.cache = new Map();
-        }
-    }
-
-    private saveToStorage(): void {
-        try {
-            const data = Object.fromEntries(this.cache);
-            localStorage.setItem(this.storageKey, JSON.stringify(data));
-        } catch (error) {
-            console.warn('Failed to save cache to storage:', error);
-        }
-    }
-
-    async get(key: string, fetchFn: () => Promise<T>): Promise<T> {
-        const entry = this.cache.get(key);
-        const now = Date.now();
-
-        // Check if cache is valid
-        if (entry && now - entry.timestamp <= this.timeout) {
-            return entry.data;
-        }
-
-        // If cache is invalid or missing, fetch new data
-        try {
-            const data = await fetchFn();
-            this.set(key, data);
-            return data;
-        } catch (error) {
-            // If fetch fails and we have expired cache, return expired data as fallback
-            if (entry) {
-                console.warn('Using expired cache as fallback');
-                return entry.data;
-            }
-            throw error;
-        }
-    }
-
-    set(key: string, data: T): void {
-        this.cache.set(key, { data, timestamp: Date.now() });
-        this.saveToStorage();
-    }
-
-    clear(): void {
-        this.cache.clear();
-        localStorage.removeItem(this.storageKey);
-    }
-
-    clearExpired(): void {
-        const now = Date.now();
-        let hasChanges = false;
-
-        for (const [key, entry] of this.cache.entries()) {
-            if (now - entry.timestamp > this.timeout) {
-                this.cache.delete(key);
-                hasChanges = true;
-            }
-        }
-
-        if (hasChanges) {
-            this.saveToStorage();
-        }
-    }
-}
-
-const postsCache = new DataCache<any>(5, 'blog-posts-cache');
-const statsCache = new DataCache<StatsType>(15, 'blog-stats-cache'); // 15 minutes
-const usersCache = new DataCache<Record<string, UserType>>(300, 'blog-users-cache'); // 5 hours
 
 const BlogCollection = () => {
+    const [ref, inView] = useInView();
     const [state, setState] = useState({
         posts: [] as BlogPostType[],
         users: {} as Record<string, UserType>,
@@ -133,6 +29,7 @@ const BlogCollection = () => {
         sortBy: 'newest',
         category: 'all',
         page: 1,
+        limit: 9,
         stats: {
             totalLikes: 0,
             totalViews: 0,
@@ -149,361 +46,88 @@ const BlogCollection = () => {
         statsLoading: true,
         initialized: false
     });
+    const [searchLoading, setSearchLoading] = useState(false);
 
-    const abortControllerRef = useRef<AbortController | null>(null);
-    const { isDarkMode, toggleDarkMode } = useTheme();
-    const isInitialMount = useRef(true);
-
-    const fetchWithRetry = async (url: string, options?: RequestInit, retries = 3): Promise<Response> => {
-        for (let i = 0; i < retries; i++) {
-            try {
-                const response = await fetch(url, options);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response;
-            } catch (error) {
-                if (i === retries - 1) throw error;
-                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i)));
+    useEffect(() => {
+        setSearchLoading(true);
+        const timer = setTimeout(() => {
+            if (state.initialized) {
+                fetchPosts();
             }
+            setSearchLoading(false);
+        }, 1500);
+        return () => clearTimeout(timer);
+    }, [state.searchTerm]);
+
+    useEffect(() => {
+        state.initialized = true;
+    }, []);
+
+    useEffect(() => {
+        if (inView && state.metadata.hasMore && !state.loadingMore && !state.loading && state.initialized) {
+            setState(prev => ({ ...prev, loadingMore: true }));
+
+            const timer = setTimeout(() => {
+                // After 2 seconds, fetch more data
+                setState(prev => ({
+                    ...prev,
+                    page: prev.page + 1,
+                }));
+            }, 1500);
+
+            return () => clearTimeout(timer);
         }
-        throw new Error('Failed after retries');
-    };
+    }, [inView, state.metadata.hasMore]);
 
-    const fetchStats = useCallback(async () => {
-        // if (!state.statsLoading) return;
-
+    const fetchPosts = async () => {
         try {
-            const statsData = await statsCache.get(`api/stats/${state.category}`, async () => {
-                const response = await fetchWithRetry(`api/stats/${state.category}`, {
-                    signal: abortControllerRef.current?.signal
-                });
-                return response.json();
-            });
+            setState(prev => ({ ...prev, loading: true, error: null }));
+            const res = await fetch(`/api/blogs?page=${state.page}&limit=${state.limit}&sortBy=${state.sortBy}&search=${state.searchTerm}&category=${state.category}`);
+            const data: PostsData = await res.json();
 
             setState(prev => ({
                 ...prev,
-                stats: statsData,
+                posts: state.page === 1 ? data.data : [...state.posts, ...data.data],
+                stats: data.stats,
+                metadata: {
+                    ...data.metadata,
+                    resultsPerPage: state.metadata.resultsPerPage
+                },
+                loading: false,
+                loadingMore: false,
                 statsLoading: false
             }));
-        } catch (error) {
-            if (error instanceof Error && error.name !== 'AbortError') {
-                toast.error('Failed to load statistics');
-            }
-        }
-    }, [state.statsLoading, state.category]);
-
-    // Improved fetch data with better error handling and caching
-    const fetchData = useCallback(async (isInitialLoad = true, searchOverride?: string) => {
-        try {
-            abortControllerRef.current?.abort();
-            abortControllerRef.current = new AbortController();
-
+        } catch (error: any) {
             setState(prev => ({
                 ...prev,
-                loading: isInitialLoad,
-                loadingMore: !isInitialLoad,
-                error: null
-            }));
-
-            const searchTerm = searchOverride ?? state.searchTerm;
-            const queryParams = new URLSearchParams({
-                page: state.page.toString(),
-                limit: '9',
-                category: state.category,
-                sortBy: state.sortBy,
-                ...(searchTerm && { search: searchTerm })
-            });
-            const url = `/api/blog?${queryParams}`;
-
-            const cacheKey = url;
-            const postsData = await postsCache.get(cacheKey, async () => {
-                const response = await fetchWithRetry(url, {
-                    signal: abortControllerRef.current?.signal
-                });
-                return response.json();
-            });
-
-            if (!postsData.success) {
-                throw new Error('Failed to fetch blog posts');
-            }
-
-            const newPosts: BlogPostType[] = isInitialLoad
-                ? (postsData as PostsData).data
-                : (postsData as PostsData).data.filter((newPost: BlogPostType) =>
-                    !state.posts.some((existingPost: BlogPostType) => existingPost._id === newPost._id)
-                );
-
-            // Fetch user details with caching
-            const userEmails = newPosts.map(post => post.createdBy);
-            const uniqueEmails = Array.from(new Set(userEmails));
-            const newUsers = await usersCache.get('users', async () => {
-                const userDetails = await Promise.all(
-                    uniqueEmails.map(email =>
-                        fetchWithRetry(`/api/user?email=${email}`).then(res => res.json())
-                    )
-                );
-                return userDetails.reduce((acc, response) => {
-                    if (response?.user) {
-                        acc[response.user.email] = response.user;
-                    }
-                    return acc;
-                }, {} as Record<string, UserType>);
-            });
-
-            fetchStats();
-
-            setState(prev => ({
-                ...prev,
-                posts: isInitialLoad ? newPosts : [...prev.posts, ...newPosts],
-                users: { ...prev.users, ...newUsers },
+                error: error.message,
                 loading: false,
-                loadingMore: false,
-                metadata: postsData.metadata,
-                initialized: true
-            }));
-        } catch (error) {
-            if (error instanceof Error && error.name === 'AbortError') {
-                return;
-            }
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            toast.error(errorMessage);
-            setState(prev => ({
-                ...prev,
-                loading: false,
-                loadingMore: false,
-                error: errorMessage
+                loadingMore: false
             }));
         }
-    }, [state.page, state.category, state.sortBy, state.searchTerm, fetchStats]);
-
-    // Initial data fetch
-    useEffect(() => {
-        if (!state.initialized) {
-            fetchData(true);
-        }
-    }, [state.initialized, fetchData]);
-
-    // Intersection Observer for infinite scroll
-    useEffect(() => {
-        const options = {
-            root: null, // viewport
-            rootMargin: '200px', // trigger when 200px from the bottom
-            threshold: 0.1 // 10% visibility
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            const target = entries[0];
-            if (target.isIntersecting && !state.loading && !state.loadingMore && state.metadata.hasMore) {
-                setState(prev => ({ ...prev, page: prev.page + 1 }));
-            }
-        }, options);
-
-        const sentinel = document.getElementById('scroll-sentinel');
-        if (sentinel) {
-            observer.observe(sentinel);
-        }
-
-        return () => observer.disconnect();
-    }, [state.loading, state.loadingMore, state.metadata.hasMore]);
-
-    // Filter and sort changes
-    useEffect(() => {
-        if (!isInitialMount.current) {
-            setState(prev => ({ ...prev, posts: [], page: 1 }));
-            fetchData(true);
-        } else {
-            isInitialMount.current = false;
-        }
-
-        return () => {
-            debouncedSearch.cancel();
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-            }
-        };
-    }, [state.category, state.sortBy]);
-
-    const debouncedSearch = useMemo(() => debounce((value: string) => {
-        fetchData(true, value);
-    }, 300), [fetchData]);
-
-    const handleSearch = useCallback((value: string) => {
-        setState(prev => ({ ...prev, searchTerm: value }));
-        debouncedSearch(value);
-    }, [debouncedSearch]);
+    };
 
     useEffect(() => {
-        if (state.page > 1) {
-            fetchData(false);
+        if (state.initialized) {
+            fetchPosts();
         }
-    }, [state.page, fetchData]);
+    }, [state.page, state.category, state.sortBy, state.initialized]);
 
     const handleRetry = useCallback(() => {
         setState(prev => ({
             ...prev,
-            error: null,
             page: 1,
-            statsLoading: true
+            loading: true,
+            error: null
         }));
-        fetchData(true);
-    }, [fetchData]);
-
-    // if some error occurred
-    if (state.error) {
-        return (
-            <div className={`flex flex-col justify-center items-center h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-                <p className="text-2xl font-bold text-red-500 mb-4">Failed to load data</p>
-                <Button
-                    onClick={handleRetry}
-                    className={`${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} flex items-center gap-2`}
-                >
-                    <RefreshCcw className="h-4 w-4" />
-                    Retry
-                </Button>
-            </div>
-        );
-    }
+        fetchPosts();
+    }, [fetchPosts]);
 
     return (
-        <TooltipProvider>
-            <div className={`${themeClasses(isDarkMode).layout} transition-colors duration-200`}>
-                <Toaster
-                    position="top-right"
-                    toastOptions={{
-                        style: {
-                            background: isDarkMode ? '#1f2937' : '#ffffff',
-                            color: isDarkMode ? '#f3f4f6' : '#111827',
-                        },
-                        duration: 3000
-                    }}
-                />
-
-                <div className={themeClasses(isDarkMode).container}>
-                    {/* Header Section */}
-                    <div className={`${themeClasses(isDarkMode).header} sticky top-0 z-10 backdrop-blur-sm bg-opacity-90 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
-                        <h1 className={themeClasses(isDarkMode).title}>Blog Posts</h1>
-                        <Button
-                            onClick={toggleDarkMode}
-                            variant="outline"
-                            size="icon"
-                            className={`${themeClasses(isDarkMode).themeToggle} transition-colors duration-200`}
-                        >
-                            {isDarkMode ? (
-                                <Sun className="h-5 w-5" />
-                            ) : (
-                                <Moon className="h-5 w-5" />
-                            )}
-                        </Button>
-                    </div>
-
-                    {/* Controls Section */}
-                    <div className={`${themeClasses(isDarkMode).controls} grid grid-cols-1 md:grid-cols-3 gap-4`}>
-                        <div className={`${themeClasses(isDarkMode).searchContainer} md:col-span-2`}>
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <Input
-                                type="text"
-                                placeholder="Search posts..."
-                                value={state.searchTerm}
-                                onChange={(e) => handleSearch(e.target.value)}
-                                className={`${themeClasses(isDarkMode).input} pl-10`}
-                            />
-                        </div>
-
-                        <div className="flex space-x-2">
-                            <Select
-                                value={state.category}
-                                onValueChange={(value) => setState(prev => ({
-                                    ...prev,
-                                    category: value,
-                                    page: 1
-                                }))}
-                            >
-                                <Tooltip>
-                                    <TooltipTrigger>
-                                        <SelectTrigger className={themeClasses(isDarkMode).select}>
-                                            <SelectValue placeholder="Category" />
-                                        </SelectTrigger>
-                                        <SelectContent className={`${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} max-h-60`}>
-                                            {CATEGORIES.map((cat) => (
-                                                <SelectItem key={cat.value} value={cat.value}>
-                                                    {cat.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <span className="text-xs">Filter by category</span>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </Select>
-
-                            <Select
-                                value={state.sortBy}
-                                onValueChange={(value) => setState(prev => ({
-                                    ...prev,
-                                    sortBy: value,
-                                    page: 1
-                                }))}
-                            >
-                                <Tooltip>
-                                    <TooltipTrigger>
-                                        <SelectTrigger className={themeClasses(isDarkMode).select}>
-                                            <SelectValue placeholder="Sort" />
-                                        </SelectTrigger>
-                                        <SelectContent className={isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
-                                            <SelectItem value="newest">Newest</SelectItem>
-                                            <SelectItem value="trending">Trending</SelectItem>
-                                            <SelectItem value="oldest">Oldest</SelectItem>
-                                            <SelectItem value="mostViews">Most Views</SelectItem>
-                                            <SelectItem value="mostLikes">Most Likes</SelectItem>
-                                        </SelectContent>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <span className="text-xs">Sort the posts</span>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </Select>
-                        </div>
-                    </div>
-
-                    {/* Stats Section */}
-                    <DashboardGrid
-                        totalBlogs={state.stats.totalBlogs}
-                        totalViews={state.stats.totalViews}
-                        totalLikes={state.stats.totalLikes}
-                        totalUsers={state.stats.totalUsers}
-                        loading={state.statsLoading}
-                    />
-
-                    {/* Posts Section */}
-                    <BlogPostGrid
-                        filteredPosts={Array.from(new Set(state.posts.map(post => post._id)))
-                            .map(id => state.posts.find(post => post._id === id))
-                            .filter((post): post is BlogPostType => post !== undefined)}
-                        users={state.users}
-                        loading={state.loading}
-                    />
-
-                    {/* Loading State */}
-                    {state.loadingMore && <LoadingState message="Loading more posts..." />}
-                    {!state.loadingMore && // No more posts
-                        !state.loading && // Not loading
-                        !state.metadata.hasMore && // No more posts to load
-                        !(state.posts.length === 0) && // No posts found
-                        <NoMorePosts />
-                    }
-                    {state.posts.length === 0 &&
-                        !state.loading &&
-                        <EmptyState />
-                    }
-
-                    <div id="scroll-sentinel" className="h-8" />
-                </div>
-            </div>
-        </TooltipProvider>
-
+        <>
+            <HomePageBlogCollection state={state} handleRetry={handleRetry} setState={setState} searchLoading={searchLoading} />
+            <div ref={ref} className='h-8' />
+        </>
     );
 }
 

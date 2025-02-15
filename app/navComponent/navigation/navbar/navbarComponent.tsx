@@ -29,10 +29,11 @@ function NavbarComponent() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
+    { href: '/', label: 'Home' },
+    { href: '/blogs', label: 'Blogs' },
     { href: '/about', label: 'About Us' },
     { href: '/services', label: 'Services' },
     { href: '/contacts', label: 'Contacts' },
-    { href: '/blogs', label: 'Blog' },
     { href: '/profile', label: 'Profile' },
     { href: '/profile#settings', label: 'Settings' },
     { href: `${session ? '/signout' : '/login'}`, label: `${session ? 'Sign Out' : 'Login'}`, onClick: session ? () => signOut() : undefined },
@@ -47,7 +48,7 @@ function NavbarComponent() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <ul className="flex space-x-6">
-              {navLinks.slice(0, 3).map(({ href, label }) => (
+              {navLinks.slice(0, 5).map(({ href, label }) => (
                 <li key={href}>
                   <NavLink href={href} setIsMobileMenuOpen={setIsMobileMenuOpen}>{label}</NavLink>
                 </li>
