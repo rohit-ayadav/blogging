@@ -30,13 +30,7 @@ async function getPostData(id: string): Promise<ApiResponse> {
             post = await Blog.findOne({ slug: id });
         }
 
-        if (!post) {
-            return {
-                success: false,
-                statusCode: 404,
-                error: 'Blog post not found',
-            };
-        }
+        if (!post) { return { success: false, statusCode: 404, error: 'Blog post not found', }; }
         // Increment views
         await Blog.findOneAndUpdate({ slug: id }, { $inc: { views: 1 } });
         let createdBy = Array.isArray(post) ? post[0]?.createdBy : post?.createdBy;

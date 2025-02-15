@@ -3,20 +3,21 @@ import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
-import { TitleSection } from '@/app/create/component/TitleSection';
-import { ThumbnailSection } from '@/app/create/component/ThumbnailSection';
-import { EditorSection } from '@/app/create/component/EditorSection';
-import { TagsSection } from '@/app/create/component/TagsSection';
-import { CategorySection } from '@/app/create/component/CategorySection';
-import { ActionButtons } from '@/app/create/component/ActionButtons';
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { cn } from "@/lib/utils";
-import { CATEGORIES, EditBlogState } from '@/types/blogs-types';
-import LoadingSpinner from '@/app/create/component/LoadingSpinner';
-import UrlSection from '@/app/create/component/CustomURL';
 import useEditBlog from '@/hooks/useEditBlog';
+import { CATEGORIES, EditBlogState } from '@/types/blogs-types';
+import LoadingSpinner from '@/app/(non-auth)/create/component/LoadingSpinner';
+import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import TitleSection from '../create/component/TitleSection';
+import ThumbnailSection from '../create/component/ThumbnailSection';
+import { EditorSection } from '../create/component/EditorSection';
+import UrlSection from '../create/component/CustomURL';
+import TagsSection from '../create/component/TagsSection';
+import CategorySection from '../create/component/CategorySection';
+import ActionButtons from '../create/component/ActionButtons';
+import { AlertCircle } from 'lucide-react';
+
 
 export default function EditBlogComponent(BlogData: EditBlogState) {
     const router = useRouter();

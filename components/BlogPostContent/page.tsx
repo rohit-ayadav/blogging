@@ -6,9 +6,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ErrorBoundary } from 'react-error-boundary';
 import BlogPostHeader from '../BlogPostHeader/page';
 import BlogPostFooter from '../BlogPostFooter/page';
-import RenderContent from '@/app/blogs/components/RenderContent';
 import { useTheme } from '@/context/ThemeContext';
 import { CommentSection } from '@/app/component/commentsection';
+import RenderContent from '@/app/(non-auth)/blogs/components/RenderContent';
 
 const SKELETON_COUNT = 3;
 interface BlogPostClientContentProps {
@@ -68,10 +68,14 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({
     id,
     author
 }) => {
-    const postStats = useMemo(() => ({
+    // const postStats = useMemo(() => ({
+    //     likes: initialData.likes || 0,
+    //     views: initialData.views || 0
+    // }), [initialData.likes, initialData.views]);
+    const postStats = {
         likes: initialData.likes || 0,
         views: initialData.views || 0
-    }), [initialData.likes, initialData.views]);
+    };
 
     const { isDarkMode } = useTheme();
 
@@ -80,14 +84,7 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({
     };
 
     return (
-        <div
-            className={`
-                min-h-screen 
-                ${isDarkMode
-                    ? 'bg-gray-900 text-gray-100 prose-dark'
-                    : 'bg-white text-gray-900 prose-light'}
-            `}
-        >
+        <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-gray-100 prose-dark' : 'bg-white text-gray-900 prose-light'}`}>
             <ErrorBoundary
                 FallbackComponent={ErrorFallback}
                 onError={handleError}
@@ -112,15 +109,7 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({
                         />
                     </article>
 
-                    <section
-                        className={`
-                            mt-8 border-t 
-                            ${isDarkMode
-                                ? 'border-gray-800 bg-gray-900'
-                                : 'border-gray-200 bg-white'}
-                        `}
-                        aria-label="Comments"
-                    >
+                    <section className={`mt-8 border-t ${isDarkMode ? 'border-gray-800 bg-gray-900' : 'border-gray-200 bg-white'}`} aria-label="Comments">
                         <ErrorBoundary
                             FallbackComponent={ErrorFallback}
                             onError={handleError}

@@ -6,67 +6,22 @@ import { getSessionAtHome } from "@/auth";
 await connectDB();
 
 export async function POST(request: NextRequest) {
-  if (!request.body) {
-    return NextResponse.json(
-      {
-        message: "Request body is missing",
-        success: false,
-      },
-      { status: 400 }
-    );
-  }
+  if (!request.body) { return NextResponse.json({ message: "Invalid request body" }, { status: 400 }); }
 
   const { email } = await request.json();
   const session = await getSessionAtHome();
 
-  if (!email) {
-    return NextResponse.json(
-      {
-        message: "Email is required",
-        success: false,
-      },
-      { status: 400 }
-    );
-  }
-  // if (email !== session?.user?.email) {
-  //   return NextResponse.json(
-  //     {
-  //       message: "You can only subscribe with your own email",
-  //       success: false,
-  //     },
-  //     { status: 401 }
-  //   );
-  // }
+  if (!email) { return NextResponse.json({ message: "Email is required", success: false }, { status: 400 }); }
 
   try {
     const existingSubscriber = await Newsletter.findOne({ email });
-    if (existingSubscriber) {
-      return NextResponse.json(
-        {
-          message: "You have already subscribed",
-          success: false,
-        },
-        { status: 400 }
-      );
-    }
+    if (existingSubscriber) { return NextResponse.json({ message: "You are already subscribed", success: false }, { status: 400 }); }
 
     const newSubscriber = new Newsletter({ email });
     await newSubscriber.save();
-    return NextResponse.json(
-      {
-        message: "Subscribed successfully",
-        success: true,
-      },
-      { status: 201 }
-    );
+    return NextResponse.json({ message: "You have successfully subscribed", success: true });
   } catch (error) {
-    return NextResponse.json(
-      {
-        message: "An error occurred while subscribing",
-        success: false,
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "An error occurred while subscribing", success: false }, { status: 500 });
   }
 }
 
@@ -74,26 +29,12 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   const session = await getSessionAtHome();
 
-  if (!session) {
-    return NextResponse.json(
-      {
-        message: "You are not authenticated",
-        success: false,
-      },
-      { status: 401 }
-    );
-  }
+  if (!session) { return NextResponse.json({ message: "You need to be logged in to fetch subscribers", success: false }, { status: 401 }); }
 
   try {
     const subscribers = await Newsletter.find();
     return NextResponse.json({ subscribers, success: true });
   } catch (error) {
-    return NextResponse.json(
-      {
-        message: "An error occurred while fetching subscribers",
-        success: false,
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "An error occurred while fetching subscribers", success: false }, { status: 500 });
   }
 }

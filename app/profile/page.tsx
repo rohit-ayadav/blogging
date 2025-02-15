@@ -1,11 +1,11 @@
 import { BlogPostType, UserType } from "@/types/blogs-types";
-import { ErrorMessage } from "@/app/blogs/[id]/ErrorMessage";
 import { connectDB } from "@/utils/db";
 import Blog from "@/models/blogs.models";
 import User from "@/models/users.models";
 import { Metadata } from "next";
 import { getSessionAtHome } from "@/auth";
 import UserProfile from "./component/page";
+import { ErrorMessage } from "../(non-auth)/blogs/[id]/ErrorMessage";
 
 async function getPostData() {
     try {

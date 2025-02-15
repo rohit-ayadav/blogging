@@ -1,8 +1,6 @@
 # *
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /dashboard
 
 # Host
 Host: https://blogging-one-omega.vercel.app

@@ -7,7 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import { getComment, postComment, deleteComment, updateComment } from '@/action/comment';
-import { Delete, DeleteIcon, Trash, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 
 interface Comment {
     _id: string;

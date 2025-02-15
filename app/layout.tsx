@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Footer from "./footer/page";
-import { Toaster } from 'react-hot-toast';
 import SessionWrapper from "./component/sessionWrapper";
 import { Analytics } from "@vercel/analytics/react"
 import { ThemeProvider } from "@/context/ThemeContext";
 import Script from "next/script";
-import NavbarComponent from "./navComponent/navigation/navbar/navbarComponent";
-import { Toaster as Toast } from "react-hot-toast";
 
 declare global {
   interface Window {
@@ -228,15 +224,11 @@ export default function RootLayout({
         />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
-        <Toaster position="top-right" reverseOrder={false} />
-        <Toast />
         <ThemeProvider>
           <SessionWrapper>
-            <NavbarComponent />
             <main className="flex-grow">
               {children}
             </main>
-            <Footer />
           </SessionWrapper>
         </ThemeProvider>
         <Analytics />

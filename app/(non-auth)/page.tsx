@@ -2,7 +2,7 @@ import { connectDB } from "@/utils/db";
 import User from "@/models/users.models";
 import Blog from "@/models/blogs.models";
 import { BlogPostType, UserType } from "@/types/blogs-types";
-import HomePage from "../components/HomePageComponent";
+import HomePage from "../../components/HomePageComponent";
 import { ErrorMessage } from "./blogs/[id]/ErrorMessage";
 
 async function getPostData() {

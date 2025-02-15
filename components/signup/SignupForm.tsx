@@ -9,6 +9,7 @@ import useSignupForm from './useSignupForm';
 import { Button } from '../ui/button';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
 import { Toaster } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 
 const SignupForm: FC = () => {
@@ -26,6 +27,7 @@ const SignupForm: FC = () => {
         handleSubmit,
         isUsernameAvailable
     } = useSignupForm();
+    const router = useRouter();
 
     return (
         <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
@@ -70,6 +72,15 @@ const SignupForm: FC = () => {
                     </div>
                 )}
                 <SocialLogin isLoading={isLoading} />
+                <div className="text-center">
+                    <Button
+                        type="button"
+                        variant="link"
+                        onClick={() => router.push('/login')}
+                    >
+                        Don't have an account? Login
+                    </Button>
+                </div>
             </div>
         </div>
 

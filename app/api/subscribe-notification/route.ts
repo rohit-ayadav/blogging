@@ -2,6 +2,7 @@ import webpush from "web-push";
 import { NextRequest, NextResponse } from "next/server";
 import Notification from "@/models/notification.models";
 import { connectDB } from "@/utils/db";
+import { url } from "inspector";
 
 connectDB();
 
@@ -89,6 +90,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
         timestamp: Date.now(),
         url: "/blogs"
       },
+      url: "/blogs",
       ttl: 86400, // 24 hours
       urgency: "normal",
       renotify: false,

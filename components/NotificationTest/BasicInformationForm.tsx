@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Bell, Image as ImageIcon, AlertCircle, Info, Send } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { NotificationPayload, GlobalStatistics } from '@/types/notification-types';
 
 const BasicInformation = ({ notification, onChange }: {

@@ -4,11 +4,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { usePushClient, usePushSubscription } from '@/hooks/push-client';
 import { useTheme } from '@/context/ThemeContext';
 
-
 const POPUP_SHOWN_KEY = 'notification-popup-shown';
 const POPUP_COOLDOWN = 1 * 24 * 60 * 60 * 1000; // 1 day
 const NOTIFICATION_DELAY = 16000; // 16 seconds
-
 
 type PopupState = {
     show: boolean;

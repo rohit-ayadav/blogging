@@ -176,7 +176,7 @@
             "name": "My Profile",
             "short_name": "Profile",
             "description": "View your profile dashboard",
-            "url": "/dashboard?source=pwa",
+            "url": "/profile?source=pwa",
             "icons": [
                 {
                     "src": "/icons/profile-96x96.png",

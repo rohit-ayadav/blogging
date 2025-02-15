@@ -4,60 +4,19 @@ import { useDarkMode } from '@/hooks/useDarkMode';
 import { Sun, Moon, Search, RefreshCcw, Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CATEGORIES, StatsType } from '@/types/blogs-types';
+import { CATEGORIES, stateType, StatsType } from '@/types/blogs-types';
 import { BlogPostType, UserType } from '@/types/blogs-types';
 import { Toaster } from '@/components/ui/toaster';
 import DashboardGrid from '@/app/component/dashboardGrid';
 import BlogPostGrid from '@/app/component/BlogPostGrid';
-import { EmptyState, LoadingState, NoMorePosts, themeClasses } from '@/app/blogs/themeClass';
 import { Button } from '@/components/ui/button';
+import { EmptyState, LoadingState, NoMorePosts, themeClasses } from '../themeClass';
 
 
 interface HomePageBlogCollectionProps {
-    state: {
-        posts: BlogPostType[];
-        users: Record<string, UserType>;
-        loading: boolean;
-        loadingMore: boolean;
-        error: string | null;
-        searchTerm: string;
-        sortBy: string;
-        category: string;
-        page: number;
-        stats: StatsType;
-        metadata: {
-            currentPage: number;
-            totalPages: number;
-            totalPosts: number;
-            hasMore: boolean;
-            resultsPerPage: number;
-        };
-        statsLoading: boolean;
-        initialized: boolean;
-    };
+    state: stateType;
     handleRetry: () => void;
-    setState: React.Dispatch<React.SetStateAction<{
-        posts: BlogPostType[];
-        users: Record<string, UserType>;
-        loading: boolean;
-        loadingMore: boolean;
-        error: string | null;
-        searchTerm: string;
-        sortBy: string;
-        category: string;
-        page: number;
-        limit: number;
-        stats: StatsType;
-        metadata: {
-            currentPage: number;
-            totalPages: number;
-            totalPosts: number;
-            hasMore: boolean;
-            resultsPerPage: number;
-        };
-        statsLoading: boolean;
-        initialized: boolean;
-    }>>;
+    setState: React.Dispatch<React.SetStateAction<stateType>>;
     searchLoading: boolean;
 }
 

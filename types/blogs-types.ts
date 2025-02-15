@@ -121,5 +121,28 @@ export interface EditBlogState {
   slug: string;
 }
 
+export interface stateType {
+  posts: BlogPostType[];
+  users: Record<string, UserType>;
+  loading: boolean;
+  loadingMore: boolean;
+  error: string | null;
+  searchTerm: string;
+  sortBy: string;
+  category: string;
+  page: number;
+  limit: number;
+  stats: StatsType;
+  metadata: {
+    currentPage: number;
+    totalPages: number;
+    totalPosts: number;
+    hasMore: boolean;
+    resultsPerPage: number;
+  };
+  statsLoading: boolean;
+  initialized: boolean;
+}
+
 export type { BlogPostType, UserType, StatsType, Author, TOCItem, ThemeClasses, BlogState };
 export { CATEGORIES };

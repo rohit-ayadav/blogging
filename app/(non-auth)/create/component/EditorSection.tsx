@@ -7,9 +7,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import MarkdownIt from 'markdown-it';
 import MarkdownEditor from 'react-markdown-editor-lite';
-import CustomToolbar from '@/app/create/component/CustomToolbar';
 import 'react-quill/dist/quill.snow.css';
 import 'react-markdown-editor-lite/lib/index.css';
+import CustomToolbar from './CustomToolbar';
 
 // Dynamic import for ReactQuill with SSR handling
 const ReactQuill = dynamic(() => import('react-quill'), {

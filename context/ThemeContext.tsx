@@ -2,7 +2,6 @@
 import { createContext, useContext } from "react";
 import { useDarkMode } from "../hooks/useDarkMode";
 
-
 export interface ThemeContextType {
     isDarkMode: boolean;
     toggleDarkMode: () => Promise<void>;
@@ -21,7 +20,6 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         </ThemeContext.Provider>
     );
 };
-
 
 export const useTheme = () => {
     const context = useContext(ThemeContext);

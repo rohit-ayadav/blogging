@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
 import { BlogPostType } from "@/types/blogs-types";
-import { ErrorMessage } from "@/app/blogs/[id]/ErrorMessage";
 import AuthorPage from "./component/Profile";
 import { connectDB } from "@/utils/db";
 import Blog from "@/models/blogs.models";
 import User from "@/models/users.models";
 import { Author } from "./component/Profile";
 import { Metadata } from "next";
+import { ErrorMessage } from "@/app/(non-auth)/blogs/[id]/ErrorMessage";
 
 async function getPostData(id: string) {
     try {

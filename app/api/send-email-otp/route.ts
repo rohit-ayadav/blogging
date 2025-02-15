@@ -9,18 +9,10 @@ import bcrypt from "bcrypt";
 export async function POST(request: NextRequest) {
     try {
         await connectDB();
-        if (!request.body) {
-            return NextResponse.json({
-                message: 'Invalid request body'
-            }, { status: 400 });
-        }
+        if (!request.body) { return NextResponse.json({ message: 'Invalid request body' }, { status: 400 }); }
         const { email, name } = await request.json();
         const user = await User.findOne({ email });
-        if (user) {
-            return NextResponse.json({
-                message: 'Email already exists, please login'
-            }, { status: 400 });
-        }
+        if (user) { return NextResponse.json({ message: 'Email already exists, please login' }, { status: 400 }); }
         const sendOtp = await sendOtpModels.findOne({ email });
         if (sendOtp && !sendOtp.isUsed) {
             const newOtp = crypto.getRandomValues(new Uint32Array(1))[0].toString().substring(0, 6);
@@ -34,10 +26,7 @@ export async function POST(request: NextRequest) {
             await sendOtpModels.findOneAndUpdate({ email }, { otp });
             await sendOtpModels.findOneAndUpdate({ email }, { isUsed: false });
             await sendOtpModels.findOneAndUpdate({ email }, { expiredAt: new Date(Date.now() + 5 * 60 * 1000) });
-
-            return NextResponse.json({
-                message: 'OTP resent successfully to your email'
-            }, { status: 200 });
+            return NextResponse.json({ message: 'OTP resent successfully to your email' }, { status: 200 });
         }
         let otp = crypto.getRandomValues(new Uint32Array(1))[0].toString().substring(0, 6);
 
@@ -52,13 +41,9 @@ export async function POST(request: NextRequest) {
         const newSendOtp = new sendOtpModels({ email, otp });
         await newSendOtp.save();
 
-        return NextResponse.json({
-            message: 'OTP sent successfully'
-        }, { status: 200 });
+        return NextResponse.json({ message: 'OTP sent successfully' }, { status: 200 });
     }
     catch (error) {
-        return NextResponse.json({
-            message: 'Something went wrong. Please try again'
-        }, { status: 500 });
+        return NextResponse.json({ message: 'Something went wrong. Please try again' }, { status: 500 });
     }
 }

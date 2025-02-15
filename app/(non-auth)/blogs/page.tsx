@@ -1,7 +1,7 @@
 "use client";
 import React, { use, useCallback, useEffect, useState } from 'react'
 import { StatsType } from '@/types/blogs-types';
-import { BlogPostType, UserType } from '@/types/blogs-types';
+import { BlogPostType, UserType, stateType } from '@/types/blogs-types';
 import { useInView } from '@react-spring/web';
 import HomePageBlogCollection from './components/HomePageBlogCollection';
 
@@ -19,7 +19,7 @@ interface PostsData {
 
 const BlogCollection = () => {
     const [ref, inView] = useInView();
-    const [state, setState] = useState({
+    const [state, setState] = useState<stateType>({
         posts: [] as BlogPostType[],
         users: {} as Record<string, UserType>,
         loading: true,

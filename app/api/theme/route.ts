@@ -5,109 +5,37 @@ import { getSessionAtHome } from "@/auth";
 
 await connectDB();
 
+// Helper function for sending responses
+const sendResponse = (status: number, message: string, extraData = {}) =>
+  NextResponse.json({ success: status < 400, message, ...extraData }, { status });
+
 export async function POST(request: NextRequest) {
   const session = await getSessionAtHome();
+  if (!session) return sendResponse(401, "You need to be logged in to select your theme");
+
   const { theme } = await request.json();
-  if (!theme) {
-    return NextResponse.json(
-      {
-        message: "Theme is required",
-        success: false
-      },
-      { status: 400 }
-    );
-  }
-
-  if (!["light", "dark"].includes(theme)) {
-    return NextResponse.json(
-      {
-        message: "Invalid theme selected",
-        success: false
-      },
-      { status: 400 }
-    );
-  }
-
-  if (!session) {
-    return NextResponse.json(
-      {
-        message: "You need to be logged in to select your theme",
-        success: false
-      },
-      { status: 401 }
-    );
-  }
+  if (!["light", "dark"].includes(theme)) return sendResponse(400, "Invalid theme selected");
 
   try {
-    const user = await User.findOne({ email: session.user.email });
-    if (!user) {
-      return NextResponse.json(
-        {
-          message: "User not found",
-          success: false
-        },
-        { status: 404 }
-      );
-    }
-
-    user.theme = theme;
-    await user.save();
-
-    return NextResponse.json(
-      {
-        message: "Theme selected successfully",
-        success: true
-      },
-      { status: 200 }
+    const user = await User.findOneAndUpdate(
+      { email: session.user.email },
+      { theme },
+      { new: true }
     );
-  } catch (err) {
-    return NextResponse.json(
-      {
-        message: "An error occurred while selecting your theme",
-        success: false
-      },
-      { status: 500 }
-    );
+    return user ? sendResponse(200, "Theme updated successfully") : sendResponse(404, "User not found");
+  } catch {
+    return sendResponse(500, "An error occurred while updating the theme");
   }
 }
 
 export async function GET(request: NextRequest) {
   const session = await getSessionAtHome();
-  if (!session) {
-    return NextResponse.json(
-      {
-        message: "You need to be logged in to view your theme",
-        success: false
-      },
-      { status: 401 }
-    );
-  }
+  if (!session) return sendResponse(401, "You need to be logged in to view your theme");
 
   try {
     const user = await User.findOne({ email: session.user.email });
-    if (!user) {
-      return NextResponse.json(
-        {
-          message: "User not found",
-          success: false
-        },
-        { status: 404 }
-      );
-    }
-    return NextResponse.json(
-      {
-        theme: user.theme,
-        success: true
-      },
-      { status: 200 }
-    );
-  } catch (err) {
-    return NextResponse.json(
-      {
-        message: "An error occurred while fetching your theme",
-        success: false
-      },
-      { status: 500 }
-    );
+    return user ? sendResponse(200, "Theme fetched successfully", { theme: user.theme }) : sendResponse(404, "User not found");
+  } catch {
+    return sendResponse(500, "An error occurred while fetching the theme");
   }
 }

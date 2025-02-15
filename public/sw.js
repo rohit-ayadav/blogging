@@ -71,7 +71,7 @@ self.addEventListener('notificationclick', event => {
         search: () => clients.openWindow('/'),
         find: () => clients.openWindow('/'),
         home: () => clients.openWindow('/'),
-        dashboard: () => clients.openWindow('/dashboard'),
+        dashboard: () => clients.openWindow('/profile'),
         admin: () => clients.openWindow('/admin'),
     };
 
