@@ -81,7 +81,7 @@ const LazyChartCard: React.FC<LazyChartCardProps> = ({ title, description, Chart
         triggerOnce: true,
         rootMargin: '200px 0px',
     });
-    
+
     return (
         <Card ref={ref}>
             <CardHeader>
@@ -162,7 +162,7 @@ const OptimizedAdminDashboard = () => {
         try {
             const response = await fetch('/api/blog');
             const data = await response.json();
-            setPosts(data.data);
+            setPosts(data.posts);
             setFilteredPosts(data.data);
             calculateStats(data.data);
         } catch (error) {
@@ -376,7 +376,7 @@ const OptimizedAdminDashboard = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <ScrollArea className="h-[300px]">
-                                        {posts.slice(0, 10).map((post) => (
+                                        {posts.length !== 0 && posts.slice(0, 10).map((post) => (
                                             <div key={post._id} className="flex items-center mb-4 last:mb-0">
                                                 <Avatar className="h-9 w-9">
                                                     <AvatarImage src={`default-profile.jpg`} alt={post.createdBy} />

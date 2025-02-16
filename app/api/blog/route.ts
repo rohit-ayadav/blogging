@@ -145,8 +145,10 @@ export async function GET(request: NextRequest) {
   const limit = parseInt(searchParams.get("limit") || "5", 10);
   const email = searchParams.get("email");
 
-  if (!tags || tags.length === 0) {
-    return NextResponse.json({ message: "Tags are required", success: false }, { status: 400 });
+  if (!tags || tags.length === 0 || !email) {
+    // return all posts
+    const posts = await Blog.find({}).sort({ totalViews: -1, totalLikes: -1, comments: -1, createdAt: -1 }).limit(limit);
+    return NextResponse.json({ posts }, { status: 200 });
   }
 
   try {
