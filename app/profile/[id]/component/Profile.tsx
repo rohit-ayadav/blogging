@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Newsletter from '@/app/component/newsletter';
+import Newsletter from '@/app/_component/newsletter';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useTheme } from '@/context/ThemeContext';
 import { PostCard } from './PostCard';

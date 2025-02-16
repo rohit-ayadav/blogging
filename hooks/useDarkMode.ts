@@ -1,5 +1,3 @@
-// File: hooks/useDarkMode.ts
-"use client";
 import { useState, useEffect } from "react";
 import { getSession } from "next-auth/react";
 
@@ -10,57 +8,49 @@ export const useDarkMode = () => {
   useEffect(() => {
     const checkSession = async () => {
       const session = await getSession();
+      setIsLoggedIn(!!session);
       if (session) {
-        setIsLoggedIn(true);
-      }
-    };
-    checkSession();
-  }, []);
-
-  if (isLoggedIn) {
-    useEffect(() => {
-      const findTheme = async () => {
         try {
           const response = await fetch("/api/theme");
           if (response.ok) {
             const { theme } = await response.json();
-            setIsDarkMode(theme === "dark");
+            // theme can be "light" or "dark" or "system"
+            if (theme === "system") {
+              setIsDarkMode(window.matchMedia("(prefers-color-scheme: dark)").matches);
+            } else setIsDarkMode(theme === "dark");
           }
         } catch (error) {
-          console.error(error);
+          console.error("Error fetching theme:", error);
         }
-      };
-      findTheme();
-    }, []);
-  } else {
-    // User is not logged in, get theme from local storage
-    useEffect(() => {
-      const theme = localStorage.getItem("theme");
-      setIsDarkMode(theme === "dark");
-    }, []);
-  }
+      } else {
+        const theme = localStorage.getItem("theme");
+        setIsDarkMode(theme === "dark");
+      }
+    };
+
+    checkSession();
+  }, []);
 
   const toggleDarkMode = async () => {
+    const newTheme = isDarkMode ? "light" : "dark";
+    setIsDarkMode(!isDarkMode);
+
     if (isLoggedIn) {
-      setIsDarkMode(!isDarkMode);
       try {
-        const newTheme = isDarkMode ? "light" : "dark";
-        const response = await fetch("/api/theme", {
+        await fetch("/api/theme", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ theme: newTheme }),
         });
+        console.log("Theme updated successfully to ", newTheme);
       } catch (error) {
+        console.error("Error updating theme:", error);
         setIsDarkMode(!isDarkMode);
-        console.error(error);
       }
     } else {
-      const newTheme = isDarkMode ? "light" : "dark";
       localStorage.setItem("theme", newTheme);
-      setIsDarkMode(!isDarkMode);
     }
   };
+
   return { isDarkMode, toggleDarkMode };
 };

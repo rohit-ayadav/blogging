@@ -9,7 +9,7 @@ import CountUp from 'react-countup';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import { registerServiceWorkerFirstTime } from '@/hooks/push-client';
-import { BlogPostCard } from '../app/component/BlogPostCard';
+import { BlogPostCard } from '../app/_component/BlogPostCard';
 import { BlogPostType, UserType } from '@/types/blogs-types';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 
@@ -95,7 +95,7 @@ const HomePage: React.FC<HomePageProps> = ({ posts, users, totalLikes, totalView
                     <h2 className="text-3xl font-bold mb-8 text-center">Featured Blogs</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {posts.slice(0, 3).map((post, index) => (
-                            <BlogPostCard key={post._id || index} post={post} user={users[index]} />
+                            <BlogPostCard key={post._id || index} post={post} user={users.find(user => user.email === post.createdBy) as UserType || {} as UserType} />
                         ))}
                     </div>
                     <div className="text-center mt-12">

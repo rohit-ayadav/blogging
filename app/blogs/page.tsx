@@ -8,6 +8,7 @@ import HomePageBlogCollection from './components/HomePageBlogCollection';
 interface PostsData {
     success: boolean;
     data: BlogPostType[];
+    users: Record<string, UserType>;
     stats: StatsType;
     metadata: {
         currentPage: number;
@@ -62,20 +63,10 @@ const BlogCollection = () => {
     useEffect(() => {
         state.initialized = true;
     }, []);
-
+    
     useEffect(() => {
         if (inView && state.metadata.hasMore && !state.loadingMore && !state.loading && state.initialized) {
-            setState(prev => ({ ...prev, loadingMore: true }));
-
-            const timer = setTimeout(() => {
-                // After 2 seconds, fetch more data
-                setState(prev => ({
-                    ...prev,
-                    page: prev.page + 1,
-                }));
-            }, 1500);
-
-            return () => clearTimeout(timer);
+            setState(prev => ({ ...prev, loadingMore: true, page: prev.page + 1 }));
         }
     }, [inView, state.metadata.hasMore]);
 
@@ -88,6 +79,7 @@ const BlogCollection = () => {
             setState(prev => ({
                 ...prev,
                 posts: state.page === 1 ? data.data : [...state.posts, ...data.data],
+                users: data.users,
                 stats: data.stats,
                 metadata: {
                     ...data.metadata,

@@ -7,8 +7,8 @@ import { ErrorBoundary } from 'react-error-boundary';
 import BlogPostHeader from '../BlogPostHeader/page';
 import BlogPostFooter from '../BlogPostFooter/page';
 import { useTheme } from '@/context/ThemeContext';
-import { CommentSection } from '@/app/component/commentsection';
-import RenderContent from '@/app/(non-auth)/blogs/components/RenderContent';
+import { CommentSection } from '@/app/_component/commentsection';
+import RenderContent from '@/app/blogs/components/RenderContent';
 
 const SKELETON_COUNT = 3;
 interface BlogPostClientContentProps {

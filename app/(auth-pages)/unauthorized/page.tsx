@@ -4,10 +4,15 @@ import { useRouter } from 'next/navigation';
 import { AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { useEffect, useState } from 'react';
 
 export default function UnauthorizedPage() {
     const router = useRouter()
-
+    const [isClient, setIsClient] = useState(false)
+    useEffect(() => {
+        setIsClient(true)
+    }, [])
+    if (!isClient) return null
     return (
         <div className="flex items-center justify-center min-h-[75vh] bg-background">
             <Card className="w-full max-w-md">

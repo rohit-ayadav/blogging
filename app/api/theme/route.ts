@@ -14,14 +14,13 @@ export async function POST(request: NextRequest) {
   if (!session) return sendResponse(401, "You need to be logged in to select your theme");
 
   const { theme } = await request.json();
-  if (!["light", "dark"].includes(theme)) return sendResponse(400, "Invalid theme selected");
+  if (!["light", "dark", "system"].includes(theme)) return sendResponse(400, "Invalid theme selected");
 
   try {
-    const user = await User.findOneAndUpdate(
-      { email: session.user.email },
-      { theme },
-      { new: true }
-    );
+    const user = await User.findOne({ email: session.user.email });
+    if (!user) return sendResponse(404, "User not found");
+    
+    // console.log(`User theme updated to ${theme} for ${JSON.stringify(session.user)}`);
     return user ? sendResponse(200, "Theme updated successfully") : sendResponse(404, "User not found");
   } catch {
     return sendResponse(500, "An error occurred while updating the theme");

@@ -1,16 +1,16 @@
 import React from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useDarkMode } from '@/hooks/useDarkMode';
 import { Sun, Moon, Search, RefreshCcw, Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CATEGORIES, stateType, StatsType } from '@/types/blogs-types';
 import { BlogPostType, UserType } from '@/types/blogs-types';
 import { Toaster } from '@/components/ui/toaster';
-import DashboardGrid from '@/app/component/dashboardGrid';
-import BlogPostGrid from '@/app/component/BlogPostGrid';
+import DashboardGrid from '@/app/_component/dashboardGrid';
+import BlogPostGrid from '@/app/_component/BlogPostGrid';
 import { Button } from '@/components/ui/button';
 import { EmptyState, LoadingState, NoMorePosts, themeClasses } from '../themeClass';
+import { useTheme } from '@/context/ThemeContext';
 
 
 interface HomePageBlogCollectionProps {
@@ -21,7 +21,7 @@ interface HomePageBlogCollectionProps {
 }
 
 const HomePageBlogCollection = ({ state, handleRetry, setState, searchLoading }: HomePageBlogCollectionProps) => {
-    const { isDarkMode, toggleDarkMode } = useDarkMode();
+    const { isDarkMode, toggleDarkMode } = useTheme();
 
     if (state.error) {
         return (
@@ -90,7 +90,7 @@ const HomePageBlogCollection = ({ state, handleRetry, setState, searchLoading }:
                                                 aria-label="Searching posts"
                                             />
                                         ) : (
-                                            <button
+                                            <span
                                                 onClick={() => {
                                                     setState(prev => ({
                                                         ...prev,
@@ -102,7 +102,7 @@ const HomePageBlogCollection = ({ state, handleRetry, setState, searchLoading }:
                                                 aria-label="Clear search"
                                             >
                                                 <X className="h-4 w-4 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300" />
-                                            </button>
+                                            </span>
                                         )}
                                     </>
                                 )}
@@ -130,7 +130,6 @@ const HomePageBlogCollection = ({ state, handleRetry, setState, searchLoading }:
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
-
                                     </TooltipTrigger>
                                     <TooltipContent>
                                         <span className="text-xs">Filter by category</span>
@@ -178,9 +177,11 @@ const HomePageBlogCollection = ({ state, handleRetry, setState, searchLoading }:
 
                     {/* Posts Section */}
                     <BlogPostGrid
-                        filteredPosts={Array.from(new Set(state.posts.map(post => post._id)))
-                            .map(id => state.posts.find(post => post._id === id))
-                            .filter((post): post is BlogPostType => post !== undefined)}
+                        filteredPosts={
+                            Array.from(new Set(state.posts.map(post => post._id))) // Get unique post ids
+                                .map(id => state.posts.find(post => post._id === id)) // Remove duplicates
+                                .filter((post): post is BlogPostType => post !== undefined) // Filter out undefined values
+                        }
                         users={state.users}
                         loading={state.loading}
                     />

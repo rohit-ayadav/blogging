@@ -6,7 +6,7 @@ import Blog from "@/models/blogs.models";
 import User from "@/models/users.models";
 import { Author } from "./component/Profile";
 import { Metadata } from "next";
-import { ErrorMessage } from "@/app/(non-auth)/blogs/[id]/ErrorMessage";
+import { ErrorMessage } from "@/app/blogs/[id]/ErrorMessage";
 
 async function getPostData(id: string) {
     try {

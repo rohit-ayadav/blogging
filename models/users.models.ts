@@ -59,7 +59,7 @@ const userSchema = new mongoose.Schema({
   },
   theme: {
     type: String,
-    default: "light"
+    default: "system"
   },
   role: {
     type: String,

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import useEditBlog from '@/hooks/useEditBlog';
 import { CATEGORIES, EditBlogState } from '@/types/blogs-types';
-import LoadingSpinner from '@/app/(non-auth)/create/component/LoadingSpinner';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -17,6 +16,7 @@ import TagsSection from '../create/component/TagsSection';
 import CategorySection from '../create/component/CategorySection';
 import ActionButtons from '../create/component/ActionButtons';
 import { AlertCircle } from 'lucide-react';
+import LoadingSpinner from '../create/component/LoadingSpinner';
 
 
 export default function EditBlogComponent(BlogData: EditBlogState) {

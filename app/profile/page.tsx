@@ -5,7 +5,7 @@ import User from "@/models/users.models";
 import { Metadata } from "next";
 import { getSessionAtHome } from "@/auth";
 import UserProfile from "./component/page";
-import { ErrorMessage } from "../(non-auth)/blogs/[id]/ErrorMessage";
+import { ErrorMessage } from "../blogs/[id]/ErrorMessage";
 
 async function getPostData() {
     try {

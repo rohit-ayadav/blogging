@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Skeleton } from "@/components/ui/skeleton";
 import RelatedPosts from '../RelatedPosts/page';
 import AuthorPosts from '../AuthorPosts/page';
-import NewsLetter from '@/app/component/newsletter';
+import NewsLetter from '@/app/_component/newsletter';
 import TableOfContents from '../AuthorPosts/TableOfContents';
 import { cn } from '@/lib/utils';
 import { BlogPostType, Author } from '@/types/blogs-types';

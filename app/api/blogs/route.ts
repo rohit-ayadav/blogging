@@ -133,11 +133,19 @@ export async function GET(request: NextRequest) {
             resultsPerPage: params.limit,
         };
 
-
+        // type of users is users: Record<string, UserType>;
+        const usersMap: Record<string, any> = {};
+        const userEmails = blogs.map((blog) => blog.createdBy);
+        const users = await User.find({ email: { $in: userEmails } }).lean().exec();
+        users.forEach((user) => {
+            usersMap[user.email] = user;
+        });
+        
         return NextResponse.json({
             message: "Blog posts retrieved successfully",
             success: true,
             data,
+            users: usersMap,
             metadata,
             stats
         }, {
