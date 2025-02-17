@@ -1,8 +1,15 @@
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { ThemeClasses } from "@/types/blogs-types";
+import React from 'react';
+import { Loader2, MoveUp, ScrollText, ArrowUp } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useTheme } from "@/context/ThemeContext";
+import { cn } from "@/lib/utils";
+import { ThemeClasses } from '@/types/blogs-types';
 
-const themeClasses: (isDarkMode: boolean) => ThemeClasses = (isDarkMode: boolean) => {
+interface LoadingStateProps {
+    message?: string;
+    className?: string;
+}
+export const themeClasses: (isDarkMode: boolean) => ThemeClasses = (isDarkMode: boolean) => {
     const themeClasses: ThemeClasses = {
         layout: `min-h-screen transition-colors duration-300 ease-in-out
         ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'}`,
@@ -21,38 +28,146 @@ const themeClasses: (isDarkMode: boolean) => ThemeClasses = (isDarkMode: boolean
     };
     return themeClasses;
 };
+export const LoadingState = ({
+    message = "Loading more posts...",
+    className = ""
+}: LoadingStateProps) => {
+    const { isDarkMode } = useTheme();
 
-// Loading state component
-const LoadingState = ({ message }: { message: string }) => (
-    <div className="flex items-center justify-center space-x-2 py-4">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        <span className="text-sm text-gray-500">{message}</span>
-    </div>
-);
-
-// No more posts component
-const NoMorePosts = () => (
-    <div className="flex flex-col items-center justify-center py-8 space-y-2">
-        <span className="text-gray-500">No more posts to load</span>
-        <Button
-            variant="outline"
-            size="sm"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className={cn(
+                "flex flex-col items-center justify-center py-12 md:py-16 px-4",
+                "bg-gradient-to-b from-transparent via-background/50 to-transparent",
+                isDarkMode ? "text-gray-300" : "text-gray-600",
+                className
+            )}
         >
-            Back to top
-        </Button>
-    </div>
-);
+            <div className="relative mb-4">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <div className={cn(
+                    "absolute inset-0 -z-10 animate-pulse blur-xl opacity-50",
+                    isDarkMode ? "bg-primary/20" : "bg-primary/10"
+                )} />
+            </div>
+            <span className="text-base font-medium">
+                {message}
+            </span>
+        </motion.div>
+    );
+};
 
-const EmptyState = () => (
-    <div className="flex flex-col items-center justify-center py-16 space-y-4">
-        <div className="text-4xl">📝</div>
-        <h3 className="text-xl font-semibold">No posts found</h3>
-        <p className="text-gray-500 text-center max-w-md">
-            Try adjusting your search or filters to find what you're looking for
-        </p>
-    </div>
-);
+interface NoMorePostsProps {
+    className?: string;
+    onBackToTop?: () => void;
+}
 
+export const NoMorePosts = ({
+    className = "",
+    onBackToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
+}: NoMorePostsProps) => {
+    const { isDarkMode } = useTheme();
 
-export { themeClasses, LoadingState, NoMorePosts, EmptyState };
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={cn(
+                "flex flex-col items-center justify-center py-16 px-4 space-y-6",
+                "bg-gradient-to-b from-transparent via-background/50 to-transparent",
+                className
+            )}
+        >
+            <div className="relative">
+                <ScrollText className={cn(
+                    "h-12 w-12",
+                    isDarkMode ? "text-gray-400" : "text-gray-600"
+                )} />
+                <div className={cn(
+                    "absolute inset-0 -z-10 animate-pulse blur-lg",
+                    isDarkMode ? "bg-primary/20" : "bg-primary/10"
+                )} />
+            </div>
+            <div className={cn(
+                "flex flex-col items-center space-y-2",
+                isDarkMode ? "text-gray-300" : "text-gray-600"
+            )}>
+                <h3 className="text-xl font-semibold">You've reached the end</h3>
+                <p className="text-sm text-center">No more posts to load</p>
+            </div>
+            <span
+                onClick={onBackToTop}
+                className={cn(
+                    "group transition-all duration-300",
+                    "hover:shadow-lg hover:scale-105",
+                    isDarkMode ? "hover:bg-primary/20" : "hover:bg-primary/10",
+                    "flex items-center space-x-2 px-6",
+                    "rounded-full border border-transparent",
+                    "text-primary",
+                    "cursor-pointer select-none"
+                )}
+            >
+                <ArrowUp className="h-5 w-5 transition-transform group-hover:-translate-y-1" />
+                <span>Back to top</span>
+            </span>
+        </motion.div>
+    );
+};
+
+interface EmptyStateProps {
+    title?: string;
+    message?: string;
+    className?: string;
+    showIcon?: boolean;
+}
+
+export const EmptyState = ({
+    title = "No posts found",
+    message = "Try adjusting your search or filters to find what you're looking for",
+    className = "",
+    showIcon = true
+}: EmptyStateProps) => {
+    const { isDarkMode } = useTheme();
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className={cn(
+                "flex flex-col items-center justify-center py-20 md:py-28 px-4",
+                "space-y-8 text-center",
+                "bg-gradient-to-b from-transparent via-background/50 to-transparent",
+                className
+            )}
+        >
+            {showIcon && (
+                <div className="relative">
+                    <ScrollText className={cn(
+                        "h-16 w-16",
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
+                    )} />
+                    <div className={cn(
+                        "absolute inset-0 -z-10 animate-pulse blur-xl",
+                        isDarkMode ? "bg-primary/20" : "bg-primary/10"
+                    )} />
+                </div>
+            )}
+            <div className="space-y-4 max-w-lg">
+                <h3 className={cn(
+                    "text-2xl md:text-3xl font-bold tracking-tight",
+                    isDarkMode ? "text-gray-200" : "text-gray-800"
+                )}>
+                    {title}
+                </h3>
+                <p className={cn(
+                    "text-base md:text-lg leading-relaxed",
+                    isDarkMode ? "text-gray-400" : "text-gray-600"
+                )}>
+                    {message}
+                </p>
+            </div>
+        </motion.div>
+    );
+};

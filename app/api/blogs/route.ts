@@ -91,27 +91,38 @@ export async function GET(request: NextRequest) {
     const query = buildQuery(params);
     const sortOption = getSortOptions(params.sortBy);
 
-    // Get the total number of blogs that match the query
     try {
-        const totalBlogs = await Blog.countDocuments(query);
+        const [totalBlogs, blogs, totalBlogsData] = await Promise.all([
+            Blog.countDocuments(query),
+            Blog.find(query)
+                .sort(sortOption)
+                .limit(params.limit)
+                .skip((params.page - 1) * params.limit)
+                .select("-__v")
+                .lean()
+                .exec(),
+            Blog.find(query).select("likes views").lean().exec()
+        ]);
+
         const totalPages = Math.ceil(totalBlogs / params.limit);
         const skip = (params.page - 1) * params.limit;
 
-        const blogs = await Blog.find(query)
-            .sort(sortOption)
-            .limit(params.limit)
-            .skip((params.page - 1) * params.limit)
-            .select("-__v")
-            .lean()
-            .exec();
+        const [totalUsers, users] = await Promise.all([
+            User.countDocuments(),
+            User.find({ email: { $in: blogs.map(blog => blog.createdBy) } }).lean().exec()
+        ]);
 
-        const totalUsers = await User.countDocuments();
         let totalLikes = 0;
         let totalViews = 0;
-        blogs.forEach((blog) => {
+        totalBlogsData.forEach(blog => {
             totalLikes += blog.likes;
             totalViews += blog.views;
         });
+
+        const usersMap = users.reduce((acc, user) => {
+            acc[user.email] = user;
+            return acc;
+        }, {} as Record<string, any>);
 
         const data = blogs.map((blog) => {
             blog.createdAt = blog.createdAt.toString();
@@ -133,14 +144,6 @@ export async function GET(request: NextRequest) {
             resultsPerPage: params.limit,
         };
 
-        // type of users is users: Record<string, UserType>;
-        const usersMap: Record<string, any> = {};
-        const userEmails = blogs.map((blog) => blog.createdBy);
-        const users = await User.find({ email: { $in: userEmails } }).lean().exec();
-        users.forEach((user) => {
-            usersMap[user.email] = user;
-        });
-        
         return NextResponse.json({
             message: "Blog posts retrieved successfully",
             success: true,

@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import { BlogPostType } from "@/types/blogs-types";
 import AuthorPage from "./component/Profile";
 import { connectDB } from "@/utils/db";
@@ -83,7 +82,7 @@ export default async function IndividualProfile({ params }: { params: { id: stri
     if (!response || !response.success) {
         switch (response.statusCode) {
             case 404:
-                notFound(); // This will render the 404 page
+                return <ErrorMessage message="Author not found" />;
             case 403:
                 return <ErrorMessage message="You don't have permission to view this blog post" />;
             case 401:

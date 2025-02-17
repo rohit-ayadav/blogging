@@ -167,13 +167,17 @@ const HomePageBlogCollection = ({ state, handleRetry, setState, searchLoading }:
                     </div>
 
                     {/* Stats Section */}
-                    <DashboardGrid
-                        totalBlogs={state.stats.totalBlogs}
-                        totalViews={state.stats.totalViews}
-                        totalLikes={state.stats.totalLikes}
-                        totalUsers={state.stats.totalUsers}
-                        loading={state.statsLoading}
-                    />
+                    {!(state.posts.length === 0 &&
+                        !state.loading) &&
+                        !state.loadingMore &&
+                        <DashboardGrid
+                            totalBlogs={state.stats.totalBlogs}
+                            totalViews={state.stats.totalViews}
+                            totalLikes={state.stats.totalLikes}
+                            totalUsers={state.stats.totalUsers}
+                            loading={state.statsLoading}
+                        />
+                    }
 
                     {/* Posts Section */}
                     <BlogPostGrid

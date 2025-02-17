@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useMemo } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Author, BlogPostType } from '@/types/blogs-types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -9,6 +9,7 @@ import BlogPostFooter from '../BlogPostFooter/page';
 import { useTheme } from '@/context/ThemeContext';
 import { CommentSection } from '@/app/_component/commentsection';
 import RenderContent from '@/app/blogs/components/RenderContent';
+import { incrementView } from '@/lib/viewIncrement';
 
 const SKELETON_COUNT = 3;
 interface BlogPostClientContentProps {
@@ -16,7 +17,6 @@ interface BlogPostClientContentProps {
     id: string;
     author: Author;
 }
-
 const ErrorFallback = ({ error, resetErrorBoundary }: {
     error: Error;
     resetErrorBoundary: () => void;
@@ -68,14 +68,15 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({
     id,
     author
 }) => {
-    // const postStats = useMemo(() => ({
-    //     likes: initialData.likes || 0,
-    //     views: initialData.views || 0
-    // }), [initialData.likes, initialData.views]);
     const postStats = {
         likes: initialData.likes || 0,
         views: initialData.views || 0
     };
+
+    useEffect(() => {
+        console.log('Incrementing view for:', id);
+        incrementView(id, false);
+    }, [id]);
 
     const { isDarkMode } = useTheme();
 

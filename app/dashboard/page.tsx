@@ -4,8 +4,8 @@ import React from "react";
 
 
 const Dashboard = () => {
-    const handleSignOut = () => {
-        signOut();
+    const handleSignOut = async () => {
+        await signOut();
     };
     return (
         <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 py-3 px-4 sm:px-6 lg:px-8">

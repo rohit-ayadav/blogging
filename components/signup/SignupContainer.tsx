@@ -24,7 +24,7 @@ const SignupContainer: FC = () => {
                                     <img
                                         src="/logo.png"
                                         alt="DevBlogger Logo"
-                                        className="w-12 h-12 rounded-full"
+                                        className="w-12 h-auto rounded-full"
                                     />
                                 </div>
                                 <h3 className="text-2xl font-bold text-indigo-800 mb-2">
