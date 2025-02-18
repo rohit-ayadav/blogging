@@ -112,7 +112,6 @@ export default function UserProfile({ userData, userBlogs }: UserProfileProps) {
                                 changePassword={changePassword}
                                 updateThemeSettings={toggleDarkMode}
                                 manageLinkedAccounts={manageLinkedAccounts}
-                                signOut={signOut}
                             />
                         </TabsContent>
                     </Tabs>

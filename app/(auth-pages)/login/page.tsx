@@ -121,7 +121,7 @@ export default function Auth() {
                             </Button>
                         ))}
                         <Button
-                            onClick={() => signOut()}
+                            onClick={() => ()=> router.push('/signout')}
                             variant="destructive"
                             className="w-full"
                         >

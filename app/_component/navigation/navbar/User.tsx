@@ -10,9 +10,8 @@ interface User {
 
 interface UserMenuProps {
     user: User;
-    onSignOut: () => void;
 }
-const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
+const UserMenu = ({ user }: UserMenuProps) => {
 
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
@@ -55,7 +54,7 @@ const UserMenu = ({ user, onSignOut }: UserMenuProps) => {
                         Settings
                     </Link>
                     <button
-                        onClick={onSignOut}
+                        onClick={() => router.push('/signout')}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         role="menuitem"
                     >

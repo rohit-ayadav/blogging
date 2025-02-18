@@ -58,7 +58,6 @@ function NavbarComponent() {
             {session?.user ? (
               <UserMenu
                 user={session.user}
-                onSignOut={() => signOut()}
               />
             ) : (
               <Link
@@ -96,7 +95,6 @@ function NavbarComponent() {
               <div className="mt-4">
                 <UserMenu
                   user={session.user}
-                  onSignOut={() => signOut()}
                 />
               </div>
             ) : (

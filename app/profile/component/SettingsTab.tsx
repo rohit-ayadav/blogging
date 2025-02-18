@@ -4,21 +4,21 @@ import React from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { SettingsSection } from './SettingsSection';
+import { useRouter } from 'next/navigation';
 
 
 interface SettingsTabProps {
     changePassword: (oldPassword: string, newPassword: string) => Promise<any>;
     manageLinkedAccounts: () => void;
     updateThemeSettings: (theme: { darkMode: boolean }) => void;
-    signOut: () => void;
 }
 
 export const SettingsTab = ({
     changePassword,
     manageLinkedAccounts,
     updateThemeSettings,
-    signOut
 }: SettingsTabProps) => {
+    const router = useRouter();
     return (
         <Card>
             <CardHeader>
@@ -45,7 +45,7 @@ export const SettingsTab = ({
                         buttonText="Customize"
                     />
                     <div className="pt-4">
-                        <Button variant="destructive" className="w-full" onClick={signOut}>
+                        <Button variant="destructive" className="w-full" onClick={() => router.push('/signout')}>
                             Log Out
                         </Button>
                     </div>

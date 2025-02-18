@@ -16,8 +16,7 @@ const SignOutPage = () => {
         setIsLoading(true);
 
         try {
-            await signOut({ redirect: false });
-            router.push('/blogs');
+            router.push('/signout');
         } catch (error) {
             console.error('Error signing out:', error);
             setIsLoading(false);

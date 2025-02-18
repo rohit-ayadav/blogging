@@ -1,11 +1,13 @@
 "use client";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 
 const Dashboard = () => {
+    const router = useRouter();
     const handleSignOut = async () => {
-        await signOut();
+        router.push("/signout");
     };
     return (
         <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 py-3 px-4 sm:px-6 lg:px-8">
