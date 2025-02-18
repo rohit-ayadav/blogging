@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { BlogPostType, UserType } from '@/types/blogs-types';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 interface PostCardProps {
     post: BlogPostType;
@@ -25,8 +26,10 @@ export const PostCard = ({ post, showStats = false, author }: PostCardProps) => 
             window.confirm('Are you sure you want to delete this post?') && await fetch(`/api/blogs/${id}`, {
                 method: 'DELETE',
             });
+            toast.success('Post deleted successfully');
             router.refresh()
         } catch (error) {
+            toast.error('An error occurred. Please try again.');
             console.error(error);
         }
     };
