@@ -31,8 +31,10 @@ function NavbarComponent() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/blogs', label: 'Blogs' },
-    { href: '/about', label: 'About Us' },
-    { href: '/services', label: 'Services' },
+    // { href: '/about', label: 'About Us' },
+    // { href: '/services', label: 'Services' },
+    { href: '/create', label: 'Write' },
+    { href: '/dashboard', label: 'Dashboard' },
     { href: '/contacts', label: 'Contacts' },
     { href: '/profile', label: 'Profile' },
     { href: '/profile#settings', label: 'Settings' },

@@ -1,39 +1,67 @@
-"use client";
-import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
+"use server";
 import React from "react";
+import { connectDB } from "@/utils/db";
+import User from "@/models/users.models";
+import Blog from "@/models/blogs.models";
+import MonthlyStats from "@/models/monthlyStats";
+import { getSessionAtHome } from "@/auth";
+import mongoose from "mongoose";
+import AuthorDashboard from "./Dashboard";
+import { ErrorMessage } from "../blogs/[id]/ErrorMessage";
+import { BlogPostType } from "@/types/blogs-types";
+import { UserType } from "@/types/blogs-types";
+
+interface AuthorData {
+    user: UserType;
+    blogs: BlogPostType[];
+    monthlyStats: {
+        blog: string; month: string; views: number; likes: number;
+    }[];
+}
+
+async function getPersonalAuthorData() {
+    // this function will return information of person, blogs written by him and monthly stats of his blogs
+    try {
+        await connectDB();
+        const session = await getSessionAtHome();
+        const user = await User.findOne({ email: session.user.email }).lean() as UserType;
+        const blogs = await Blog.find({ createdBy: session.user.email }).lean() as BlogPostType[];
+        // get monthly stats of blogs , stored as Total likes, Total views, Total comments, Total shares of particular month
+        const monthlyStats = await MonthlyStats.find({ blog: { $in: blogs.map(blog => blog._id) } }).lean();
+
+        const formattedMonthlyStats = monthlyStats.map(stat => ({
+            blog: stat.blog.toString(),
+            month: stat.month,
+            views: stat.views || 0,
+            likes: stat.likes || 0,
+        }));
+        // convert _id from ObjectId to string, createdAt and updatedAt from Date to string of each blog and user
+        user._id = user._id.toString();
+        blogs.forEach(blog => {
+            blog._id = blog._id.toString();
+            blog.createdAt = blog.createdAt.toString();
+            blog.updatedAt = blog.updatedAt?.toString();
+        });
+
+        return { user, blogs, monthlyStats: formattedMonthlyStats };
+    } catch (error: any) {
+        return error;
+    }
+}
 
 
-const Dashboard = () => {
-    const router = useRouter();
-    const handleSignOut = async () => {
-        router.push("/signout");
-    };
+const Dashboard = async () => {
+    const response = await getPersonalAuthorData();
+    if (!response) {
+        return <ErrorMessage message="No data found" />;
+    }
+    if (response instanceof Error) {
+        return <ErrorMessage message={response.message} />;
+    }
+
+
     return (
-        <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 py-3 px-4 sm:px-6 lg:px-8">
-            <div>
-                <h2 className="mt-0 text-center text-3xl font-extrabold text-gray-900">
-                    Welcome to Dashboard
-                </h2>
-                <p className="text-center">You can manage your blogs here.</p>
-                <div className="flex justify-center mt-5">
-                    <a href="/blogs" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        View Blogs
-                    </a>
-
-                    <a href="/create" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-3">
-                        Create Blog
-                    </a>
-                </div>
-
-                <button
-                    onClick={handleSignOut}
-                    className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-4"
-                >
-                    Sign out
-                </button>
-            </div>
-        </div>
+        <AuthorDashboard user={response.user} blogs={response.blogs} monthlyStats={response.monthlyStats} />
     );
 }
 
