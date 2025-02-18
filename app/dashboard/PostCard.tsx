@@ -5,6 +5,7 @@ import { Eye, ThumbsUp, Calendar } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { BlogPostType, UserType } from '@/types/blogs-types';
+import { useRouter } from 'next/navigation';
 
 interface PostCardProps {
     post: BlogPostType;
@@ -13,9 +14,21 @@ interface PostCardProps {
 }
 
 export const PostCard = ({ post, showStats = false, author }: PostCardProps) => {
+    const router = useRouter();
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    };
+
+    const deletePost = async (id: string) => {
+        try {
+            window.confirm('Are you sure you want to delete this post?') && await fetch(`/api/blogs/${id}`, {
+                method: 'DELETE',
+            });
+            router.refresh()
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -58,6 +71,16 @@ export const PostCard = ({ post, showStats = false, author }: PostCardProps) => 
                             </div>
                         </div>
                     )}
+                    {/* // edit and delete */}
+                    <div className="flex items-center gap-2 mt-4">
+                        <button className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                            onClick={() => router.push(`/edit/${post._id}`)}
+                        >Edit</button>
+                        <button className="text-sm text-red-600 dark:text-red-400 hover:underline"
+                            onClick={() => deletePost(post._id)}
+                        >Delete</button>
+                    </div>
+
                 </CardContent>
             </Link>
             {author && (
