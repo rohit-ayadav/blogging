@@ -75,13 +75,14 @@ const AuthorCard = ({ author }: { author: UserType }) => {
             <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
                     <div className="relative h-24 w-24 flex-shrink-0">
-                        <Image
+                        {/* <Image
                             src={author.image}
                             alt={author.name}
                             className="rounded-full object-cover"
                             fill
                             priority
-                        />
+                        /> */}
+                        <img src={author.image} alt={author.name} className="rounded-full object-cover" />
                     </div>
                     <div className="flex-1">
                         <h2 className="text-2xl font-bold text-gray-900">{author.name}</h2>
