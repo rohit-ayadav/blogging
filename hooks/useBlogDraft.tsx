@@ -15,8 +15,8 @@ interface DraftData {
 }
 
 const DEFAULT_CONTENT = {
-    markdown: `# Welcome to the blog post editor\nStart writing your blog post here...`,
-    html: `<h1>Welcome to the blog post editor</h1><br><br><p>Start writing your blog post here...</p>`
+    markdown: ``,
+    html: ``
 } as const;
 
 const DRAFT_EXPIRY = 86400000; // 24 hours in milliseconds
