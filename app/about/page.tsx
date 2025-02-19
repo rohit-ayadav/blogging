@@ -1,101 +1,154 @@
-"use client";
 import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Book, Users, Award, Newspaper } from 'lucide-react';
-import CountUp from 'react-countup';
+import { Mail, Linkedin, Instagram } from 'lucide-react';
 
 const AboutPage = () => {
-  const blogStats = [
-    { icon: <Book size={24} />, label: 'Articles Published', value: '500+' },
-    { icon: <Users size={24} />, label: 'Monthly Readers', value: '100,000+' },
-    { icon: <Award size={24} />, label: 'Industry Awards', value: '5' },
-    { icon: <Newspaper size={24} />, label: 'Years Active', value: '10' },
-  ];
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">About Our Blog</h1>
-
-      <div className="grid md:grid-cols-2 gap-8">
-        <Card>
-          <CardHeader>
-            <h2 className="text-2xl font-semibold">Our Story</h2>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4">
-              Welcome to our blog! We started this journey in 2014 with a simple mission: to provide insightful, 
-              engaging, and valuable content to our readers. Over the years, we've grown from a small personal 
-              blog to a trusted source of information in our field.
-            </p>
-            <p>
-              Our team of experienced writers and industry experts work tirelessly to bring you the latest news, 
-              in-depth analyses, and practical advice. We're passionate about our subjects and committed to 
-              delivering high-quality content that informs, inspires, and empowers our readers.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <h2 className="text-2xl font-semibold">Meet the Founder</h2>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center mb-4">
-              <Avatar className="h-20 w-20 mr-4">
-                <AvatarImage src="/founder.jpg" alt="Rohit Kumar Yadav" />
-                <AvatarFallback>RY</AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="text-xl font-semibold">Rohit Kumar Yadav</h3>
-                <p className="text-gray-500">Founder & Chief Editor</p>
-              </div>
+    <div className="min-h-screen bg-slate-50">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-white to-blue-50">
+        <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 items-center">
+            <div>
+              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+                Welcome to <span className="text-blue-600">DevBlogger</span>
+              </h1>
+              <p className="mt-6 text-lg leading-8 text-gray-600">
+                DevBlogger is a platform built for developers, by developers. Whether you're a beginner or an experienced coder, DevBlogger helps you share insights, tutorials, and personal experiences with the developer community.
+              </p>
             </div>
-            <p>
-              Rohit Kumar Yadav is a veteran journalist with over 15 years of experience in digital media. He founded 
-              this blog with the vision of creating a platform that bridges the gap between complex industry 
-              topics and everyday readers. His work has been recognized with numerous awards, and he's a 
-              frequent speaker at industry conferences.
-            </p>
-          </CardContent>
-        </Card>
+            <div className="lg:flex lg:justify-end">
+              <img
+                src="/logo.png"
+                alt="DevBlogger Logo"
+                className="rounded-lg shadow-xl w-full h-64 lg:h-80 object-cover object-center"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <Card className="mt-8">
-        <CardHeader>
-          <h2 className="text-2xl font-semibold">Our Impact</h2>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {blogStats.map((stat, index) => (
-                <div key={index} className="text-center">
-                <div className="mb-2 flex justify-center">{stat.icon}</div>
-                <div className="text-2xl font-bold">
-                  <CountUp end={parseInt(stat.value.replace(/\D/g, ''))} duration={3} />
-                </div>
-                <div className="text-sm text-gray-500">{stat.label}</div>
-                </div>
-            ))}
+      {/* Mission Section */}
+      <div className="bg-white py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900">Our Mission</h2>
+            <p className="mt-4 text-lg text-gray-600">
+              We believe in open knowledge sharing. Our mission is to create a space where developers can learn, collaborate, and grow through meaningful blogs and discussions.
+            </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card className="mt-8">
-        <CardHeader>
-          <h2 className="text-2xl font-semibold">Our Expertise</h2>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            <Badge>Technology</Badge>
-            <Badge>Business</Badge>
-            <Badge>Science</Badge>
-            <Badge>Culture</Badge>
-            <Badge>Lifestyle</Badge>
-            <Badge>Health & Wellness</Badge>
+      {/* Features Section */}
+      <div className="bg-gradient-to-br from-blue-50 to-white py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 text-center mb-12">
+            Key Features
+          </h2>
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <div className="text-2xl mb-4">📌</div>
+              <h3 className="text-lg font-semibold mb-2 text-blue-600">Developer-Focused Content</h3>
+              <p className="text-gray-600">Articles on programming, tech trends, and coding challenges.</p>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <div className="text-2xl mb-4">🚀</div>
+              <h3 className="text-lg font-semibold mb-2 text-blue-600">Interactive Dashboard</h3>
+              <p className="text-gray-600">Track blog views, likes, and comments.</p>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <div className="text-2xl mb-4">🔒</div>
+              <h3 className="text-lg font-semibold mb-2 text-blue-600">Secure Auth System</h3>
+              <p className="text-gray-600">NextAuth for authentication.</p>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <div className="text-2xl mb-4">📊</div>
+              <h3 className="text-lg font-semibold mb-2 text-blue-600">Stats & Analytics</h3>
+              <p className="text-gray-600">View insights on your blog's performance.</p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* Target Audience Section */}
+      <div className="bg-white py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 text-center mb-12">
+            Who is it for?
+          </h2>
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 max-w-5xl mx-auto">
+            <div className="text-center p-6 bg-blue-50 rounded-xl">
+              <h3 className="text-lg font-semibold mb-2 text-blue-600">Beginners</h3>
+              <p className="text-gray-600">Looking to learn and share their journey.</p>
+            </div>
+            <div className="text-center p-6 bg-blue-50 rounded-xl">
+              <h3 className="text-lg font-semibold mb-2 text-blue-600">Experienced Devs</h3>
+              <p className="text-gray-600">Wanting to document their expertise.</p>
+            </div>
+            <div className="text-center p-6 bg-blue-50 rounded-xl">
+              <h3 className="text-lg font-semibold mb-2 text-blue-600">Tech Enthusiasts</h3>
+              <p className="text-gray-600">Who love coding and writing.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div className="bg-gradient-to-br from-blue-50 to-white py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-6">
+            Join Us Today! 🚀
+          </h2>
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            Join DevBlogger today and start sharing your knowledge with the world!
+          </p>
+          <button className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg">
+            Get Started
+          </button>
+        </div>
+      </div>
+
+      {/* Founder Section */}
+      <div className="bg-white py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-6">
+                About the Founder
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              <div className="order-2 md:order-1">
+                <h3 className="text-2xl font-semibold text-blue-600 mb-4">Rohit Kumar Yadav</h3>
+                <p className="text-lg text-gray-600 mb-6">
+                  A passionate full-stack developer with expertise in modern web technologies. With a strong foundation in React, Node.js, and cloud technologies, Rohit has dedicated himself to creating tools that help developers grow and succeed.
+                </p>
+                <p className="text-lg text-gray-600 mb-8">
+                  Beyond coding, he's an avid technical writer and mentor who believes in the power of sharing knowledge and building communities.
+                </p>
+                <div className="flex gap-4">
+                  <a href="mailto:rohitkuyada@gmail.com" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    <Mail size={24} />
+                  </a>
+                  <a href="https://linkedin.com/in/foundername" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    <Linkedin size={24} />
+                  </a>
+                  <a href="https://instagram.com/rohit.ayadav" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 transition-colors">
+                    <Instagram size={24} />
+                  </a>
+                </div>
+              </div>
+              <div className="order-1 md:order-2 flex justify-center">
+                <img
+                  src="/founder.jpg"
+                  alt="Rohit Kumar Yadav"
+                  className="rounded-full w-64 h-64 object-cover shadow-xl"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

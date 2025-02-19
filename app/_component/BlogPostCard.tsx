@@ -143,7 +143,11 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                             <TooltipTrigger>
                                 <div
                                     className="flex items-center space-x-1 cursor-pointer"
-                                    onClick={() => toast.success('Copied to clipboard!')}
+                                    onClick={() => {
+                                        const text = `Read this amazing blog post titled ${post.title} by ${user.name} on ${formattedDate}\n\nRead more at ${window.location.origin}/blogs/${post.slug}`;
+                                        navigator.clipboard.writeText(text);
+                                        toast.success('Link copied to clipboard');
+                                    }}
                                 >
                                     <Clipboard className={`h-5 w-5 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
                                 </div>
