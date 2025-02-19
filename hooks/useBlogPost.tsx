@@ -20,9 +20,9 @@ const useBlogPost = ({ email, tags, id }: { email: string; tags: string[]; id: s
             setRelatedPosts(relatedPostsResponse);
         }
         catch (error: any) {
-            alert("Error fetching related posts: " + error.message);
+            // alert("Error fetching related posts: " + error.message);
             setError(error);
-            toast.error(error.message);
+            // refetch();
         }
     };
 

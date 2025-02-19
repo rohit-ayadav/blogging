@@ -8,9 +8,10 @@ interface AuthorPostsProps {
     author: Author | null;
     posts: BlogPostType[];
     isDarkMode: boolean;
+    error: Error | null;
 }
 
-const AuthorPosts = ({ author, posts, isDarkMode }: AuthorPostsProps) => {
+const AuthorPosts = ({ author, posts, isDarkMode, error }: AuthorPostsProps) => {
     if (!author || !posts || !posts.length) {
         return <LoadingSkeleton />;
     }

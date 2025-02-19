@@ -7,60 +7,65 @@ import Blog from '@/models/blogs.models';
 import User from '@/models/users.models';
 import { connectDB } from '@/utils/db';
 import { isValidObjectId } from 'mongoose';
-import { Author } from '@/types/blogs-types';
+import { Author, BlogPostType } from '@/types/blogs-types';
 import { ErrorMessage } from './ErrorMessage';
 import BlogPostClientContent from '@/components/BlogPostContent/page';
 import { isValidSlug } from '@/lib/common-function';
-
-type ApiResponse = {
+import serializeDocument, { formatDate } from '@/utils/date-formatter';
+interface ApiResponse {
     success: boolean;
-    data?: any;
+    statusCode: number;
     error?: string;
-    statusCode?: number;
+    data?: BlogPostType;
     author?: Author;
-};
+}
+
 
 async function getPostData(id: string): Promise<ApiResponse> {
     try {
         await connectDB();
         let post;
+
         if (isValidObjectId(id)) {
-            post = await Blog.findById(id);
+            post = await Blog.findById(id).lean().exec();
         } else if (isValidSlug(id)) {
-            post = await Blog.findOne({ slug: id });
+            post = await Blog.findOne({ slug: id }).lean().exec();
         }
 
-        if (!post) { return { success: false, statusCode: 404, error: 'Blog post not found', }; }
-        // Increment views
-        await Blog.findOneAndUpdate({ slug: id }, { $inc: { views: 1 } });
-        let createdBy = Array.isArray(post) ? post[0]?.createdBy : post?.createdBy;
-        let author: Author = (await User.findOne({ email: createdBy })) as Author;
-
-        if (!author) {
-            author = {
-                name: 'Anonymous',
-                image: '/default-profile.jpg',
-                _id: '0',
-                likes: 0,
-                views: 0,
+        if (!post) {
+            return {
+                success: false,
+                statusCode: 404,
+                error: 'Blog post not found'
             };
         }
 
-        // Convert Mongoose document to plain object
-        if (!Array.isArray(post)) {
-            post.createdAt = post.createdAt.toISOString();
-            post.updatedAt = post.updatedAt.toISOString();
-            (post as any)._id = (post as any)._id.toString();
-        }
+        // Increment views
+        await Blog.findOneAndUpdate(
+            { slug: id },
+            { $inc: { views: 1 } }
+        );
 
-        author._id = author._id.toString();
+        // Get author information
+        const createdBy = Array.isArray(post) ? post[0]?.createdBy : post?.createdBy;
+        const authorDoc = await User.findOne({ email: createdBy }).lean().exec();
 
-        const plainPost = JSON.parse(JSON.stringify(post));
-        const plainAuthor: Author = JSON.parse(JSON.stringify(author));
+        // Create default author if none found
+        const author: Author = authorDoc ? serializeDocument(authorDoc) : {
+            name: 'Anonymous',
+            image: '/default-profile.jpg',
+            _id: '0',
+            likes: 0,
+            views: 0,
+        };
+
+        // Serialize the post data
+        const serializedPost = serializeDocument(post);
+
         return {
             success: true,
-            data: plainPost,
-            author: plainAuthor,
+            data: serializedPost as BlogPostType,
+            author,
             statusCode: 200,
         };
     } catch (error) {
@@ -128,7 +133,7 @@ export default async function IndividualBlogPost({ params }: { params: { id: str
     if (!response || !response.success) {
         switch (response.statusCode) {
             case 404:
-                notFound(); // This will render the 404 page
+                notFound();
             case 403:
                 return <ErrorMessage message="You don't have permission to view this blog post" />;
             case 401:
@@ -136,6 +141,13 @@ export default async function IndividualBlogPost({ params }: { params: { id: str
             default:
                 return <ErrorMessage message={response.error || 'Failed to load blog post'} />;
         }
+    }
+
+    if (!response.author) {
+        return <ErrorMessage message="Author not found" />;
+    }
+    if (!response.data) {
+        return <ErrorMessage message="Blog post not found" />;
     }
 
     const jsonLd = {
@@ -160,6 +172,8 @@ export default async function IndividualBlogPost({ params }: { params: { id: str
         },
     };
 
+
+
     return (
         <>
             <script
@@ -170,28 +184,12 @@ export default async function IndividualBlogPost({ params }: { params: { id: str
                 post={response.data}
                 id={params.id}
                 isLoading={false}
-                author={
-                    response.author || {
-                        name: 'Anonymous',
-                        image: '/default-profile.jpg',
-                        _id: '0',
-                        likes: 0,
-                        views: 0,
-                    }
-                }
+                author={response.author}
             >
                 <BlogPostClientContent
                     initialData={response.data}
                     id={params.id}
-                    author={
-                        response.author || {
-                            name: 'Anonymous',
-                            image: '/default-profile.jpg',
-                            _id: '0',
-                            likes: 0,
-                            views: 0,
-                        }
-                    }
+                    author={response.author}
                 />
             </BlogPostLayout>
         </>

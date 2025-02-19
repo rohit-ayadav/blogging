@@ -24,7 +24,7 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
   author,
   id,
 }) => {
-  const { relatedPosts, authorPosts } = useBlogPost({
+  const { relatedPosts, authorPosts, error } = useBlogPost({
     email: post.createdBy,
     tags: post.tags || [],
     id
@@ -90,6 +90,7 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
               post={post}
               author={author}
               authorPosts={authorPosts}
+              error={error}
               relatedPosts={relatedPosts}
             />
           )}

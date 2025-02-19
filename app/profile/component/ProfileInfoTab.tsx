@@ -143,7 +143,7 @@ export const ProfileInfoTab = ({ userData, editMode, setEditMode }: ProfileInfoT
                     title: "Success",
                     description: "Verification email sent successfully",
                 });
-                alert("Verification email sent successfully");
+                // alert("Verification email sent successfully");
             }
         } catch (error) {
             toast.toast({
@@ -151,7 +151,7 @@ export const ProfileInfoTab = ({ userData, editMode, setEditMode }: ProfileInfoT
                 description: (error instanceof Error ? error.message : "An unexpected error occurred"),
                 variant: "destructive",
             });
-            alert(error);
+            // alert(error);
         }
     };
 
@@ -177,14 +177,14 @@ export const ProfileInfoTab = ({ userData, editMode, setEditMode }: ProfileInfoT
                     description: response.error,
                     variant: "destructive",
                 });
-                alert(response.error);
+                // alert(response.error);
             } else {
                 toast.toast({
                     title: "Success",
                     description: "Profile updated successfully",
                 });
                 setEditMode(false);
-                alert("Profile updated successfully");
+                // alert("Profile updated successfully");
             }
         } catch (error) {
             toast.toast({

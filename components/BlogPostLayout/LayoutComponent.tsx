@@ -16,8 +16,6 @@ import { BreadcrumbTrail } from './BreadcrumbTrail';
 
 const SKELETON_COUNT = 3;
 
-
-
 const NavigationButton = ({
     onClick,
     label,
@@ -53,8 +51,9 @@ const Sidebar: React.FC<{
     post: BlogPostType;
     author: Author;
     authorPosts: BlogPostType[];
+    error: Error | null;
     relatedPosts: BlogPostType[]
-}> = ({ post, author, authorPosts, relatedPosts }) => {
+}> = ({ post, author, authorPosts, error, relatedPosts }) => {
     const { isDarkMode } = useTheme();
 
     return (
@@ -72,10 +71,10 @@ const Sidebar: React.FC<{
                     />
                 </SidebarSection>
                 <SidebarSection>
-                    <AuthorPosts author={author} posts={authorPosts} isDarkMode={isDarkMode} />
+                    <AuthorPosts author={author} posts={authorPosts} isDarkMode={isDarkMode} error={error} />
                 </SidebarSection>
                 <SidebarSection>
-                    <RelatedPosts posts={relatedPosts} isDarkMode={isDarkMode} />
+                    <RelatedPosts posts={relatedPosts} isDarkMode={isDarkMode} error={error} />
                 </SidebarSection>
                 <Suspense fallback={<SectionSkeleton />}>
                     <SidebarSection>

@@ -51,8 +51,21 @@ const BlogPostFooter = ({
 
   useEffect(() => {
     setShareUrl(window.location.href);
-    setLikes(post?.likes ?? initialLikes);
-  }, [post?.likes, initialLikes]);
+    // fetch from local storage if user has liked the post today
+    const checkDailyLike = (postId: string): boolean => {
+      const today = new Date().toDateString();
+      const likeData = localStorage.getItem(`post_${postId}_like`);
+
+      if (likeData) {
+        const { date } = JSON.parse(likeData);
+        return date === today;
+      }
+      return false;
+    };
+    // check if user has liked the post today
+    const hasLikedToday = checkDailyLike(id);
+    setIsLiked(hasLikedToday);
+  }, [post?.likes, initialLikes, id]);
 
   const shareOptions: ShareOption[] = [
     {
@@ -88,24 +101,65 @@ const BlogPostFooter = ({
   const handleLike = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (isLoading) return;
-    let response;
 
-    setIsLoading(true);
-    const newLikesCount = isLiked ? likes - 1 : likes + 1;
+    const checkDailyLike = (postId: string): boolean => {
+      const today = new Date().toDateString();
+      const likeData = localStorage.getItem(`post_${postId}_like`);
 
-    setLikes(newLikesCount);
-    setIsLiked(!isLiked);
+      if (likeData) {
+        const { date } = JSON.parse(likeData);
+        return date === today;
+      }
+      return false;
+    };
 
-    if (!isLiked) {
-      response = likePost(id);
-    } else {
-      response = dislikePost(id);
-    }
-    if (!response) {
+    const saveLikeToStorage = (postId: string) => {
+      const today = new Date().toDateString();
+      localStorage.setItem(
+        `post_${postId}_like`,
+        JSON.stringify({ date: today, liked: true })
+      );
+    };
+
+    const removeLikeFromStorage = (postId: string) => {
+      localStorage.removeItem(`post_${postId}_like`);
+    };
+
+    try {
+      setIsLoading(true);
+      const hasLikedToday = checkDailyLike(id);
+
+      // If user has already liked today and tries to like again
+      if (!isLiked && hasLikedToday) {
+        throw new Error("You can only like this post once per day");
+      }
+
+      const newLikesCount = isLiked ? likes - 1 : likes + 1;
       setLikes(newLikesCount);
       setIsLiked(!isLiked);
+
+      let response;
+      if (!isLiked) {
+        response = await likePost(id);
+        saveLikeToStorage(id);
+      } else {
+        response = await dislikePost(id);
+        removeLikeFromStorage(id);
+      }
+
+      if (!response) {
+        // Revert changes if API call fails
+        setLikes(likes);
+        setIsLiked(isLiked);
+      }
+    } catch (error) {
+      // Revert changes on error
+      setLikes(likes);
+      setIsLiked(isLiked);
+      console.error("Error handling like:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleShare = (option: ShareOption) => {
@@ -142,26 +196,9 @@ const BlogPostFooter = ({
                 size="sm"
                 onClick={handleLike}
                 disabled={isLoading}
-                className={cn(
-                  "transition-all",
-                  isLiked
-                    ? "text-red-500 hover:text-red-600"
-                    : isDarkMode
-                      ? "text-gray-300 hover:text-gray-100"
-                      : "text-gray-600 hover:text-gray-800"
-                )}
-              >
-                {isLiked ? (
-                  <HeartFilledIcon className="h-5 w-5 mr-2" />
-                ) : (
-                  <Heart className="h-5 w-5 mr-2" />
-                )}
-                <span
-                  className={`font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"
-                    }`}
-                >
-                  {likes}
-                </span>
+                className={cn("transition-all", isLiked ? "text-red-500 hover:text-red-600" : isDarkMode ? "text-gray-300 hover:text-gray-100" : "text-gray-600 hover:text-gray-800")}              >
+                {isLiked ? (<HeartFilledIcon className="h-5 w-5 mr-2" />) : (<Heart className="h-5 w-5 mr-2" />)}
+                <span className={`font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>{likes}</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>

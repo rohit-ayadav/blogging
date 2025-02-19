@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Calendar, Clock, Eye, Heart } from 'lucide-react';
 import { Author, BlogPostType } from '@/types/blogs-types';
+import { formatDate } from '@/utils/date-formatter';
 
 interface BlogPostHeaderProps {
   post: BlogPostType;
@@ -58,8 +59,8 @@ const BlogPostHeader: React.FC<BlogPostHeaderProps> = ({
             `}
           >
             <Calendar className="h-4 w-4 mr-2 flex-shrink-0" />
-            <time dateTime={post.createdAt} className="truncate">
-              {new Date(post.createdAt).toLocaleDateString()}
+            <time dateTime={formatDate(post.createdAt)}>
+              {formatDate(post.createdAt)}
             </time>
           </div>
 

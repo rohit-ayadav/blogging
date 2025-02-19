@@ -7,11 +7,15 @@ import LoadingSkeleton from '../LoadingComponent';
 interface RelatedPostsProps {
   posts: BlogPostType[];
   isDarkMode: boolean;
+  error: Error | null;
 }
 
-const RelatedPosts = ({ posts, isDarkMode }: RelatedPostsProps) => {
+const RelatedPosts = ({ posts, isDarkMode, error }: RelatedPostsProps) => {
   if (!posts || !posts.length) {
     return <LoadingSkeleton />;
+  }
+  if (error) {
+    return <p className="text-red-500">Error fetching related</p>;
   }
 
   const formatDate = (dateString: string) => {
