@@ -232,7 +232,8 @@ export default function RootLayout({
         <ThemeProvider>
           <SessionWrapper>
             <NavbarComponent />
-            <main className="flex-grow">
+            <main className="flex-grow min-h-[calc(100vh-100px)]">
+              {/* <main className="flex-grow min-h-[calc(100vh-100px)] flex items-center justify-center"> */}
               {children}
             </main>
             <Footer />

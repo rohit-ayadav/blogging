@@ -8,15 +8,15 @@ import { CATEGORIES, EditBlogState } from '@/types/blogs-types';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import TitleSection from '../create/component/TitleSection';
-import ThumbnailSection from '../create/component/ThumbnailSection';
-import { EditorSection } from '../create/component/EditorSection';
-import UrlSection from '../create/component/CustomURL';
-import TagsSection from '../create/component/TagsSection';
-import CategorySection from '../create/component/CategorySection';
-import ActionButtons from '../create/component/ActionButtons';
+import TitleSection from '../../create/component/TitleSection';
+import ThumbnailSection from '../../create/component/ThumbnailSection';
+import { EditorSection } from '../../create/component/EditorSection';
+import UrlSection from '../../create/component/CustomURL';
+import TagsSection from '../../create/component/TagsSection';
+import CategorySection from '../../create/component/CategorySection';
+import ActionButtons from '../../create/component/ActionButtons';
 import { AlertCircle } from 'lucide-react';
-import LoadingSpinner from '../create/component/LoadingSpinner';
+import LoadingSpinner from '../../create/component/LoadingSpinner';
 
 
 export default function EditBlogComponent(BlogData: EditBlogState) {

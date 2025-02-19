@@ -4,21 +4,20 @@ import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription }
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { UserType } from './types';
-import { BlogPostType } from '@/types/blogs-types';
-import { Calendar, Instagram, Link, MapPin } from 'lucide-react';
+import { Calendar, Instagram, Link } from 'lucide-react';
 import { Facebook, GitHub, Linkedin, Twitter } from 'react-feather';
 
 interface ProfileCardProps {
     userData: UserType;
-    userBlogs: BlogPostType[];
     setEditMode: (editMode: boolean) => void;
 }
 
-export const ProfileCard = ({ userData, userBlogs, setEditMode }: ProfileCardProps) => {
+export const ProfileCard = ({ userData, setEditMode }: ProfileCardProps) => {
     const joinDate = new Date(userData?.createdAt).toLocaleDateString('en-US', {
         month: 'long',
         year: 'numeric'
     });
+    const length = 0;
 
     return (
         <Card>
@@ -74,7 +73,7 @@ export const ProfileCard = ({ userData, userBlogs, setEditMode }: ProfileCardPro
                         <p className="text-sm text-gray-500">Following</p>
                     </div>
                     <div className="p-4 rounded-lg bg-gray-50">
-                        <p className="text-2xl font-bold">{userBlogs.length}</p>
+                        <p className="text-2xl font-bold">{length}</p>
                         <p className="text-sm text-gray-500">Blogs</p>
                     </div>
                 </div>

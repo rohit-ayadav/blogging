@@ -4,12 +4,14 @@ import { isValidObjectId } from "mongoose";
 import { isValidSlug } from "@/lib/common-function";
 import EditBlogComponent from "./editBlog";
 import { getSessionAtHome } from "@/auth";
+import { ErrorMessage } from "@/app/blogs/[id]/ErrorMessage";
 
 await connectDB();
 interface EditBlogState {
+    success: boolean;
+    error: string;
     isInitializing: boolean;
     isLoading: boolean;
-    error: string | null;
     title: string;
     thumbnail: string | null;
     htmlContent: string;
@@ -24,9 +26,10 @@ interface EditBlogState {
 
 async function getBlogData(id: string): Promise<EditBlogState> {
     const nullresponse = {
+        success: false,
+        error: '',
         isInitializing: false,
         isLoading: false,
-        error: "An error occurred while fetching blog post data",
         title: "",
         thumbnail: null,
         htmlContent: "",
@@ -38,7 +41,9 @@ async function getBlogData(id: string): Promise<EditBlogState> {
         editorMode: "markdown" as 'markdown' | 'visual' | 'html',
         slug: "",
     };
-    if (!id) return nullresponse;
+    if (!id) {
+        return { ...nullresponse, error: "Blog id required to edit the blog..." }
+    }
     const session = getSessionAtHome();
 
     try {
@@ -48,12 +53,13 @@ async function getBlogData(id: string): Promise<EditBlogState> {
                 ? await Blog.findOne({ slug: id })
                 : null;
 
-        if (!post) return nullresponse;
+        if (!post) return { ...nullresponse, error: "Blog post not found, please check the id..." };
 
         return {
+            success: true,
             isInitializing: false,
             isLoading: false,
-            error: null,
+            error: "",
             title: post.title,
             thumbnail: post.thumbnail,
             htmlContent: post.language === "html" ? post.content : "",
@@ -82,5 +88,8 @@ export async function generateStaticParams() {
 
 export default async function EditPost({ params }: { params: { id: string } }) {
     const blogData = await getBlogData(params.id);
+    if (!blogData.success) {
+        return <ErrorMessage message={blogData.error || "Something went wrong"} />;
+    }
     return <EditBlogComponent {...blogData} />;
 }

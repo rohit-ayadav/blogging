@@ -22,19 +22,6 @@ async function getPostData() {
             return { success: false, statusCode: 404 };
         }
 
-        let postData = await Blog.find({ createdBy: user.email }).lean() as BlogPostType[];
-        if (!postData || postData.length === 0) {
-            return { success: false, statusCode: 404 };
-        }
-
-        // Convert `_id` from ObjectId to string because Next.js doesn't support ObjectId
-        postData = postData.map(post => ({
-            ...post,
-            _id: post._id.toString(), // Convert ObjectId to string
-            createdAt: post.createdAt.toString(), // Convert Date to string
-            updatedAt: post.updatedAt?.toString() // Convert Date to string
-        }));
-
         const sanitizedUser = {
             ...user,
             _id: user._id.toString(), // Convert ObjectId to string
@@ -45,7 +32,6 @@ async function getPostData() {
         return {
             success: true,
             userData: sanitizedUser as UserType,
-            userBlogs: postData as BlogPostType[]
         };
     } catch (error) {
         return { success: false, error: (error as Error).message };
@@ -97,7 +83,6 @@ export default async function IndividualProfile() {
 
     return <UserProfile
         userData={response.userData}
-        userBlogs={response.userBlogs}
     />;
 
 }

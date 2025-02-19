@@ -130,7 +130,7 @@ const AboutPage = () => {
                   <a href="mailto:rohitkuyada@gmail.com" className="text-gray-600 hover:text-blue-600 transition-colors">
                     <Mail size={24} />
                   </a>
-                  <a href="https://linkedin.com/in/foundername" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 transition-colors">
+                  <a href="https://www.linkedin.com/in/rohitkumaryadav-rky/" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 transition-colors">
                     <Linkedin size={24} />
                   </a>
                   <a href="https://instagram.com/rohit.ayadav" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 transition-colors">

@@ -12,6 +12,7 @@ import { registerServiceWorkerFirstTime } from '@/hooks/push-client';
 import { BlogPostCard } from '../app/_component/BlogPostCard';
 import { BlogPostType, UserType } from '@/types/blogs-types';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
 
 // Define interfaces at the top
 interface FeatureCardProps {
@@ -19,7 +20,7 @@ interface FeatureCardProps {
     title: string;
     description: string;
     action: string;
-    onClick: () => void;
+    link: string;
 }
 
 interface HomePageProps {
@@ -32,7 +33,7 @@ interface HomePageProps {
 }
 
 // Separate FeatureCard component with fixed button implementation
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, action, onClick }) => {
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, action, link }) => {
     const { isDarkMode } = useTheme();
     return (
         <Card className={`text-center h-full flex flex-col justify-between transition-all duration-300 hover:shadow-lg ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white'}`}>
@@ -43,9 +44,11 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, act
             </CardContent>
             <CardContent className="pt-0">
                 <div className="w-full">
-                    <Button onClick={onClick} className="w-full">
-                        {action} <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
+                    <Link href={link}>
+                        <Button className="w-full">
+                            {action} <ChevronRight className="ml-2 h-4 w-4" />
+                        </Button>
+                    </Link>
                 </div>
             </CardContent>
         </Card>
@@ -72,20 +75,23 @@ const HomePage: React.FC<HomePageProps> = ({ posts, users, totalLikes, totalView
                     <h1 className="text-4xl font-bold mb-4 md:text-5xl lg:text-6xl">Empower Your Developer Journey</h1>
                     <p className="text-xl mb-8 md:text-2xl max-w-3xl mx-auto">Join our thriving community of passionate developers. Share knowledge, learn from peers, and accelerate your career growth.</p>
                     <div className="space-y-4 md:space-y-0 md:space-x-4 flex flex-col md:flex-row justify-center">
-                        <Button
-                            size="lg"
-                            variant={isDarkMode ? "outline" : "secondary"}
-                            onClick={() => router.push('https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t')}
-                        >
-                            Join the Community
-                        </Button>
-                        <Button
-                            size="lg"
-                            variant={isDarkMode ? "outline" : "secondary"}
-                            onClick={() => router.push('/blogs')}
-                        >
-                            Explore Blogs
-                        </Button>
+                        <Link href="https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t">
+                            <Button
+                                size="lg"
+                                variant={isDarkMode ? "outline" : "secondary"}
+                            >
+                                Join the Community
+                            </Button>
+                        </Link>
+                        <Link href="/blogs">
+                            <Button
+                                size="lg"
+                                variant={isDarkMode ? "outline" : "secondary"}
+                                onClick={() => router.push('/blogs')}
+                            >
+                                Explore Blogs
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </section>
@@ -116,21 +122,21 @@ const HomePage: React.FC<HomePageProps> = ({ posts, users, totalLikes, totalView
                             title="Write Your Own Blogs"
                             description="Share your knowledge and experiences with the community. Establish yourself as an expert in your field."
                             action="Start Writing"
-                            onClick={() => router.push('/create')}
+                            link="/create"
                         />
                         <FeatureCard
                             icon={<Book size={48} className="mx-auto text-blue-600" />}
                             title="Learn from Others"
                             description="Explore a wide range of topics written by expert developers. Stay updated with the latest trends and technologies."
                             action="Discover Blogs"
-                            onClick={() => router.push('/blogs')}
+                            link="/blogs"
                         />
                         <FeatureCard
                             icon={<Users size={48} className="mx-auto text-blue-600" />}
                             title="Connect with Peers"
                             description="Network with like-minded professionals and grow together. Collaborate on projects and share opportunities."
                             action="Join Community"
-                            onClick={() => router.push('https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t')}
+                            link='https://whatsapp.com/channel/0029VaVd6px8KMqnZk7qGJ2t'
                         />
                     </div>
                 </div>
