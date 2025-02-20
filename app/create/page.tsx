@@ -62,6 +62,7 @@ export default function CreateBlog() {
         error: null,
         title: '',
         thumbnail: null,
+        thumbnailCredit: null,
         htmlContent: DEFAULT_CONTENT.html,
         markdownContent: DEFAULT_CONTENT.markdown,
         slug: '',
@@ -79,6 +80,7 @@ export default function CreateBlog() {
         updateState({
             title: '',
             thumbnail: null,
+            thumbnailCredit: null,
             htmlContent: '',
             markdownContent: '',
             slug: '',
@@ -124,6 +126,7 @@ export default function CreateBlog() {
                     state.editorMode
                 ),
                 thumbnail: state.thumbnail,
+                thumbnailCredit: state.thumbnailCredit,
                 slug: sanitizer.slug(state.slug),
                 tags: state.tags.map(sanitizer.tags),
                 category: state.category,
@@ -140,11 +143,11 @@ export default function CreateBlog() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'Failed to create blog post');
 
-            updateState({ blogId: data.blogPostId });
+            updateState({ blogId: data.id });
             localStorage.removeItem(DRAFT_STORAGE_KEY);
             toast.success('Blog post created successfully');
             clearForm();
-            router.push(`/blogs/${data.blogPostId}`);
+            router.push(`/blogs/${data.id}`);
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'An unknown error occurred');
         } finally {

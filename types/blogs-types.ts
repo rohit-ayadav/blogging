@@ -7,6 +7,7 @@ type BlogPostType = {
   content: string;
   createdBy: string;
   thumbnail?: string;
+  thumbnailCredit?: string;
   views?: number;
   likes?: number;
   category: string;
@@ -95,6 +96,7 @@ interface BlogState {
   error: string | null;
   title: string;
   thumbnail: string | null;
+  thumbnailCredit: string | null;
   htmlContent: string;
   markdownContent: string;
   slug: string;
@@ -111,6 +113,7 @@ export interface EditBlogState {
   error: string | null;
   title: string;
   thumbnail: string | null;
+  thumbnailCredit: string | null;
   htmlContent: string;
   markdownContent: string;
   tags: string[];

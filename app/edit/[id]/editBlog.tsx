@@ -89,6 +89,8 @@ export default function EditBlogComponent(BlogData: EditBlogState) {
                         <ThumbnailSection
                             thumbnail={state.thumbnail}
                             setThumbnail={(thumbnail) => updateState({ thumbnail })}
+                            thumbnailCredit={state.thumbnailCredit}
+                            setThumbnailCredit={(thumbnailCredit) => updateState({ thumbnailCredit })}
                             isDarkMode={isDarkMode}
                         />
 

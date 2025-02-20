@@ -55,6 +55,7 @@ const useEditBlog = (state: EditBlogState, setState: React.Dispatch<React.SetSta
                 state.editorMode === 'markdown' ? state.markdownContent : state.htmlContent
             ),
             thumbnail: state.thumbnail,
+            thumbnailCredit: state.thumbnailCredit,
             tags: state.tags.map(sanitizeContent.tags),
             category: state.category,
             status: 'published',

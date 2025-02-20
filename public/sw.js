@@ -8,6 +8,16 @@ function isValidUrl(url) {
     }
 }
 
+function convertToAbsoluteUrl(url) {
+    const baseUrl = "https://blogging-one-omega.vercel.app";
+    url = url.trim();
+
+    if (/^(?:[a-zA-Z][a-zA-Z\d+\-.]*):/.test(url)) {
+        return url;
+    }
+    return new URL(url, baseUrl).href;
+}
+
 self.addEventListener('push', event => {
     try {
         const payload = event.data?.json() ?? {};
@@ -48,11 +58,15 @@ self.addEventListener('notificationclick', event => {
     event.notification.close();
     console.log('Notification clicked:', event.notification.data);
 
-    const url = event.notification.data?.url || '/';
+    let url = event.notification.data?.url || 'https://blogging-one-omega.vercel.app/';
 
     if (!isValidUrl(url)) {
-        console.warn('Invalid URL in notification:', url);
-        return;
+        url = convertToAbsoluteUrl(url);
+    }
+    
+    // if url contains like "/blog" then parse it to canonical url like "https://example.com/blog"
+    if (!url.startsWith('http')) {
+        url = `${self.location.origin}${url}`;
     }
 
     const actionMap = {

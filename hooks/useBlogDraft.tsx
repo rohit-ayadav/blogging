@@ -5,6 +5,7 @@ import React from "react";
 interface DraftData {
     title: string;
     thumbnail: string | null;
+    thumbnailCredit: string | null;
     markdownContent: string;
     htmlContent: string;
     slug: string;
@@ -44,6 +45,7 @@ const useBlogDraft = (initialState: BlogState) => {
             updateState({
                 title: data.title || '',
                 thumbnail: data.thumbnail || null,
+                thumbnailCredit: data.thumbnailCredit || null,
                 markdownContent: data.markdownContent || DEFAULT_CONTENT.markdown,
                 htmlContent: data.htmlContent || DEFAULT_CONTENT.html,
                 tags: data.tags || [],
@@ -65,6 +67,7 @@ const useBlogDraft = (initialState: BlogState) => {
         const draftData: DraftData = {
             title: state.title,
             thumbnail: state.thumbnail,
+            thumbnailCredit: state.thumbnailCredit,
             markdownContent: state.markdownContent,
             htmlContent: state.htmlContent,
             tags: state.tags,

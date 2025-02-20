@@ -14,6 +14,7 @@ interface EditBlogState {
     isLoading: boolean;
     title: string;
     thumbnail: string | null;
+    thumbnailCredit: string | null;
     htmlContent: string;
     markdownContent: string;
     tags: string[];
@@ -32,6 +33,7 @@ async function getBlogData(id: string): Promise<EditBlogState> {
         isLoading: false,
         title: "",
         thumbnail: null,
+        thumbnailCredit: null,
         htmlContent: "",
         markdownContent: "",
         tags: [],
@@ -62,6 +64,7 @@ async function getBlogData(id: string): Promise<EditBlogState> {
             error: "",
             title: post.title,
             thumbnail: post.thumbnail,
+            thumbnailCredit: post.thumbnailCredit,
             htmlContent: post.language === "html" ? post.content : "",
             markdownContent: post.language === "markdown" ? post.content : "",
             tags: post.tags,

@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
   if (!session) { return NextResponse.json({ message: "You need to be logged in to create a blog post", success: false }, { status: 401 }); }
   if (!session.user.email) { return NextResponse.json({ message: "You need to be logged in to create a blog post", success: false }, { status: 401 }); }
 
-  let { title, content, status, tags, language, slug, thumbnail, category } = body;
+  let { title, content, status, tags, language, slug, thumbnail, thumbnailCredit, category } = body;
 
   const { error } = blogSchema.validate({ title, content, status, tags, language });
 
@@ -54,7 +54,9 @@ export async function POST(request: NextRequest) {
     const existingBlog = await Blog.findOne({ slug });
     if (existingBlog) slug = `${slug}-${Date.now()}`;
 
-    const blogPost = { title: sanitizedTitle, content: sanitizedContent, status, tags: sanitizedTags, language, slug, thumbnail, category: sanitizedCategory, createdBy: session.user.email };
+    const blogPost = {
+      title: sanitizedTitle, content: sanitizedContent, status, tags: sanitizedTags, language, slug, thumbnail, thumbnailCredit, category: sanitizedCategory, createdBy: session.user.email
+    };
 
     // Save blog post
     const newBlogPost = new Blog(blogPost);
@@ -152,7 +154,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-
     const [authorPosts, relatedPosts] = await Promise.all([
       email ? Blog.find({ createdBy: email }).sort({ createdAt: -1, totalLikes: -1, totalViews: -1 }) : [],
       Blog.find({})

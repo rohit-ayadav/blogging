@@ -15,6 +15,7 @@ interface UpdatePostType {
     title: string,
     content: string,
     thumbnail: string | null,
+    thumbnailCredit: string | null,
     tags: string[],
     category: string,
     status: string,
@@ -85,6 +86,7 @@ export async function updateBlog(Post: UpdatePostType) {
         blog.title = Post.title;
         blog.content = Post.content;
         blog.thumbnail = Post.thumbnail;
+        blog.thumbnailCredit = Post.thumbnailCredit;
         blog.tags = Post.tags;
         blog.category = Post.category;
         blog.status = Post.status;

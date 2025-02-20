@@ -32,17 +32,20 @@ const BlogPostCard = ({ post, user }: { post: BlogPostType; user: UserType }) =>
                 {/* Thumbnail Section */}
                 <div className="relative h-56 lg:h-64 overflow-hidden rounded-t-xl">
                     {post.thumbnail ? (
-                        <img
-                            src={post.thumbnail}
-                            alt={post.title}
-                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 
+                        <div className="relative h-full w-full">
+                            <div className="absolute inset-0 bg-black/50" />
+                            <img
+                                src={post.thumbnail}
+                                alt={post.title}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 
                             group-hover:scale-110 
                             brightness-90 group-hover:brightness-75"
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).onerror = null;
-                                (e.target as HTMLImageElement).src = '/default-thumbnail.png';
-                            }}
-                        />
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).onerror = null;
+                                    (e.target as HTMLImageElement).src = '/default-thumbnail.png';
+                                }}
+                            />
+                        </div>
                     ) : (
                         <div className={`
                             absolute inset-0 flex items-center justify-center 

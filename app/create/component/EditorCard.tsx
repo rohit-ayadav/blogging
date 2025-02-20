@@ -57,6 +57,8 @@ const EditorCard: React.FC<EditorCardProps> = ({
                     <ThumbnailSection
                         thumbnail={state.thumbnail}
                         setThumbnail={(thumbnail) => updateState({ thumbnail })}
+                        thumbnailCredit={state.thumbnailCredit}
+                        setThumbnailCredit={(thumbnailCredit) => updateState({ thumbnailCredit })}
                         isDarkMode={isDarkMode}
                     />
                 </div>
