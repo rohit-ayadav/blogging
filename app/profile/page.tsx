@@ -1,11 +1,11 @@
-import { BlogPostType, UserType } from "@/types/blogs-types";
+import { UserType } from "@/types/blogs-types";
 import { connectDB } from "@/utils/db";
-import Blog from "@/models/blogs.models";
 import User from "@/models/users.models";
 import { Metadata } from "next";
 import { getSessionAtHome } from "@/auth";
 import UserProfile from "./component/page";
 import { ErrorMessage } from "../blogs/[id]/ErrorMessage";
+import serializeDocument from "@/utils/date-formatter";
 
 async function getPostData() {
     try {
@@ -17,21 +17,15 @@ async function getPostData() {
         }
 
         // Convert Mongoose document to plain JSON object
-        const user = await User.findOne({ email }).lean() as UserType;
+        let user = await User.findOne({ email }).lean() as UserType;
         if (!user) {
             return { success: false, statusCode: 404 };
         }
 
-        const sanitizedUser = {
-            ...user,
-            _id: user._id.toString(), // Convert ObjectId to string
-            createdAt: user.createdAt.toString(), // Convert Date to string
-            updatedAt: user.updatedAt.toString(), // Convert Date to string
-        };
-
+        user = serializeDocument(user) as UserType;
         return {
             success: true,
-            userData: sanitizedUser as UserType,
+            userData: user
         };
     } catch (error) {
         return { success: false, error: (error as Error).message };
@@ -67,7 +61,7 @@ export default async function IndividualProfile() {
     if (!response || !response.success) {
         switch (response.statusCode) {
             case 404:
-            // notFound(); // This will render the 404 page
+                // notFound(); // This will render the 404 page
                 return <ErrorMessage message="User not found" />; // This will render the error message
             case 403:
                 return <ErrorMessage message="You don't have permission to view this blog post" />;

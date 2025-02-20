@@ -22,7 +22,6 @@ export default function UserProfile({ userData }: UserProfileProps) {
     const [error, setError] = useState<string | null>(null);
     const [editMode, setEditMode] = useState(false); const [activeTab, setActiveTab] = useState("profile");
 
-
     const changePassword = async (oldPassword: string, newPassword: string) => {
         if (!session?.user?.email) throw new Error('Login again to change password');
         if (!oldPassword || !newPassword) throw new Error('Please enter old and new password');

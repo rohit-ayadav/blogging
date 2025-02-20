@@ -8,6 +8,7 @@ import { checkUsernameAvailability } from '@/action/checkUserNameAvailability';
 import { UserType } from '@/types/blogs-types';
 import { Facebook, Instagram, Linkedin, Twitter } from 'react-feather';
 import { sendEmailVerification } from '@/action/email/sendEmailVerification';
+import { Toaster } from '@/components/ui/toaster';
 interface CustomInputProps {
     label: string;
     value: string;
@@ -171,20 +172,20 @@ export const ProfileInfoTab = ({ userData, editMode, setEditMode }: ProfileInfoT
         setIsSubmitting(true);
         try {
             const response = await saveEdit(formData);
-            if (response.error) {
+            if (!response.success) {
                 toast.toast({
                     title: "Error",
-                    description: response.error,
+                    description: response.message,
                     variant: "destructive",
                 });
-                // alert(response.error);
+                // alert(response.message);
             } else {
                 toast.toast({
                     title: "Success",
                     description: "Profile updated successfully",
                 });
                 setEditMode(false);
-                // alert("Profile updated successfully");
+                // alert(response.message);
             }
         } catch (error) {
             toast.toast({
@@ -199,9 +200,10 @@ export const ProfileInfoTab = ({ userData, editMode, setEditMode }: ProfileInfoT
 
     return (
         <Card className="w-full max-w-2xl mx-auto p-6">
+            <Toaster />
             <div className="mb-6">
                 <h2 className="text-2xl font-bold mb-2">Profile Information</h2>
-                {/* {!userData.isEmailVerified && ( */}
+                {!userData.isEmailVerified && (
                     <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6">
                         <div className="flex items-center">
                             <AlertCircle className="h-5 w-5 text-amber-400 mr-2" />
@@ -209,14 +211,14 @@ export const ProfileInfoTab = ({ userData, editMode, setEditMode }: ProfileInfoT
                                 Please verify your email to make changes to your profile.
                                 <button
                                     className="ml-2 text-amber-600 hover:text-amber-500 font-medium"
-                                    onClick={() => {/* Add verification logic */ }}
+                                    onClick={() => handleSendVerificationEmail()}
                                 >
                                     Resend verification email
                                 </button>
                             </p>
                         </div>
                     </div>
-                {/* )} */}
+                )}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -257,7 +259,7 @@ export const ProfileInfoTab = ({ userData, editMode, setEditMode }: ProfileInfoT
                     disabled={true}
                     icon={<Mail className="h-4 w-4" />}
                     rightElement={
-                        // !userData.isEmailVerified && (
+                        !userData.isEmailVerified && (
                             <Button
                                 type="button"
                                 variant="ghost"
@@ -267,7 +269,7 @@ export const ProfileInfoTab = ({ userData, editMode, setEditMode }: ProfileInfoT
                             >
                                 Verify
                             </Button>
-                        // )
+                        )
                     }
                 />
 

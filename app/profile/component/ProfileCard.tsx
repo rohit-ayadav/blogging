@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { UserType } from './types';
 import { Calendar, Instagram, Link } from 'lucide-react';
 import { Facebook, GitHub, Linkedin, Twitter } from 'react-feather';
+import { formatRelativeTime } from '@/utils/date-formatter';
 
 interface ProfileCardProps {
     userData: UserType;
@@ -13,10 +14,7 @@ interface ProfileCardProps {
 }
 
 export const ProfileCard = ({ userData, setEditMode }: ProfileCardProps) => {
-    const joinDate = new Date(userData?.createdAt).toLocaleDateString('en-US', {
-        month: 'long',
-        year: 'numeric'
-    });
+    const joinDate = formatRelativeTime(userData.createdAt);
     const length = 0;
 
     return (
@@ -144,7 +142,6 @@ export const ProfileCard = ({ userData, setEditMode }: ProfileCardProps) => {
                     Edit Profile
                 </Button>
             </CardFooter>
-
         </Card>
     );
 };
