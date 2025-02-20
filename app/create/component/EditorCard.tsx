@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { TitleSection } from './TitleSection';
-import { ThumbnailSection } from './ThumbnailSection';
+import ThumbnailSection from './ThumbnailSection';
 import { EditorSection } from './EditorSection';
 import { TagsSection } from './TagsSection';
 import { CategorySection } from './CategorySection';
