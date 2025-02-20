@@ -16,6 +16,7 @@ import { PostCard } from './PostCard';
 import { AuthorStats } from './AuthorStats';
 import { ErrorFallback } from './ErrorFallback';
 import { BlogPostType } from '@/types/blogs-types';
+import { formatDate } from '@/utils/date-formatter';
 
 interface Author {
     _id: string;
@@ -175,7 +176,7 @@ const AuthorPage = ({ authorPosts, author }: { authorPosts: BlogPostType[], auth
                                         </div>
                                         {author.createdAt && (
                                             <div className="text-sm text-gray-500 dark:text-gray-400 md:self-start">
-                                                Member since {new Date(author.createdAt).toLocaleDateString()}
+                                                Member since {formatDate(author.createdAt)}
                                             </div>
                                         )}
                                     </div>

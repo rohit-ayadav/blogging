@@ -1,6 +1,7 @@
 import { Eye, ThumbsUp } from 'react-feather';
 import Link from 'next/link';
 import { BlogPostType } from '@/types/blogs-types';
+import { formatDate, formatRelativeTime } from '@/utils/date-formatter';
 
 export
     const PostCard = ({ post }: { post: BlogPostType }) => {
@@ -44,7 +45,7 @@ export
                         </div>
                         <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 pt-4 border-t">
                             <time dateTime={new Date(post.createdAt).toISOString()}>
-                                {new Date(post.createdAt).toLocaleDateString()}
+                                {formatRelativeTime(post.createdAt)}
                             </time>
                             <div className="flex items-center space-x-4">
                                 <div className="flex items-center space-x-1">

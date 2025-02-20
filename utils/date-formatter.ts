@@ -5,6 +5,7 @@ export function formatDate(date: string | Date): string {
         month: 'long',
         day: 'numeric'
     }).format(dateObj);
+    // output: "September 17, 2021"
 }
 
 export function formatDateShort(date: string | Date): string {
@@ -14,6 +15,7 @@ export function formatDateShort(date: string | Date): string {
         month: '2-digit',
         day: '2-digit'
     }).format(dateObj);
+    // output: 2021-07-01
 }
 
 export function formatDateTime(date: string | Date): string {

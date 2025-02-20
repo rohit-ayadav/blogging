@@ -6,13 +6,19 @@ import User from "@/models/users.models";
 import { Author } from "./component/Profile";
 import { Metadata } from "next";
 import { ErrorMessage } from "@/app/blogs/[id]/ErrorMessage";
+import { isValidObjectId } from "mongoose";
+import serializeDocument from "@/utils/date-formatter";
 
 async function getPostData(id: string) {
     try {
         await connectDB();
-
-        // Convert Mongoose document to plain JSON object
-        const user = await User.findById(id).lean() as Author;
+        // check if id is a valid ObjectId, if not it means it is author username
+        let user: Author | null = null;
+        if (!isValidObjectId(id)) {
+            user = await User.findOne({ username: id }).lean() as Author;
+        } else {
+            user = await User.findById(id).lean() as Author;
+        }
         if (!user) {
             return { success: false, statusCode: 404 };
         }
@@ -21,19 +27,13 @@ async function getPostData(id: string) {
         if (!postData || postData.length === 0) {
             return { success: false, statusCode: 404 };
         }
-
-        // Convert `_id` from ObjectId to string because Next.js doesn't support ObjectId
-        postData = postData.map(post => ({
-            ...post,
-            _id: post._id.toString(), // Convert ObjectId to string
-            createdAt: post.createdAt.toString(), // Convert Date to string
-            updatedAt: post.updatedAt?.toString() // Convert Date to string
-        }));
+        user = serializeDocument(user);
+        postData = postData.map(serializeDocument);
 
         return {
             success: true,
             data: postData as BlogPostType[],
-            author: { ...user, _id: user._id.toString() } as Author // Convert user `_id`
+            author: user ? { ...user, _id: user._id.toString() } as Author : null // Convert user `_id`
         };
     } catch (error) {
         return { success: false, error: (error as Error).message };
@@ -94,6 +94,9 @@ export default async function IndividualProfile({ params }: { params: { id: stri
 
     if (!response.data) {
         return <ErrorMessage message="No posts found for this author" />;
+    }
+    if (!response.author) {
+        return <ErrorMessage message="Author not found" />;
     }
 
     return <AuthorPage author={response.author} authorPosts={response.data} />;

@@ -117,33 +117,8 @@ const ThumbnailSection = ({
         if (!image || !image.user) return; // Ensure valid image object
 
         setThumbnail(image.urls.regular);
-
-        // Store thumbnail credit properly formatted for reuse
-        const creditHtml = `
-        <p className="text-sm text-muted-foreground">
-            Photo by{" "}
-            <a
-                href="https://unsplash.com/@${image.user.username}?utm_source=DevBlogger&utm_medium=referral"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium hover:underline"
-            >
-                ${image.user.name}
-            </a>{" "}
-            on{" "}
-            <a
-                href="https://unsplash.com/?utm_source=DevBlogger&utm_medium=referral"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium hover:underline"
-            >
-                Unsplash
-            </a>
-        </p>`;
-
-        if (setThumbnailCredit) {
-            setThumbnailCredit(creditHtml);
-        }
+        const credit = image.user.username || 'Unsplash';
+        setThumbnailCredit && setThumbnailCredit(credit);
         setSelectedImage(image);
         setIsModalOpen(false);
     };

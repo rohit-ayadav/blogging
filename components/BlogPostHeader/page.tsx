@@ -45,6 +45,15 @@ const BlogPostHeader: React.FC<BlogPostHeaderProps> = ({
               className="w-full h-full object-cover"
               loading="eager"
             />
+            {post.thumbnailCredit && (
+              <div className={`absolute bottom-0 left-0 right-0 p-2 bg-black bg-opacity-50 text-white text-xs`}>
+                {/*
+                https://unsplash.com/@niko_photos?utm_source=DevBlogger&utm_medium=referral
+                https://unsplash.com/?utm_source=DevBlogger&utm_medium=referral 
+                */}
+                Photo by <Link href={`https://unsplash.com/@${post.thumbnailCredit}?utm_source=DevBlogger&utm_medium=referral`} className='underline text-white'>{post.thumbnailCredit}</Link> on <Link href={`https://unsplash.com/?utm_source=DevBlogger&utm_medium=referral`} className='underline text-white'>Unsplash</Link>
+              </div>
+            )}
           </div>
         )}
 
@@ -130,7 +139,7 @@ const BlogPostHeader: React.FC<BlogPostHeaderProps> = ({
           </div>
         </div>
       </div>
-    </header>
+    </header >
   );
 };
 
