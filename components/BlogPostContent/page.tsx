@@ -74,7 +74,6 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({
     };
 
     useEffect(() => {
-        console.log('Incrementing view for:', id);
         incrementView(id, false);
     }, [id]);
 

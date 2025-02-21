@@ -11,7 +11,7 @@ interface ViewedBlogs {
 
 const incrementView = async (id: string, like: boolean) => {
     if (typeof window === 'undefined' || !id?.trim() || !isLocalStorageAvailable()) {
-        console.log('View increment skipped');
+        // console.log('View increment skipped');
         return;
     }
     const STORAGE_KEY_FOR_BLOG_VIEWS = 'viewed_blogs';
@@ -32,7 +32,7 @@ const incrementView = async (id: string, like: boolean) => {
                 Object.entries(likedBlogs).filter(([_, date]) => date === today)
             );
             if (likedBlogs[id] === today) {
-                console.log(`Like already incremented for blog post with ID: ${id}`);
+                // console.log(`Like already incremented for blog post with ID: ${id}`);
                 return;
             }
             const response: ViewResponse = await incrementViewInDB(id, true);
@@ -41,7 +41,7 @@ const incrementView = async (id: string, like: boolean) => {
             }
             likedBlogs[id] = today;
             localStorage.setItem(STORAGE_KEY_FOR_BLOG_LIKES, JSON.stringify(likedBlogs));
-            console.log(`Like incremented for blog post with ID: ${id}`);
+            // console.log(`Like incremented for blog post with ID: ${id}`);
         }
         else {
             const storedBlogs = localStorage.getItem(STORAGE_KEY_FOR_BLOG_VIEWS);
@@ -55,7 +55,7 @@ const incrementView = async (id: string, like: boolean) => {
                 Object.entries(viewedBlogs).filter(([_, date]) => date === today)
             );
             if (viewedBlogs[id] === today) {
-                console.log(`View already incremented for blog post with ID: ${id}`);
+                // console.log(`View already incremented for blog post with ID: ${id}`);
                 return;
             }
             const response: ViewResponse = await incrementViewInDB(id, false);
@@ -64,7 +64,7 @@ const incrementView = async (id: string, like: boolean) => {
             }
             viewedBlogs[id] = today;
             localStorage.setItem(STORAGE_KEY_FOR_BLOG_VIEWS, JSON.stringify(viewedBlogs));
-            console.log(`View incremented for blog post with ID: ${id}`);
+            // console.log(`View incremented for blog post with ID: ${id}`);
         }
     } catch (error) {
         console.error('[Blog View Tracking Error]:', {
