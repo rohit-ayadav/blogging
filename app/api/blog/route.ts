@@ -10,6 +10,7 @@ import mongoose from "mongoose";
 import { getSessionAtHome } from "@/auth";
 import webpush from "web-push";
 import Notification from "@/models/notification.models";
+import { isValidSlug } from "@/lib/common-function";
 
 await connectDB();
 
@@ -140,29 +141,29 @@ export async function DELETE(request: NextRequest) {
  * @example GET /api/blog?tags=tag1,tag2&limit=3
  * @example GET /api/blog?email=author@example.com
  */
+
+const projection = {
+  title: 1,
+  description: 1,
+  thumbnail: 1,
+  thumbnailCredit: 1,
+  slug: 1,
+  tags: 1,
+  totalViews: 1,
+  totalLikes: 1,
+  comments: 1,
+  createdAt: 1,
+  createdBy: 1
+};
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const tags = searchParams.get("tags")?.split(",");
+  const category = searchParams.get("category")?.split(",");
   const limit = parseInt(searchParams.get("limit") || "5", 10);
   const email = searchParams.get("email");
-  const id = searchParams.get("id");
-
-  const projection = {
-    title: 1,
-    description: 1,
-    thumbnail: 1,
-    thumbnailCredit: 1,
-    slug: 1,
-    tags: 1,
-    totalViews: 1,
-    totalLikes: 1,
-    comments: 1,
-    createdAt: 1,
-    createdBy: 1
-  };
 
   try {
-    if (!tags?.length || !email) {
+    if (!category || !email) {
       const posts = await Blog.find({})
         .select(projection)
         .sort({ createdAt: -1, totalViews: -1 })
@@ -172,38 +173,38 @@ export async function GET(request: NextRequest) {
     }
 
     const [authorPosts, relatedPosts] = await Promise.all([
-      Blog.find(
-        { createdBy: email, _id: { $ne: id } },
-        projection
-      )
+      Blog.find({ createdBy: email }, projection)
         .sort({ createdAt: -1, totalViews: -1 })
-        .limit(limit)
+        .limit(limit + 1)
         .lean(),
-      Blog.find(
-        { tags: { $in: tags }, _id: { $ne: id } },
-        projection
-      )
+      Blog.find({ category }, projection)
         .sort({ createdAt: -1, totalViews: -1 })
-        .limit(limit)
+        .limit(limit + 1)
         .lean()
     ]);
-
-    if (relatedPosts.length === 0) {
-      const excludeIds = [id, ...authorPosts.map(post => post._id)];
-
-      const relatedTrendingPosts = await Blog.find(
-        { _id: { $nin: excludeIds } },
-        projection
-      )
-        .sort({ totalViews: -1, totalLikes: -1, createdAt: -1 })
-        .limit(limit)
+    if (!relatedPosts.length) {
+      // find trending posts if no related posts found
+      const trendingPosts = await Blog.find({})
+        .sort({ totalViews: -1 })
+        .limit(limit + 1)
         .lean();
 
-      return NextResponse.json({ authorPosts, relatedPosts: relatedTrendingPosts }, { status: 200 });
+      return NextResponse.json({
+        authorPosts,
+        relatedPosts: trendingPosts
+      }, { status: 200 });
     }
-    return NextResponse.json({ authorPosts, relatedPosts }, { status: 200 });
+
+    return NextResponse.json({
+      authorPosts,
+      relatedPosts
+    }, { status: 200 });
+
   } catch (error) {
     console.error("Error fetching related posts:", error);
-    return NextResponse.json({ message: (error as Error).message, success: false }, { status: 500 });
+    return NextResponse.json(
+      { message: error instanceof Error ? error.message : "An unknown error occurred", success: false },
+      { status: 500 }
+    );
   }
 }

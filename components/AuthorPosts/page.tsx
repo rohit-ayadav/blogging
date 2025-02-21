@@ -1,36 +1,26 @@
 import React from 'react';
 import Link from 'next/link';
 import { BlogPostType, Author } from '@/types/blogs-types';
-import { Calendar, ArrowRight, User } from 'lucide-react';
+import { Calendar, ArrowRight, User, TimerIcon, Clock } from 'lucide-react';
 import LoadingSkeleton from '../LoadingComponent';
+import { formatRelativeTime, getReadingTime } from '@/utils/date-formatter';
 
 interface AuthorPostsProps {
     author: Author | null;
     posts: BlogPostType[];
     isDarkMode: boolean;
     error: Error | null;
+    loading: boolean;
 }
 
-const AuthorPosts = ({ author, posts, isDarkMode, error }: AuthorPostsProps) => {
-    if (!author || !posts || !posts.length) {
+const AuthorPosts = ({ author, posts, isDarkMode, error, loading }: AuthorPostsProps) => {
+    if (error) {
+        return <p className="text-red-500">Error fetching author posts</p>;
+    }
+    if (loading) {
         return <LoadingSkeleton />;
     }
-
-    const formatDate = (dateString: string) => {
-        const options: Intl.DateTimeFormatOptions = {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        };
-        return new Date(dateString).toLocaleDateString(undefined, options);
-    };
-
-    const stripHtml = (html: string) => {
-        const temp = document.createElement('div');
-        temp.innerHTML = html;
-        return temp.textContent || temp.innerText || '';
-    };
-
+   
     return (
         <div className={`space-y-4 ${isDarkMode ? 'dark' : ''}`}>
             {/* Author Header */}
@@ -91,6 +81,11 @@ const AuthorPosts = ({ author, posts, isDarkMode, error }: AuthorPostsProps) => 
 
             {/* Posts List */}
             <div className="space-y-4">
+                {!loading && posts.length === 0 && (
+                    <p className="text-gray-500 dark:text-gray-400">
+                        No more posts from this author
+                    </p>
+                )}
                 {posts.slice(0, 5).map((post) => (
                     <Link
                         href={`/blogs/${post.slug}`}
@@ -138,10 +133,16 @@ const AuthorPosts = ({ author, posts, isDarkMode, error }: AuthorPostsProps) => 
                                         }
                                     `}
                                 >
-                                    <Calendar className="h-3 w-3" />
-                                    <time dateTime={post.createdAt}>
-                                        {formatDate(post.createdAt)}
-                                    </time>
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="h-3 w-3" />
+                                        <time dateTime={post.createdAt}>
+                                            {formatRelativeTime(post.createdAt)}
+                                        </time>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs">
+                                        <Clock className="h-3 w-3" />
+                                        <span>{getReadingTime(post.content)}</span>
+                                    </div>
                                 </div>
                             </div>
                         </article>
@@ -162,7 +163,7 @@ const AuthorPosts = ({ author, posts, isDarkMode, error }: AuthorPostsProps) => 
                 View all posts
                 <ArrowRight className="h-4 w-4 ml-1" />
             </Link>
-        </div>
+        </div >
     );
 };
 

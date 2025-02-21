@@ -3,42 +3,23 @@ import Link from 'next/link';
 import { BlogPostType } from '@/types/blogs-types';
 import { Calendar, ArrowRight, Tag, Clock } from 'lucide-react';
 import LoadingSkeleton from '../LoadingComponent';
+import { formatDate, formatRelativeTime, getReadingTime } from '@/utils/date-formatter';
 
 interface RelatedPostsProps {
   posts: BlogPostType[];
   isDarkMode: boolean;
   error: Error | null;
+  loading: boolean;
 }
 
-const RelatedPosts = ({ posts, isDarkMode, error }: RelatedPostsProps) => {
-  if (!posts || !posts.length) {
-    return <LoadingSkeleton />;
-  }
+const RelatedPosts = ({ posts, isDarkMode, error, loading }: RelatedPostsProps) => {
   if (error) {
     return <p className="text-red-500">Error fetching related</p>;
   }
+  if (loading) {
+    return <LoadingSkeleton />;
+  }
 
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
-  const stripHtml = (html: string) => {
-    const temp = document.createElement('div');
-    temp.innerHTML = html;
-    return temp.textContent || temp.innerText || '';
-  };
-
-  const getReadingTime = (content: string) => {
-    const wordsPerMinute = 200;
-    const wordCount = stripHtml(content).split(/\s+/).length;
-    const readingTime = Math.ceil(wordCount / wordsPerMinute);
-    return `${readingTime} min read`;
-  };
 
   return (
     <div className={`space-y-4 ${isDarkMode ? 'dark' : ''}`}>
@@ -58,7 +39,13 @@ const RelatedPosts = ({ posts, isDarkMode, error }: RelatedPostsProps) => {
       </div>
 
       {/* Posts List */}
+
       <div className="space-y-4">
+        {!loading && posts.length === 0 && (
+          <p className="text-gray-500 dark:text-gray-400">
+            No related posts found
+          </p>
+        )}
         {posts.slice(0, 5).map((post) => (
           <Link
             href={`/blogs/${post.slug}`}
@@ -107,7 +94,7 @@ const RelatedPosts = ({ posts, isDarkMode, error }: RelatedPostsProps) => {
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
                     <time dateTime={post.createdAt}>
-                      {formatDate(post.createdAt)}
+                      {formatRelativeTime(post.createdAt)}
                     </time>
                   </div>
                   <div className="flex items-center gap-1">

@@ -5,24 +5,32 @@ import { toast } from "react-hot-toast";
 import { notFound } from "next/navigation";
 import { BlogPostType } from "@/types/blogs-types";
 
-const useBlogPost = ({ email, tags, id }: { email: string; tags: string[]; id: string }) => {
+const useBlogPost = ({ email, category, id }: { email: string; category: string; id: string }) => {
     const [authorPosts, setAuthorPosts] = useState<BlogPostType[]>([]);
     const [relatedPosts, setRelatedPosts] = useState<BlogPostType[]>([]);
     const [error, setError] = useState<Error | null>(null);
+    const [loading, setLoading] = useState(true);
 
     const RelatedData = async () => {
         if (!id || !email) notFound();
+        setLoading(true);
 
         try {
-            const response = await fetch(`/api/blog?tags=${tags.slice(0, 3).join(',')}&email=${email}&limit=5&id=${id}`);
+            const response = await fetch(`/api/blog?category=${category}&email=${email}&limit=5&id=${id}`);
             const { authorPosts, relatedPosts } = await response.json();
-            setAuthorPosts(authorPosts);
+            // eliminate the current post from the related posts
+            // const filteredRelatedPosts = relatedPosts.filter((post: BlogPostType) => String(post._id) !== String(id));
+            const filteredAuthorPosts = authorPosts.filter((post: BlogPostType) => String(post._id) !== String(id));
+            setAuthorPosts(filteredAuthorPosts);
+            // setRelatedPosts(filteredRelatedPosts);
             setRelatedPosts(relatedPosts);
         }
         catch (error: any) {
             // alert("Error fetching related posts: " + error.message);
             setError(error);
             // refetch();
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -33,7 +41,7 @@ const useBlogPost = ({ email, tags, id }: { email: string; tags: string[]; id: s
         fetchData();
     }, []);
 
-    return { authorPosts, relatedPosts, error };
+    return { authorPosts, relatedPosts, error, loading };
 };
 
 export default useBlogPost;

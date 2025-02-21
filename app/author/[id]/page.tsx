@@ -19,7 +19,7 @@ async function getPostData(id: string) {
         } else {
             user = await User.findById(id).lean() as Author;
         }
-        console.log(`User: ${JSON.stringify(user)}`);
+        // console.log(`User: ${JSON.stringify(user)}`);
         if (!user) {
             return { success: false, statusCode: 404 };
         }

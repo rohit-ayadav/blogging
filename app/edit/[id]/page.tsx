@@ -85,7 +85,6 @@ export async function generateStaticParams() {
     const paths = posts.map((post) => ({
         params: { id: post.slug },
     }));
-
     return paths;
 }
 

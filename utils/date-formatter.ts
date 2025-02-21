@@ -69,4 +69,17 @@ const serializeDocument = (doc: any) => {
     return serialized;
 };
 
+const stripHtml = (html: string) => {
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    return temp.textContent || temp.innerText || '';
+};
+
+const getReadingTime = (content: string) => {
+    const wordsPerMinute = 200;
+    const wordCount = stripHtml(content).split(/\s+/).length;
+    const readingTime = Math.ceil(wordCount / wordsPerMinute);
+    return `${readingTime} min read`;
+};
+export { stripHtml, getReadingTime };
 export default serializeDocument;

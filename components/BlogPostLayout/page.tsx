@@ -24,9 +24,9 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
   author,
   id,
 }) => {
-  const { relatedPosts, authorPosts, error } = useBlogPost({
+  const { relatedPosts, authorPosts, error, loading } = useBlogPost({
     email: post.createdBy,
-    tags: post.tags || [],
+    category: post.category,
     id
   });
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -91,6 +91,7 @@ const BlogPostLayout: React.FC<BlogPostLayoutProps> = ({
               author={author}
               authorPosts={authorPosts}
               error={error}
+              loading={loading}
               relatedPosts={relatedPosts}
             />
           )}

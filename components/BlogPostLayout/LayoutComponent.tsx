@@ -16,15 +16,7 @@ import { BreadcrumbTrail } from './BreadcrumbTrail';
 
 const SKELETON_COUNT = 3;
 
-const NavigationButton = ({
-    onClick,
-    label,
-    icon: Icon
-}: {
-    onClick: () => void;
-    label: string;
-    icon: React.ElementType
-}) => (
+const NavigationButton = ({ onClick, label, icon: Icon }: { onClick: () => void; label: string; icon: React.ElementType }) => (
     <TooltipProvider>
         <Tooltip>
             <TooltipTrigger asChild>
@@ -52,8 +44,9 @@ const Sidebar: React.FC<{
     author: Author;
     authorPosts: BlogPostType[];
     error: Error | null;
+    loading: boolean;
     relatedPosts: BlogPostType[]
-}> = ({ post, author, authorPosts, error, relatedPosts }) => {
+}> = ({ post, author, authorPosts, error, loading, relatedPosts }) => {
     const { isDarkMode } = useTheme();
 
     return (
@@ -71,10 +64,10 @@ const Sidebar: React.FC<{
                     />
                 </SidebarSection>
                 <SidebarSection>
-                    <AuthorPosts author={author} posts={authorPosts} isDarkMode={isDarkMode} error={error} />
+                    <AuthorPosts author={author} posts={authorPosts} isDarkMode={isDarkMode} error={error} loading={loading} />
                 </SidebarSection>
                 <SidebarSection>
-                    <RelatedPosts posts={relatedPosts} isDarkMode={isDarkMode} error={error} />
+                    <RelatedPosts posts={relatedPosts} isDarkMode={isDarkMode} error={error} loading={loading} />
                 </SidebarSection>
                 <Suspense fallback={<SectionSkeleton />}>
                     <SidebarSection>
