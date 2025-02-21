@@ -35,7 +35,8 @@ export const TitleSection = ({ title, setTitle, content }: TitleSectionProps) =>
                 setTitle(newTitle);
             }
         }).catch(error => {
-            console.error('Error generating title:', error);
+            console.error('Error generating title:', JSON.stringify(error));
+            toast.error('Failed to generate title');
         }).finally(() => {
             setIsGenerating(false);
         });

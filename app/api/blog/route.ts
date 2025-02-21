@@ -40,9 +40,13 @@ export async function POST(request: NextRequest) {
   const { error } = blogSchema.validate({ title, content, status, tags, language });
 
   if (error) return NextResponse.json({ message: error.message, success: false }, { status: 400 });
-
   slug = slug || title;
-  slug = slug.trim().toLowerCase().replace(/[^a-z0-9-]+/g, "").replace(/\s+/g, "-").replace(/-{2,}/g, "-").replace(/^-+|-+$/g, "");
+  slug = slug.trim()
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")  // Remove special characters except space and hyphen
+    .replace(/\s+/g, "-")       // Replace spaces with hyphens
+    .replace(/-{2,}/g, "-")     // Remove multiple hyphens
+    .replace(/^-+|-+$/g, "");   // Remove leading/trailing hyphens
 
   const { window } = new JSDOM("");
   const purify = DOMPurify(window);

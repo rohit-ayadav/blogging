@@ -147,6 +147,8 @@ export default function CreateBlog() {
             localStorage.removeItem(DRAFT_STORAGE_KEY);
             toast.success('Blog post created successfully');
             clearForm();
+            console.log('Blog post created:', JSON.stringify(data, null, 2));
+            console.log('Blog post data:', data.data.id);
             router.push(`/blogs/${data.id}`);
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'An unknown error occurred');

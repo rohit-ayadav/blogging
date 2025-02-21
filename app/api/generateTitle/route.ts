@@ -32,6 +32,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const response = await generateResponse(prompt);
     return NextResponse.json({ title: response });
   } catch (error) {
+    console.error("Error generating title", error);
     return NextResponse.json(
       { message: "Error generating title.", error },
       { status: 500 }
