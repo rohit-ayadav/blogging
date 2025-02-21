@@ -14,10 +14,10 @@ const useBlogPost = ({ email, tags, id }: { email: string; tags: string[]; id: s
         if (!id || !email) notFound();
 
         try {
-            const response = await fetch(`/api/blog?tags=${tags.slice(0, 3).join(',')}&email=${email}&limit=5`);
-            const { authorPosts, relatedPostsResponse } = await response.json();
+            const response = await fetch(`/api/blog?tags=${tags.slice(0, 3).join(',')}&email=${email}&limit=5&id=${id}`);
+            const { authorPosts, relatedPosts } = await response.json();
             setAuthorPosts(authorPosts);
-            setRelatedPosts(relatedPostsResponse);
+            setRelatedPosts(relatedPosts);
         }
         catch (error: any) {
             // alert("Error fetching related posts: " + error.message);
