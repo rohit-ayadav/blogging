@@ -18,7 +18,6 @@ import ActionButtons from '../../create/component/ActionButtons';
 import { AlertCircle } from 'lucide-react';
 import LoadingSpinner from '../../create/component/LoadingSpinner';
 
-
 export default function EditBlogComponent(BlogData: EditBlogState) {
     const router = useRouter();
     const { data: session, status } = useSession();
