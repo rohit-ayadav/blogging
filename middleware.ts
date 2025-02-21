@@ -5,14 +5,14 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const loginUrl = new URL("/login", req.url);
 
-  const publicRoutes = ["/login", "/signup", "/reset-password", "/forgot-password"];
+  const publicRoutes = ["/login", "/signup", "/reset-password", "/forgot-password", "/signout"];
   const adminRoutes = ["/dashboard/admin"];
   const protectedRoutes = ["/create", "/profile", "/dashboard", "/edit", "/edit/[id]"];
 
   const token = await getToken({ req, secret: process.env.JWT_SECRET });
   // if token is available and user tries to access public routes, redirect to dashboard
   if (token && publicRoutes.includes(pathname)) {
-    return NextResponse.redirect(new URL("/profile", req.url));
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
   // if not token and user tries to access protected routes, redirect to login
@@ -25,6 +25,10 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // if token is available and user tries to access login, signup, reset-password, forgot-password routes,signout redirect to dashboard
+  if (token && publicRoutes.includes(pathname)) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
   // if token is available and user tries to access admin routes, redirect to
   if (adminRoutes.includes(pathname) && token?.role !== "admin") {
     return NextResponse.redirect(new URL("/unauthorized", req.url));
