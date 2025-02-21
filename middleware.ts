@@ -5,9 +5,9 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const loginUrl = new URL("/login", req.url);
 
-  const publicRoutes = ["/login", "/signup", "/reset-password", "/forgot-password", "/signout"];
+  const publicRoutes = ["/login", "/signup", "/reset-password", "/forgot-password"];
   const adminRoutes = ["/dashboard/admin"];
-  const protectedRoutes = ["/create", "/profile", "/dashboard", "/edit", "/edit/[id]"];
+  const protectedRoutes = ["/create", "/profile", "/dashboard", "/edit", "/edit/[id]", "/dashboard/admin", "/signout"];
 
   const token = await getToken({ req, secret: process.env.JWT_SECRET });
   // if token is available and user tries to access public routes, redirect to dashboard
