@@ -10,6 +10,7 @@ import { Button } from '../ui/button';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
 import { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 
 const SignupForm: FC = () => {
@@ -73,13 +74,14 @@ const SignupForm: FC = () => {
                 )}
                 <SocialLogin isLoading={isLoading} />
                 <div className="text-center">
-                    <Button
-                        type="button"
-                        variant="link"
-                        onClick={() => router.push('/login')}
-                    >
-                        Don't have an account? Login
-                    </Button>
+                    <Link href="/login">
+                        <Button
+                            type="button"
+                            variant="link"
+                        >
+                            Don't have an account? Login
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </div>

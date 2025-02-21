@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { isValidEmail } from '@/lib/common-function';
 import { findEmailFromUserName } from '@/action/checkUserNameAvailability';
+import Link from 'next/link';
 
 export default function ForgotPassword() {
     const [identifier, setIdentifier] = useState('');
@@ -165,13 +166,14 @@ export default function ForgotPassword() {
                     </Button>
 
                     <div className="text-center mt-4">
-                        <button
-                            type="button"
-                            onClick={() => router.push('/login')}
-                            className="font-medium text-indigo-600 hover:text-indigo-500"
-                        >
-                            Back to Login
-                        </button>
+                        <Link href="/login">
+                            <button
+                                type="button"
+                                className="font-medium text-indigo-600 hover:text-indigo-500"
+                            >
+                                Back to Login
+                            </button>
+                        </Link>
                     </div>
                 </form>
             </div>

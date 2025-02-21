@@ -75,7 +75,7 @@ const AuthorPage = ({ authorPosts, author }: { authorPosts: BlogPostType[], auth
         return (
             <div className={`flex flex-col items-center justify-center h-screen ${isDarkMode ? 'dark' : ''}`}>
                 <h2 className="text-xl font-bold mb-4">Author not found</h2>
-                <Button onClick={() => router.push('/blogs')}>Return to Blogs</Button>
+                <Link href="/blogs"><Button>Return to Blogs</Button></Link>
             </div>
         );
     }
@@ -87,14 +87,15 @@ const AuthorPage = ({ authorPosts, author }: { authorPosts: BlogPostType[], auth
                     <div className="container mx-auto px-4 py-8 max-w-7xl">
                         <header className="flex justify-between items-center mb-8">
                             <nav className="flex items-center space-x-4">
-                                <Button
-                                    onClick={() => router.push('/blogs')}
-                                    variant="ghost"
-                                    size="icon"
-                                    className="hover:bg-gray-200 dark:hover:bg-gray-800"
-                                >
-                                    <ArrowLeft className="h-5 w-5" />
-                                </Button>
+                                <Link href="/blogs">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="hover:bg-gray-200 dark:hover:bg-gray-800"
+                                    >
+                                        <ArrowLeft className="h-5 w-5" />
+                                    </Button>
+                                </Link>
                                 <div className="breadcrumbs text-sm">
                                     <Link href="/blogs" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
                                         Blogs

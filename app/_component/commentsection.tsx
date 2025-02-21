@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import { getComment, postComment, deleteComment, updateComment } from '@/action/comment';
 import { Trash2 } from 'lucide-react';
+import Link from 'next/link';
 
 interface Comment {
     _id: string;
@@ -382,19 +383,20 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                         >
                             Join the discussion by logging in
                         </p>
-                        <Button
-                            onClick={() => router.push('/login')}
-                            className={`
+                        <Link href="/login">
+                            <Button
+                                className={`
                                 transition-colors duration-300
                                 ${getThemeStyles(
-                                'bg-blue-600 hover:bg-blue-700',
-                                'bg-blue-700 hover:bg-blue-800'
-                            )}
+                                    'bg-blue-600 hover:bg-blue-700',
+                                    'bg-blue-700 hover:bg-blue-800'
+                                )}
                                 text-white
                             `}
-                        >
-                            Login to Comment
-                        </Button>
+                            >
+                                Login to Comment
+                            </Button>
+                        </Link>
                     </div>
                 )}
             </div>

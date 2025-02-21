@@ -30,18 +30,6 @@ const ErrorMessage = ({
 }: ErrorMessageProps) => {
     const router = useRouter();
 
-    const handleBack = () => {
-        if (customBackPath) {
-            router.push(customBackPath);
-        } else {
-            router.back();
-        }
-    };
-
-    const handleHome = () => {
-        router.push(customHomePath);
-    };
-
     return (
         <div className="min-h-[200px] flex flex-col items-center justify-center max-w-lg mx-auto p-4 space-y-6">
             <Card className="w-full max-w-md">

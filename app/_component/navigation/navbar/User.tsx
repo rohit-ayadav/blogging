@@ -18,20 +18,20 @@ const UserMenu = ({ user }: UserMenuProps) => {
 
     return (
         <div className="relative">
-            <button
-                // onClick={() => setIsOpen(!isOpen)}
-                onClick={() => router.push('/profile')}
-                className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
-                aria-expanded={isOpen}
-                aria-haspopup="true"
-            >
-                <span className="text-white font-semibold">{user.name}</span>
-                <img
-                    src={user.image || "/default-profile.jpg"}
-                    alt="User Avatar"
-                    className="w-8 h-8 rounded-full"
-                />
-            </button>
+            <Link href="/profile">
+                <button
+                    className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full"
+                    aria-expanded={isOpen}
+                    aria-haspopup="true"
+                >
+                    <span className="text-white font-semibold">{user.name}</span>
+                    <img
+                        src={user.image || "/default-profile.jpg"}
+                        alt="User Avatar"
+                        className="w-8 h-8 rounded-full"
+                    />
+                </button>
+            </Link>
 
             {isOpen && (
                 <div
@@ -53,13 +53,14 @@ const UserMenu = ({ user }: UserMenuProps) => {
                     >
                         Settings
                     </Link>
-                    <button
-                        onClick={() => router.push('/signout')}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        role="menuitem"
-                    >
-                        Sign Out
-                    </button>
+                    <Link href="/signout">
+                        <button
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            role="menuitem"
+                        >
+                            Sign Out
+                        </button>
+                    </Link>
                 </div>
             )}
         </div>

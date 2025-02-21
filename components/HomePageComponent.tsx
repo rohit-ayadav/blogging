@@ -87,7 +87,6 @@ const HomePage: React.FC<HomePageProps> = ({ posts, users, totalLikes, totalView
                             <Button
                                 size="lg"
                                 variant={isDarkMode ? "outline" : "secondary"}
-                                onClick={() => router.push('/blogs')}
                             >
                                 Explore Blogs
                             </Button>
@@ -105,9 +104,11 @@ const HomePage: React.FC<HomePageProps> = ({ posts, users, totalLikes, totalView
                         ))}
                     </div>
                     <div className="text-center mt-12">
-                        <Button size="lg" onClick={() => router.push('/blogs')}>
-                            View All Blogs
-                        </Button>
+                        <Link href="/blogs">
+                            <Button size="lg">
+                                View All Blogs
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </section>

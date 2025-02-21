@@ -10,6 +10,7 @@ import { findEmailFromUserName } from '@/action/checkUserNameAvailability';
 import { isValidEmail } from '@/lib/common-function';
 import { ArrowBigLeft, Home, Loader2 } from 'lucide-react';
 import SocialLogin from '@/components/signup/SocialLogin';
+import Link from 'next/link';
 
 interface AuthError {
     message: string;
@@ -112,21 +113,24 @@ export default function Auth() {
                     </h2>
                     <div className="space-y-3">
                         {NAVIGATION_ROUTES.map(({ path, label }) => (
+                            <Link key={path} href={`/${path}`}>
+                                <Button
+                                    key={path}
+                                    // onClick={() => router.push(`/${path}`)}
+                                    className="w-full"
+                                >
+                                    Go to {label}
+                                </Button>
+                            </Link>
+                        ))}
+                        <Link href="/signout">
                             <Button
-                                key={path}
-                                onClick={() => router.push(`/${path}`)}
+                                variant="destructive"
                                 className="w-full"
                             >
-                                Go to {label}
+                                Sign out
                             </Button>
-                        ))}
-                        <Button
-                            onClick={() => ()=> router.push('/signout')}
-                            variant="destructive"
-                            className="w-full"
-                        >
-                            Sign out
-                        </Button>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -137,14 +141,15 @@ export default function Auth() {
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-5 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
                 <div className="flex items-center space-x-4">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => router.push('/')}
-                        aria-label="Home"
-                    >
-                        <Home className="h-6 w-6" />
-                    </Button>
+                    <Link href="/">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Home"
+                        >
+                            <Home className="h-6 w-6" />
+                        </Button>
+                    </Link>
                     <h2 className="text-3xl font-extrabold text-gray-900">
                         Sign in to your account
                     </h2>
@@ -196,14 +201,15 @@ export default function Auth() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                        <Button
-                            type="button"
-                            variant="link"
-                            onClick={() => router.push('/forgot-password')}
-                            className="text-sm"
-                        >
-                            Forgot password?
-                        </Button>
+                        <Link href="/forgot-password">
+                            <Button
+                                type="button"
+                                variant="link"
+                                className="text-sm"
+                            >
+                                Forgot password?
+                            </Button>
+                        </Link>
                     </div>
 
                     <Button
@@ -222,13 +228,14 @@ export default function Auth() {
                     </Button>
                     <SocialLogin isLoading={isLoading} />
                     <div className="text-center">
-                        <Button
-                            type="button"
-                            variant="link"
-                            onClick={() => router.push('/signup')}
-                        >
-                            Don't have an account? Sign up
-                        </Button>
+                        <Link href={`/signup`}>
+                            <Button
+                                type="button"
+                                variant="link"
+                            >
+                                Don't have an account? Sign up
+                            </Button>
+                        </Link>
                     </div>
                 </form>
             </div>

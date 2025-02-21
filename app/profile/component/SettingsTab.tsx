@@ -5,6 +5,7 @@ import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { SettingsSection } from './SettingsSection';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 
 interface SettingsTabProps {
@@ -45,9 +46,11 @@ export const SettingsTab = ({
                         buttonText="Customize"
                     />
                     <div className="pt-4">
-                        <Button variant="destructive" className="w-full" onClick={() => router.push('/signout')}>
-                            Log Out
-                        </Button>
+                        <Link href="/profile/delete">
+                            <Button variant="destructive" className="w-full">
+                                Log Out
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </CardContent>

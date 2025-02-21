@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { CalendarIcon, TrendingUpIcon } from 'lucide-react'
 import { UserType } from '@/types/blogs-types'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 const Header = ({ user }: { user: UserType }) => {
     const router = useRouter();
@@ -27,10 +28,12 @@ const Header = ({ user }: { user: UserType }) => {
                         <CalendarIcon className="h-4 w-4 mr-2" />
                         Export Report
                     </Button>
-                    <Button onClick={() => router.push('/create')} size="sm">
-                        <TrendingUpIcon className="h-4 w-4 mr-2" />
-                        Create New Blog
-                    </Button>
+                    <Link href="/create">
+                        <Button size="sm">
+                            <TrendingUpIcon className="h-4 w-4 mr-2" />
+                            Create New Blog
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </header>
