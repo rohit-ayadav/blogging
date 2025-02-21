@@ -150,7 +150,7 @@ const AuthorPosts = ({ author, posts, isDarkMode, error }: AuthorPostsProps) => 
             </div>
 
             <Link
-                href={`/author/${author?._id}`}
+                href={`/author/${author?.username}`}
                 className={`
                     inline-flex items-center text-sm transition-colors mt-2
                     ${isDarkMode

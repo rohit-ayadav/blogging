@@ -51,6 +51,7 @@ type StatsType = {
 interface Author {
   name: string;
   image: string;
+  username: string;
   bio?: string;
   _id: string;
   likes: number;

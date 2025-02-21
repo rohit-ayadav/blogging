@@ -72,7 +72,7 @@ const AuthorCard = ({ author }: { author: UserType }) => {
                                 )
                             ))}
                         </div>
-                        <Link href={`/author/${author._id}`} className="block">
+                        <Link href={`/author/${author.username}`} className="block">
                             <Button className="w-full text-sm sm:text-base bg-blue-600 hover:bg-blue-700">
                                 View All Posts
                             </Button>

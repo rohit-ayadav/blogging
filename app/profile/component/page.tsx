@@ -9,7 +9,7 @@ import { ProfileCard } from "./ProfileCard";
 import { ProfileInfoTab } from "./ProfileInfoTab";
 import { SettingsTab } from "./SettingsTab";
 import { BlogPostType, UserType } from "@/types/blogs-types";
-import { ErrorFallback } from "../[id]/component/ErrorFallback";
+import { ErrorFallback } from "../id-omponent/ErrorFallback";
 import toast from "react-hot-toast";
 
 interface UserProfileProps {

@@ -15,7 +15,6 @@ export default async function incrementViewInDB(blogId: string, like?: boolean) 
         if (!blog) {
             throw new Error("Blog not found");
         }
-        console.log("Blog found successfully with id: ", blog._id);
         const month = new Date().toISOString().slice(0, 7);
         const monthlyStats = await MonthlyStats.findOne({
             blog: blog._id,

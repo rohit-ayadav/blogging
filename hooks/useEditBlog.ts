@@ -42,10 +42,11 @@ const useEditBlog = (state: EditBlogState, setState: React.Dispatch<React.SetSta
         }
 
         // Check authorization
-        if (session && session?.user?.email !== state.createdBy) {
-            toast.error('You are not authorized to edit this blog post');
-            return;
-        }
+        // if (session && session?.user?.email !== state.createdBy) {
+        //     if(session?.user?.role !== 'admin') {
+        //     toast.error('You are not authorized to edit this blog post');
+        //     return;
+        // }
 
         updateState({ isLoading: true });
 

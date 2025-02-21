@@ -76,9 +76,11 @@ export const PostCard = ({ post, showStats = false, author }: PostCardProps) => 
                     )}
                     {/* // edit and delete */}
                     <div className="flex items-center gap-2 mt-4">
-                        <button className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-                            onClick={() => router.push(`/edit/${post._id}`)}
-                        >Edit</button>
+                        <Link href={`/edit/${post.slug}`}>
+                            <button className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                                Edit
+                            </button>
+                        </Link>
                         <button className="text-sm text-red-600 dark:text-red-400 hover:underline"
                             onClick={() => deletePost(post._id)}
                         >Delete</button>

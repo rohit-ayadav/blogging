@@ -4,36 +4,35 @@ import Blog from "@/models/blogs.models";
 import User from "@/models/users.models";
 import { Metadata } from "next";
 import { ErrorMessage } from "@/app/blogs/[id]/ErrorMessage";
-import AuthorPage from "@/app/profile/[id]/component/Profile";
-import { Author } from "@/app/profile/[id]/component/Profile";
+import AuthorPage from "@/app/profile/id-omponent/Profile";
+import { Author } from "@/app/profile/id-omponent/Profile";
+import { isValidObjectId } from "mongoose";
+import serializeDocument from "@/utils/date-formatter";
 
 async function getPostData(id: string) {
     try {
         await connectDB();
-
-        // Convert Mongoose document to plain JSON object
-        const user = await User.findById(id).lean() as Author;
+        let user: Author | null = null;
+        if (!isValidObjectId(id)) {
+            const username = decodeURIComponent(id);
+            user = await User.findOne({ username }).lean() as Author;
+        } else {
+            user = await User.findById(id).lean() as Author;
+        }
+        console.log(`User: ${JSON.stringify(user)}`);
         if (!user) {
             return { success: false, statusCode: 404 };
         }
-
         let postData = await Blog.find({ createdBy: user.email }).lean() as BlogPostType[];
         if (!postData || postData.length === 0) {
             return { success: false, statusCode: 404 };
         }
-
-        // Convert `_id` from ObjectId to string because Next.js doesn't support ObjectId
-        postData = postData.map(post => ({
-            ...post,
-            _id: post._id.toString(), // Convert ObjectId to string
-            createdAt: post.createdAt.toString(), // Convert Date to string
-            updatedAt: post.updatedAt?.toString() // Convert Date to string
-        }));
-
+        user = serializeDocument(user);
+        postData = postData.map(serializeDocument);
         return {
             success: true,
             data: postData as BlogPostType[],
-            author: { ...user, _id: user._id.toString() } as Author // Convert user `_id`
+            author: user ? { ...user, _id: user._id.toString() } as Author : null
         };
     } catch (error) {
         return { success: false, error: (error as Error).message };
@@ -42,29 +41,38 @@ async function getPostData(id: string) {
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
     const response = await getPostData(params.id);
-    if (!response || !response.success) {
+    if (!response || !response.success || !response.author) {
         return {
-            title: "Not Found",
-            description: "The requested page could not be found."
+            title: "Author Not Found | DevBlogger",
+            description: "The requested author profile could not be found on DevBlogger.",
+            openGraph: {
+                title: "Author Not Found",
+                description: "This author does not exist or has not published any posts.",
+                images: [
+                    { url: "/default-thumbnail.jpg", width: 1200, height: 630 }
+                ]
+            }
         };
     }
-    if (!response.author) {
-        return {
-            title: "Not Found",
-            description: "The requested page could not be found."
-        };
-    }
-    const title = `${response.author.name}'s Profile`;
-    const description = `View all posts by ${response.author.name}`;
-    const thumbnail = response.author.image;
+
+    const { author, data: posts } = response;
+    const postTitles = posts.map(post => post.title).slice(0, 3).join(", ");
+    const description = `Discover ${author.name}'s latest blog posts on DevBlogger: ${postTitles}`;
 
     return {
-        title,
+        title: `${author.name}'s Profile | DevBlogger`,
         description,
         openGraph: {
-            title,
+            title: `${author.name} - Developer Blogs`,
             description,
-            images: [{ url: thumbnail }]
+            images: [{ url: author.image || "/default-thumbnail.jpg", width: 1200, height: 630 }],
+            url: `/author/${author.username}`
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: `${author.name} - Developer Blogs`,
+            description,
+            images: [{ url: author.image || "/default-thumbnail.jpg" }]
         }
     };
 }
@@ -94,6 +102,9 @@ export default async function IndividualProfile({ params }: { params: { id: stri
 
     if (!response.data) {
         return <ErrorMessage message="No posts found for this author" />;
+    }
+    if (!response.author) {
+        return <ErrorMessage message="Author not found" />;
     }
 
     return <AuthorPage author={response.author} authorPosts={response.data} />;

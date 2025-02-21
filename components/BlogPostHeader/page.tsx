@@ -123,7 +123,7 @@ const BlogPostHeader: React.FC<BlogPostHeaderProps> = ({
               }
             `}
           >
-            <Link href={`/profile/${author?._id}`} className="group block no-underline">
+            <Link href={`/author/${author?.username}`} className="group block no-underline">
               <span
                 className={`
                   font-bold no-underline transition-colors duration-200

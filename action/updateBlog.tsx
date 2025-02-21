@@ -4,6 +4,7 @@ import Blog from "@/models/blogs.models";
 import { isValidObjectId } from "mongoose";
 import { isValidSlug, makeValidSlug } from "@/lib/common-function";
 import { getSessionAtHome } from "@/auth";
+import User from "@/models/users.models";
 
 await connectDB();
 
@@ -27,6 +28,7 @@ interface UpdatePostType {
 // This function will be used to update the existing blog
 
 export async function updateBlog(Post: UpdatePostType) {
+    let isUpdatedByAdmin = false;
     if (!Post.id) {
         return {
             message: "",
@@ -37,7 +39,7 @@ export async function updateBlog(Post: UpdatePostType) {
     if (!session) {
         return {
             message: "",
-            error: "You are not authorized to update the blog"
+            error: "You need to be logged in to update the blog"
         }
     }
     try {
@@ -54,10 +56,24 @@ export async function updateBlog(Post: UpdatePostType) {
             }
         }
 
-        if (session.user.email !== blog.createdBy) {
+        const user = await User.findOne({ email: session.user.email });
+        if (!user) {
             return {
                 message: "",
-                error: "You are not authorized to update the blog"
+                error: "User not found"
+            }
+        }
+
+        if (session.user.email !== blog.createdBy) {
+            if (user.role !== "admin") {
+                console.log("\nYou are not authorized to update this blog post\n");
+                return {
+                    message: "",
+                    error: "You are not authorized to update the blog"
+                }
+            }
+            else {
+                isUpdatedByAdmin = true;
             }
         }
         if (!Post.title || !Post.content || !Post.category || !Post.language) {
@@ -95,10 +111,9 @@ export async function updateBlog(Post: UpdatePostType) {
 
         await blog.save();
         return {
-            message: "Blog updated successfully",
+            message: `Blog post ${isUpdatedByAdmin ? `updated by admin ${session.user.name}` : "updated"} successfully`,
             error: ""
         }
-
     }
     catch (e) {
         return {
