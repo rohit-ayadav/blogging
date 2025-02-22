@@ -16,6 +16,7 @@ import { BlogPostCard } from '../app/_component/BlogPostCard';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { BlogPostType, UserType } from '@/types/blogs-types';
+import { registerServiceWorkerFirstTime } from '@/hooks/push-client';
 
 const FeatureCard = ({ icon, title, description, action, link }: any) => {
     const { isDarkMode } = useTheme();
@@ -116,7 +117,15 @@ const HomePage = ({ posts, users, totalLikes, totalViews, totalBlogs, totalUsers
     useEffect(() => {
         setIsVisible(true);
     }, []);
+    const router = useRouter();
 
+    useEffect(() => {
+        registerServiceWorkerFirstTime();
+    }, []);
+
+    useEffect(() => {
+        document.body.classList.toggle('dark', isDarkMode);
+    }, [isDarkMode]);
     return (
         <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
             <ToastContainer />
