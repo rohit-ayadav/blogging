@@ -105,36 +105,8 @@ export default function Auth() {
     };
 
     if (session) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 py-5 px-4 sm:px-6 lg:px-8">
-                <div className="space-y-4 w-full max-w-md">
-                    <h2 className="text-center text-3xl font-extrabold text-gray-900">
-                        Welcome back!
-                    </h2>
-                    <div className="space-y-3">
-                        {NAVIGATION_ROUTES.map(({ path, label }) => (
-                            <Link key={path} href={`/${path}`}>
-                                <Button
-                                    key={path}
-                                    // onClick={() => router.push(`/${path}`)}
-                                    className="w-full"
-                                >
-                                    Go to {label}
-                                </Button>
-                            </Link>
-                        ))}
-                        <Link href="/signout">
-                            <Button
-                                variant="destructive"
-                                className="w-full"
-                            >
-                                Sign out
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
-            </div>
-        );
+        router.push('/dashboard?from=login');
+        return null;
     }
 
     return (

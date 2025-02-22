@@ -3,6 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { HomeIcon, Search, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import SearchBar404 from './_component/SearchBar404';
 
 const NotFoundPage = () => {
     return (
@@ -38,16 +39,7 @@ const NotFoundPage = () => {
                 </div>
 
                 {/* Search Bar */}
-                <div className="max-w-md mx-auto">
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Search for content..."
-                            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
-                        />
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    </div>
-                </div>
+                <SearchBar404 />
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
