@@ -9,7 +9,7 @@ import {
 import HeaderSearch from '@/app/search/SearchHeader';
 import { useTheme } from '@/context/ThemeContext';
 
-const NavLink = ({ href, children, icon: Icon, setIsMobileMenuOpen } : any) => (
+const NavLink = ({ href, children, icon: Icon, setIsMobileMenuOpen }: any) => (
   <Link
     href={href}
     onClick={() => setIsMobileMenuOpen?.(false)}
@@ -105,17 +105,19 @@ const DevBloggerNavbar = () => {
 
             {session?.user ? (
               <div className="relative flex items-center">
-                <button className="flex items-center space-x-3 px-4 py-2 rounded-lg
+                <Link href="/profile">
+                  <button className="flex items-center space-x-3 px-4 py-2 rounded-lg
                   bg-gradient-to-r from-indigo-500 to-purple-600 text-white
                   hover:from-indigo-600 hover:to-purple-700 transition-all duration-300
                   shadow-md hover:shadow-lg">
-                  <img
-                    src={session.user.image || "/api/placeholder/32/32"}
-                    alt="Profile"
-                    className="w-6 h-6 rounded-full border-2 border-white/50"
-                  />
-                  <span className="font-medium">{session.user.name}</span>
-                </button>
+                    <img
+                      src={session.user.image || "/api/placeholder/32/32"}
+                      alt="Profile"
+                      className="w-6 h-6 rounded-full border-2 border-white/50"
+                    />
+                    <span className="font-medium">{session.user.name}</span>
+                  </button>
+                </Link>
               </div>
             ) : (
               <Link
@@ -124,8 +126,8 @@ const DevBloggerNavbar = () => {
                   text-white hover:from-indigo-600 hover:to-purple-700 transition-all duration-300
                   shadow-md hover:shadow-lg font-medium flex items-center gap-2"
               >
-                  <Terminal size={18} />
-                  Get Started
+                <Terminal size={18} />
+                Get Started
               </Link>
             )}
           </div>

@@ -73,6 +73,7 @@ const TrendingTopics = () => {
 const SearchSection = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const router = useRouter();
+    const { isDarkMode } = useTheme();
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -88,13 +89,13 @@ const SearchSection = () => {
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
                 onFocus={(e) => e.target.select()}
-                onKeyDown={(e) => e.key === 'Escape' && setSearchQuery('')}
+                // onKeyDown={(e) => e.key === 'Escape' && setSearchQuery('')}
                 placeholder="Search for topics, posts, or authors..."
-                className="pl-10 pr-4 py-3 w-full rounded-xl border-2 border-gray-200 dark:border-gray-700
-          focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300
-          bg-white dark:bg-gray-800"
+                className={`pl-10 pr-4 py-3 w-full rounded-xl border-2 
+          focus:border-blue-500 ${isDarkMode ? 'dark:focus:border-blue-400' : ''} transition-all duration-300
+          bg-white ${isDarkMode ? 'dark:bg-gray-800' : ''}`}
             />
         </div>
     );
