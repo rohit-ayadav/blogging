@@ -151,7 +151,7 @@ const Footer = () => {
                     ['About', '/about'],
                     ['Blogs', '/blogs'],
                     ['Write', '/create'],
-                    ['Contact', '/contact'],
+                    ['Contact', '/contacts'],
                   ].map(([title, url]) => (
                     <li key={title}>
                       <Link

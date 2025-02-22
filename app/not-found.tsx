@@ -78,7 +78,7 @@ const NotFoundPage = () => {
                             ['Blog', '/blogs'],
                             ['Dashboard', '/dashboard'],
                             ['About', '/about'],
-                            ['Contact', '/contact'],
+                            ['Contact', '/contacts'],
                             // ['Help Center', '/help'],
                         ].map(([label, href]) => (
                             <Link

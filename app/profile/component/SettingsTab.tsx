@@ -46,7 +46,7 @@ export const SettingsTab = ({
                         buttonText="Customize"
                     />
                     <div className="pt-4">
-                        <Link href="/profile/delete">
+                        <Link href="/signout">
                             <Button variant="destructive" className="w-full">
                                 Log Out
                             </Button>
