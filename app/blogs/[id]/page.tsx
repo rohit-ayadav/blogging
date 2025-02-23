@@ -20,7 +20,6 @@ interface ApiResponse {
     author?: Author;
 }
 
-
 async function getPostData(id: string): Promise<ApiResponse> {
     try {
         await connectDB();

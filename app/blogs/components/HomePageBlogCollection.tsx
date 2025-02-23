@@ -44,7 +44,7 @@ const HomePageBlogCollection = ({ state, handleRetry, setState, searchLoading }:
 
                 <div className={themeClasses(isDarkMode).container}>
                     {/* Header Section */}
-                    <div className={`${themeClasses(isDarkMode).header} sticky top-0 z-10 backdrop-blur-sm bg-opacity-90 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+                    {/* <div className={`${themeClasses(isDarkMode).header} sticky top-0 z-10 backdrop-blur-sm bg-opacity-90 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
                         <h1 className={themeClasses(isDarkMode).title}>Blog Posts</h1>
                         <div
                             onClick={toggleDarkMode}
@@ -56,7 +56,7 @@ const HomePageBlogCollection = ({ state, handleRetry, setState, searchLoading }:
                                 <Moon className="h-5 w-5" />
                             )}
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Search and Filter Controls */}
                     <div className={`${themeClasses(isDarkMode).controls} grid grid-cols-1 md:grid-cols-3 gap-4`}>
