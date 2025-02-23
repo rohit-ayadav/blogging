@@ -21,15 +21,15 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({ totalBlogs, totalViews, t
         show: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.1
+                staggerChildren: 0.15
             }
         }
     };
 
     return (
-        <div className={`w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 ${isDarkMode ? 'dark' : ''}`}>
+        <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 py-4">
             <motion.div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"
+                className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6"
                 variants={containerVariants}
                 initial="hidden"
                 animate="show"
@@ -44,7 +44,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({ totalBlogs, totalViews, t
                             title="Total Posts"
                             value={totalBlogs}
                             icon="📚"
-                            trend={{ value: 12, label: 'from last month' }}
+                            trend={{ value: 12, label: 'vs last month' }}
                             isDarkMode={isDarkMode}
                             color="blue"
                         />
@@ -52,7 +52,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({ totalBlogs, totalViews, t
                             title="Total Views"
                             value={totalViews}
                             icon="👀"
-                            trend={{ value: 8, label: 'from last month' }}
+                            trend={{ value: 8, label: 'vs last month' }}
                             isDarkMode={isDarkMode}
                             color="green"
                         />
@@ -60,7 +60,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({ totalBlogs, totalViews, t
                             title="Total Likes"
                             value={totalLikes}
                             icon="❤️"
-                            trend={{ value: -5, label: 'from last month' }}
+                            trend={{ value: -5, label: 'vs last month' }}
                             isDarkMode={isDarkMode}
                             color="red"
                         />
@@ -68,7 +68,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({ totalBlogs, totalViews, t
                             title="Total Users"
                             value={totalUsers}
                             icon="👥"
-                            trend={{ value: 15, label: 'from last month' }}
+                            trend={{ value: 15, label: 'vs last month' }}
                             isDarkMode={isDarkMode}
                             color="purple"
                         />
@@ -105,27 +105,33 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, trend, isDark
                 hidden: { opacity: 0, y: 20 },
                 show: { opacity: 1, y: 0 }
             }}
+            className="h-full"
         >
             <Card
                 className={`
-                    relative overflow-hidden group
+                    relative overflow-hidden group h-full
                     ${isDarkMode
-                        ? 'bg-gray-800 border-gray-700 text-white'
+                        ? 'bg-gray-800/95 border-gray-700 text-white'
                         : 'bg-white border-gray-200 text-gray-900'
                     }
-                    shadow-sm hover:shadow-xl transition-all duration-300
+                    shadow hover:shadow-lg transition-all duration-300
                     transform hover:-translate-y-1
                 `}
             >
-                <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-transparent to-transparent group-hover:from-current/5 transition-all duration-300" />
+                <div
+                    className={`
+                        absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                        bg-gradient-to-br ${colorClasses[color].replace('text-', 'from-')}/5
+                    `}
+                />
 
-                <CardHeader className="pb-2">
+                <CardHeader className="pb-2 space-y-0">
                     <CardTitle className="flex items-center justify-between">
-                        <span className={`text-base sm:text-lg font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                        <span className={`text-sm sm:text-base font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
                             {title}
                         </span>
                         <span className={`
-                            p-2 rounded-lg text-lg sm:text-xl
+                            p-1.5 sm:p-2 rounded-lg text-base sm:text-lg
                             ${colorClasses[color]}
                         `}>
                             {icon}
@@ -133,23 +139,23 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, trend, isDark
                     </CardTitle>
                 </CardHeader>
 
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-2">
                     <p className={`
-                        text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight
+                        text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight
                         ${colorClasses[color].split(' ')[0]}
                     `}>
                         <CountUp
                             end={value}
-                            duration={2.5}
+                            duration={2}
                             separator=","
                             useEasing={true}
                         />
                     </p>
 
                     {trend && (
-                        <div className="flex items-center text-sm sm:text-base space-x-2">
+                        <div className="flex items-center text-xs sm:text-sm space-x-1.5">
                             <span className={`
-                                flex items-center font-medium px-2 py-1 rounded-full
+                                flex items-center font-medium px-1.5 py-0.5 rounded-full
                                 ${trend.value >= 0
                                     ? (isDarkMode ? 'text-green-400 bg-green-400/10' : 'text-green-600 bg-green-100')
                                     : (isDarkMode ? 'text-red-400 bg-red-400/10' : 'text-red-600 bg-red-100')
@@ -173,20 +179,20 @@ const SkeletonStatsCard = () => {
 
     return (
         <Card className={`
-            flex flex-col justify-between h-full animate-pulse
-            ${isDarkMode ? 'bg-gray-800' : 'bg-white'}
+            h-full animate-pulse
+            ${isDarkMode ? 'bg-gray-800/95' : 'bg-white'}
         `}>
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                    <div className={`h-6 w-1/2 rounded ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
-                    <div className={`h-10 w-10 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+                    <div className={`h-4 sm:h-5 w-1/2 rounded ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+                    <div className={`h-8 sm:h-9 w-8 sm:w-9 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
                 </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-                <div className={`h-12 w-2/3 rounded ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+            <CardContent className="space-y-3">
+                <div className={`h-8 sm:h-10 w-2/3 rounded ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
                 <div className="flex items-center space-x-2">
-                    <div className={`h-6 w-16 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
-                    <div className={`h-6 w-24 rounded ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+                    <div className={`h-5 w-14 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+                    <div className={`h-5 w-20 rounded ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
                 </div>
             </CardContent>
         </Card>
