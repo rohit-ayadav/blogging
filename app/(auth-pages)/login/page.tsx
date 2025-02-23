@@ -17,14 +17,6 @@ interface AuthError {
     field?: 'email' | 'password';
 }
 
-const MIN_PASSWORD_LENGTH = 8;
-
-const NAVIGATION_ROUTES = [
-    { path: 'dashboard', label: 'Dashboard' },
-    { path: 'blogs', label: 'Blogs' },
-    { path: 'profile', label: 'Profile' }
-] as const;
-
 export default function Auth() {
     const [formData, setFormData] = useState({
         email: '',

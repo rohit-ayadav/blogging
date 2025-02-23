@@ -1,3 +1,4 @@
+"use client";
 import React from 'react'
 import { Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'

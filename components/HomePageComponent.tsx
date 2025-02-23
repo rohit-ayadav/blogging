@@ -4,10 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import {
-    PenTool, Book, Users, ChevronRight, Search,
-    TrendingUp, Star, Code, Terminal, Coffee
-} from 'lucide-react';
+import { PenTool, Book, Users, ChevronRight, Search, TrendingUp, Star, Code, Terminal, Coffee } from 'lucide-react';
 import CountUp from 'react-countup';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -148,9 +145,7 @@ const HomePage = ({ posts, users, totalLikes, totalViews, totalBlogs, totalUsers
                             Join our thriving community of developers. Share insights, learn from peers,
                             and stay ahead in the tech world.
                         </p>
-
                         <SearchSection />
-
                         <div className="mt-8">
                             <TrendingTopics />
                         </div>

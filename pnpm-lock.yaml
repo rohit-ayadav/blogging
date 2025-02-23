@@ -305,9 +305,6 @@ importers:
       unified:
         specifier: ^11.0.5
         version: 11.0.5
-      use-debounce:
-        specifier: ^10.0.4
-        version: 10.0.4(react@18.3.1)
       vaul:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4195,12 +4192,6 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
-
-  use-debounce@10.0.4:
-    resolution: {integrity: sha512-6Cf7Yr7Wk7Kdv77nnJMf6de4HuDE4dTxKij+RqE9rufDsI6zsbjyAxcH5y2ueJCQAnfgKbzXbZHYlkFwmBlWkw==, tarball: https://registry.npmjs.org/use-debounce/-/use-debounce-10.0.4.tgz}
-    engines: {node: '>= 16.0.0'}
-    peerDependencies:
-      react: '*'
 
   use-sidecar@1.1.2:
     resolution: {integrity: sha512-epTbsLuzZ7lPClpz2TyryBfztm7m+28DlEv2ZCQ3MDr5ssiwyOwGH/e5F9CkfWjJ1t4clvI58yF822/GUkjjhw==, tarball: https://registry.npmjs.org/use-sidecar/-/use-sidecar-1.1.2.tgz}
@@ -8772,10 +8763,6 @@ snapshots:
       tslib: 2.8.0
     optionalDependencies:
       '@types/react': 18.3.12
-
-  use-debounce@10.0.4(react@18.3.1):
-    dependencies:
-      react: 18.3.1
 
   use-sidecar@1.1.2(@types/react@18.3.12)(react@18.3.1):
     dependencies:

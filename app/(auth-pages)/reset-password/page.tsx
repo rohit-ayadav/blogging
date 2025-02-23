@@ -5,8 +5,6 @@ import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { stat } from 'fs';
-import { time } from 'console';
 
 function PasswordResetContent() {
     const [password, setPassword] = useState('');

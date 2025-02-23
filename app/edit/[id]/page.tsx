@@ -83,7 +83,10 @@ async function getBlogData(id: string): Promise<EditBlogState> {
 export async function generateStaticParams() {
     const posts = await Blog.find({}, { _id: 1, slug: 1 });
     const paths = posts.map((post) => ({
-        params: { id: post.slug },
+        params: {
+            id: post.slug,
+            slug: post._id.toString(),
+        },
     }));
     return paths;
 }

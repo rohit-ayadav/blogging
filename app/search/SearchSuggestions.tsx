@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
+import { Suspense } from "react";
 
 type SearchSuggestionsProps = {
     suggestions: {
@@ -35,7 +36,7 @@ const getSuggestions = ({ suggestions, currentQuery }: SearchSuggestionsProps) =
     return allSuggestions;
 };
 
-export default function SearchSuggestions({ suggestions, currentQuery }: SearchSuggestionsProps) {
+function Suggestions({ suggestions, currentQuery }: SearchSuggestionsProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -67,4 +68,12 @@ export default function SearchSuggestions({ suggestions, currentQuery }: SearchS
             </div>
         </div>
     );
+}
+
+export default function SearchSuggestions({ suggestions, currentQuery }: SearchSuggestionsProps) {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <Suggestions suggestions={suggestions} currentQuery={currentQuery} />
+        </Suspense>
+    )
 }

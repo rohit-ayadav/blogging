@@ -1,13 +1,10 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
-import {
-  Menu, X, Code, Terminal, Settings, Edit3,
-  Layout, Users, User, Search, Bell, Sun, Moon
-} from 'lucide-react';
-import HeaderSearch from '@/app/search/SearchHeader';
+import { Menu, X, Code, Terminal, Settings, Edit3, Layout, Users, User, Search, Bell, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
+import SearchHeader from '@/app/search/SearchHeader';
 
 const NavLink = ({ href, children, icon: Icon, setIsMobileMenuOpen }: any) => (
   <Link
@@ -151,7 +148,7 @@ const DevBloggerNavbar = () => {
           border-gray-200 dark:border-gray-800">
           {/* Search Bar - Mobile */}
           <div className="relative">
-            <HeaderSearch currentQuery="" />
+            <SearchHeader />
           </div>
 
           {/* Navigation Links */}
@@ -227,4 +224,10 @@ const DevBloggerNavbar = () => {
   );
 };
 
-export default DevBloggerNavbar;
+export default function Navbar() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DevBloggerNavbar />
+    </Suspense>
+  )
+}

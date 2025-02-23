@@ -1,15 +1,14 @@
 "use server";
-
 import { connectDB } from "@/utils/db";
 import Blog from "@/models/blogs.models";
 import User from "@/models/users.models";
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 import SearchFilters from "./SearchFilters";
 import SearchSuggestions from "./SearchSuggestions";
 import SearchResults from "./SearchResults";
 import serializeDocument from "@/utils/date-formatter";
 import HeaderSearch from "./SearchHeader";
+import { Suspense } from "react";
 
 type SearchParams = {
     q?: string;
@@ -189,11 +188,11 @@ export async function generateMetadata({ searchParams }: {
     };
 }
 
-export default async function SearchPage({
+async function SearchPage({
     searchParams,
 }: {
     searchParams: SearchParams;
-}) {
+  }) {
     const { results, totalCount, totalPages, currentPage, suggestions } =
         await getSearchResults(searchParams);
 
@@ -209,8 +208,7 @@ export default async function SearchPage({
 
                 <div className="lg:col-span-3">
                     <div className="mb-6">
-                        <HeaderSearch currentQuery={searchParams.q || ''} />
-
+                        <HeaderSearch />
                     </div>
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-3xl font-bold">
@@ -233,5 +231,13 @@ export default async function SearchPage({
                 </div>
             </div>
         </main>
+    );
+}
+
+export default async function Page({ searchParams }: { searchParams: SearchParams }) {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <SearchPage searchParams={searchParams} />
+        </Suspense>
     );
 }

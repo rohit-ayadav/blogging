@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, X, ArrowRight, History, Loader2 } from 'lucide-react';
+import {
+    Search as SearchIcon34, X, ArrowRight, History, Loader2
+} from 'lucide-react';
 import useDebounce from '@/hooks/useDebounce';
 interface SearchSuggestion {
     id: string;
@@ -12,7 +14,7 @@ interface SearchSuggestion {
     tag?: string;
 }
 
-export default function HeaderSearch({ currentQuery = '' }: { currentQuery: string }) {
+function Search({ currentQuery = '' }: { currentQuery: string }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [isOpen, setIsOpen] = useState(false);
@@ -143,7 +145,7 @@ export default function HeaderSearch({ currentQuery = '' }: { currentQuery: stri
                              bg-gray-100 rounded-full focus:outline-none focus:ring-2 
                              focus:ring-blue-500 focus:bg-white transition-all"
                 />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <SearchIcon34 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 {query && (
                     <button
                         onClick={() => setQuery('')}
@@ -176,7 +178,7 @@ export default function HeaderSearch({ currentQuery = '' }: { currentQuery: stri
                                         {suggestion.type === 'recent' ? (
                                             <History className="w-4 h-4 text-gray-400" />
                                         ) : (
-                                            <Search className="w-4 h-4 text-gray-400" />
+                                            <SearchIcon34 className="w-4 h-4 text-gray-400" />
                                         )}
                                         <span>{suggestion.text}</span>
                                     </div>
@@ -192,6 +194,14 @@ export default function HeaderSearch({ currentQuery = '' }: { currentQuery: stri
                     )}
                 </div>
             )}
+        </div>
+    );
+}
+
+export default function SearchHeader() {
+    return (
+        <div className="container mx-auto px-4 py-6">
+            <Search currentQuery="" />
         </div>
     );
 }

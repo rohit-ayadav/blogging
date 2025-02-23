@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Calendar, Filter, SortDesc } from "lucide-react";
 
 type SearchFiltersProps = {
@@ -20,7 +20,7 @@ type SearchFiltersProps = {
     };
 };
 
-export default function SearchFilters({ currentFilters, suggestions }: SearchFiltersProps) {
+function Filters({ currentFilters, suggestions }: SearchFiltersProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [isOpen, setIsOpen] = useState(false);
@@ -162,5 +162,13 @@ export default function SearchFilters({ currentFilters, suggestions }: SearchFil
                 </button>
             </div>
         </div>
+    );
+}
+
+export default function SearchFilters({ currentFilters, suggestions }: SearchFiltersProps) {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <Filters currentFilters={currentFilters} suggestions={suggestions} />
+        </Suspense>
     );
 }
