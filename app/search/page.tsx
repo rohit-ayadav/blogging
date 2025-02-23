@@ -192,9 +192,10 @@ async function SearchPage({
     searchParams,
 }: {
     searchParams: SearchParams;
-  }) {
+}) {
     const { results, totalCount, totalPages, currentPage, suggestions } =
         await getSearchResults(searchParams);
+    const { q } = searchParams;
 
     return (
         <main className="container mx-auto px-4 py-8">

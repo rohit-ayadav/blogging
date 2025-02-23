@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import {
     Search as SearchIcon34, X, ArrowRight, History, Loader2
 } from 'lucide-react';
@@ -16,7 +16,7 @@ interface SearchSuggestion {
 
 function Search({ currentQuery = '' }: { currentQuery: string }) {
     const router = useRouter();
-    const searchParams = useSearchParams();
+    const searchParams = currentQuery;
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState(currentQuery);
     const [isLoading, setIsLoading] = useState(false);
@@ -201,7 +201,7 @@ function Search({ currentQuery = '' }: { currentQuery: string }) {
 export default function SearchHeader() {
     return (
         <div className="container mx-auto px-4 py-6">
-            <Search currentQuery="" />
+            <Search currentQuery={''} />
         </div>
     );
 }

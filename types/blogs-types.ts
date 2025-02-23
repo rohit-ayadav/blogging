@@ -41,6 +41,13 @@ type UserType = {
   role: string;
 };
 
+export interface MonthlyStatsType {
+  blog: string; // 
+  month: string; // YYYY-MM
+  views: number;
+  likes: number;
+};
+
 type StatsType = {
   totalLikes: number;
   totalViews: number;

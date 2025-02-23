@@ -84,6 +84,11 @@ export const PostCard = ({ post, showStats = false, author }: PostCardProps) => 
                         <button className="text-sm text-red-600 dark:text-red-400 hover:underline"
                             onClick={() => deletePost(post._id)}
                         >Delete</button>
+                        <Link href={`/stats/${post.slug}`}>
+                            <button className="text-sm text-green-600 dark:text-green-400 hover:underline">
+                                Stats
+                            </button>
+                        </Link>
                     </div>
 
                 </CardContent>

@@ -5,11 +5,11 @@ import User from "@/models/users.models";
 import Blog from "@/models/blogs.models";
 import MonthlyStats from "@/models/monthlyStats";
 import { getSessionAtHome } from "@/auth";
-import mongoose from "mongoose";
 import AuthorDashboard from "./Dashboard";
 import { ErrorMessage } from "../blogs/[id]/ErrorMessage";
 import { BlogPostType } from "@/types/blogs-types";
 import { UserType } from "@/types/blogs-types";
+import serializeDocument from "@/utils/date-formatter";
 
 interface AuthorData {
     user: UserType;
@@ -24,8 +24,12 @@ async function getPersonalAuthorData() {
     try {
         await connectDB();
         const session = await getSessionAtHome();
-        const user = await User.findOne({ email: session.user.email }).lean() as UserType;
-        const blogs = await Blog.find({ createdBy: session.user.email }).lean() as BlogPostType[];
+        // const user = await User.findOne({ email: session.user.email }).lean() as UserType;
+        // const blogs = await Blog.find({ createdBy: session.user.email }).lean() as BlogPostType[];
+        const [user, blogs] = await Promise.all([
+            User.findOne({ email: session.user.email }).lean() as unknown as UserType,
+            Blog.find({ createdBy: session.user.email }).lean() as unknown as BlogPostType[]
+        ]);
         // get monthly stats of blogs , stored as Total likes, Total views, Total comments, Total shares of particular month
         const monthlyStats = await MonthlyStats.find({ blog: { $in: blogs.map(blog => blog._id) } }).lean();
 
@@ -35,20 +39,13 @@ async function getPersonalAuthorData() {
             views: stat.views || 0,
             likes: stat.likes || 0,
         }));
-        // convert _id from ObjectId to string, createdAt and updatedAt from Date to string of each blog and user
-        user._id = user._id.toString();
-        blogs.forEach(blog => {
-            blog._id = blog._id.toString();
-            blog.createdAt = blog.createdAt.toString();
-            blog.updatedAt = blog.updatedAt?.toString();
-        });
-
-        return { user, blogs, monthlyStats: formattedMonthlyStats };
+        const serializeUser = serializeDocument(user);
+        const serializeBlogs = blogs.map(blog => serializeDocument(blog));
+        return { user: serializeUser, blogs: serializeBlogs, monthlyStats: formattedMonthlyStats };
     } catch (error: any) {
         return error;
     }
 }
-
 
 const Dashboard = async () => {
     const response = await getPersonalAuthorData();
@@ -58,7 +55,6 @@ const Dashboard = async () => {
     if (response instanceof Error) {
         return <ErrorMessage message={response.message} />;
     }
-
 
     return (
         <AuthorDashboard user={response.user} blogs={response.blogs} monthlyStats={response.monthlyStats} />

@@ -4,7 +4,8 @@ import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { Menu, X, Code, Terminal, Settings, Edit3, Layout, Users, User, Search, Bell, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
-import SearchHeader from '@/app/search/SearchHeader';
+// import SearchHeader as client component
+const SearchHeader = React.lazy(() => import('@/app/search/SearchHeader'));
 
 const NavLink = ({ href, children, icon: Icon, setIsMobileMenuOpen }: any) => (
   <Link
@@ -227,8 +228,8 @@ const DevBloggerNavbar = () => {
 
 export default function Navbar() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    // <Suspense fallback={<div>Loading...</div>}>
       <DevBloggerNavbar />
-    </Suspense>
+    // {/* </Suspense> */}
   )
 }
