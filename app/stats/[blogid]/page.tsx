@@ -1,8 +1,6 @@
-"use server";
 import { connectDB } from "@/utils/db";
 import Blog from "@/models/blogs.models";
 import User from "@/models/users.models";
-import { getSessionAtHome } from "@/auth";
 import { isValidObjectId } from "mongoose";
 import MonthlyStats from "@/models/monthlyStats";
 import serializeDocument from "@/utils/date-formatter";
@@ -13,14 +11,6 @@ import BlogStatsPage from "./BlogStatsPage";
 async function getPostResults(blogid: string) {
     try {
         await connectDB();
-        const session = await getSessionAtHome();
-        if (!session) {
-            return {
-                success: false,
-                statusCode: 401,
-                error: 'Unauthorized'
-            };
-        }
 
         // Get blog data
         let blog: BlogPostType;
@@ -37,7 +27,7 @@ async function getPostResults(blogid: string) {
             };
         }
         let user: UserType;
-        user = await User.findOne({ email: session.user.email }).lean().exec() as UserType;
+        user = await User.findOne({ email: blog.createdBy }).lean().exec() as UserType;
         if (!user) {
             return {
                 success: false,
@@ -45,13 +35,7 @@ async function getPostResults(blogid: string) {
                 error: 'User not found'
             };
         }
-        if (blog.createdBy !== session.user.email) {
-            return {
-                success: false,
-                statusCode: 403,
-                error: 'Forbidden'
-            };
-        }
+        
         // find the blog stats
         const monthlyStats = await MonthlyStats.find({ blog: blog._id }).lean() as unknown as MonthlyStatsType[];
         const formattedMonthlyStats = monthlyStats.map(stat => ({
@@ -82,14 +66,22 @@ async function getPostResults(blogid: string) {
 export async function generateStaticParams() {
     await connectDB();
     const posts = await Blog.find({}, { slug: 1, _id: 1 });
-    const paths = posts.map(post => ({
-        params: {
-            blogid: post.slug,
-        },
-    }));
+    const paths = [] as { params: { blogid: string } }[];
+    posts.forEach(post => {
+        paths.push({
+            params: {
+                blogid: post._id.toString(),
+            }
+        });
+        paths.push({
+            params: {
+                blogid: post.slug,
+            }
+        });
+    })
+
     return paths;
 }
-
 export default async function BlogStats({ params }: { params: { blogid: string } }) {
     const response = await getPostResults(params.blogid);
     if (response.statusCode !== 200) {

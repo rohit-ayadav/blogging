@@ -3,7 +3,6 @@ import Blog from "@/models/blogs.models";
 import { isValidObjectId } from "mongoose";
 import { isValidSlug } from "@/lib/common-function";
 import EditBlogComponent from "./editBlog";
-import { getSessionAtHome } from "@/auth";
 import { ErrorMessage } from "@/app/blogs/[id]/ErrorMessage";
 
 await connectDB();
@@ -46,7 +45,6 @@ async function getBlogData(id: string): Promise<EditBlogState> {
     if (!id) {
         return { ...nullresponse, error: "Blog id required to edit the blog..." }
     }
-    const session = getSessionAtHome();
 
     try {
         const post = isValidObjectId(id)
