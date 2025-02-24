@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { notFound } from "next/navigation";
 import { BlogPostType } from "@/types/blogs-types";
+import serializeDocument from "@/utils/date-formatter";
 
 const useBlogPost = ({ email, category, id }: { email: string; category: string; id: string }) => {
     const [authorPosts, setAuthorPosts] = useState<BlogPostType[]>([]);
@@ -41,7 +42,9 @@ const useBlogPost = ({ email, category, id }: { email: string; category: string;
         fetchData();
     }, []);
 
-    return { authorPosts, relatedPosts, error, loading };
+    const serializeAuthorPosts = authorPosts.map((post: BlogPostType) => serializeDocument(post));
+    const serializeRelatedPosts = relatedPosts.map((post: BlogPostType) => serializeDocument(post));
+    return { authorPosts: serializeAuthorPosts, relatedPosts: serializeRelatedPosts, error, loading };
 };
 
 export default useBlogPost;

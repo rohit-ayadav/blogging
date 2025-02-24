@@ -60,11 +60,12 @@ async function getPostData(id: string): Promise<ApiResponse> {
 
         // Serialize the post data
         const serializedPost = serializeDocument(post);
+        const serializedAuthor = serializeDocument(author);
 
         return {
             success: true,
             data: serializedPost as BlogPostType,
-            author,
+            author: serializedAuthor as Author,
             statusCode: 200,
         };
     } catch (error) {
@@ -117,7 +118,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export async function generateStaticParams() {
     await connectDB();
     const posts = await Blog.find({}, { slug: 1, _id: 1 });
-    const paths = [] as {params:{id:string}}[];
+    const paths = [] as { params: { id: string } }[];
     posts.forEach(post => {
         paths.push({
             params: {

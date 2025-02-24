@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Link } from "lucide-react";
-import { makeValidSlug } from '@/lib/common-function';
+import { generateSeoSlug, makeValidSlug } from '@/lib/common-function';
 
 interface UrlSectionProps {
     customUrl: string;
@@ -20,7 +20,10 @@ export const UrlSection = ({
 
     useEffect(() => {
         if (!customUrl && title) {
-            setInputValue(makeValidSlug(title));
+            // wait for 5000ms before setting the custom url
+            const timeout = setTimeout(() => {
+                setCustomUrl(generateSeoSlug(title));
+            }, 5000);
         }
     }, [title, customUrl]);
 
@@ -31,11 +34,11 @@ export const UrlSection = ({
             return;
         }
         setInputValue(input);
-        const formatted = makeValidSlug(input);
+        const formatted = generateSeoSlug(input);
         setCustomUrl(formatted);
     };
 
-    const displayUrl = customUrl || makeValidSlug(title);
+    const displayUrl = customUrl || generateSeoSlug(title);
     const baseUrl = 'https://blogging-one-omega.vercel.app/blogs';
 
     return (

@@ -5,6 +5,10 @@ const isValidSlug = (slug: string) => {
   return /^[a-z0-9]+(?:-*[a-z0-9]+)*$/.test(processedSlug);
 };
 
+export function isValidSEOSlug(slug: string): boolean {
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
+}
+
 const makeValidSlug = (slug: string) => {
   let processedSlug = slug
     .trim()
@@ -16,6 +20,23 @@ const makeValidSlug = (slug: string) => {
     .replace(/^-+|-+$/g, "");
   return processedSlug;
 };
+
+const STOP_WORDS = new Set([
+  "a", "an", "the", "and", "or", "but", "on", "in", "with", "to", "for", "at", "by",
+  "of", "up", "off", "over", "under", "into", "onto", "as", "so", "than", "that", "this", "these", "those"
+]);
+export function generateSeoSlug(title: string, uniqueId?: string | number): string {
+  return title
+    .slice(0, 70)
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .split(/\s+/)
+    .filter(word => !STOP_WORDS.has(word))
+    .join('-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    + (uniqueId ? `-${uniqueId}` : '');
+}
 
 function isValidUrl(url: string) {
   try {

@@ -2,7 +2,7 @@
 import { connectDB } from "@/utils/db";
 import Blog from "@/models/blogs.models";
 import { isValidObjectId } from "mongoose";
-import { isValidSlug, makeValidSlug } from "@/lib/common-function";
+import { generateSeoSlug, isValidSlug, makeValidSlug } from "@/lib/common-function";
 import { getSessionAtHome } from "@/auth";
 import User from "@/models/users.models";
 
@@ -83,7 +83,7 @@ export async function updateBlog(Post: UpdatePostType) {
             }
         }
         if (!Post.slug) {
-            Post.slug = makeValidSlug(Post.title);
+            Post.slug = generateSeoSlug(Post.title);
         }
         if (!isValidSlug(Post.slug)) {
             return {
