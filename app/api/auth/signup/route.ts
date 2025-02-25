@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
     await User.create(newUser);
     sendEmail({
       to: email,
-      subject: "Welcome to DevBlogger, Registration Successful",
+      subject: "Welcome to TheFoodBlogger, Registration Successful",
       message: SignUpEmailTemplate(name, email),
     });
 

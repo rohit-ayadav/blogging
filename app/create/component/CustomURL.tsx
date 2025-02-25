@@ -39,7 +39,7 @@ export const UrlSection = ({
     };
 
     const displayUrl = customUrl || generateSeoSlug(title);
-    const baseUrl = 'https://www.devblogger.in/blogs';
+    const baseUrl = 'https://www.food.devblogger.in/blogs';
 
     return (
         <Card className="w-full mt-2 sm:mt-3">

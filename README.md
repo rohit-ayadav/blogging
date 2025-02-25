@@ -7,17 +7,19 @@ Welcome to the Blog Website! This platform allows users to read, create, and sha
 1. **User Authentication**:
    - Sign up and log in using email/password or Google account (via OAuth).
    - Secure authentication with session management using NextAuth.js.
-   
 2. **Blog Creation**:
+
    - Users can create, edit, and delete their blogs.
    - The "Create Blog" page includes a rich text editor with formatting options (bold, italic, headings, etc.).
    - Users can also upload cover images for their blogs.
 
 3. **Dynamic Blog Display**:
+
    - Blogs are displayed dynamically with individual pages for each blog post.
    - Blog lists are paginated for easy navigation.
 
 4. **Responsive Design**:
+
    - The website is fully responsive and works across all devices (mobile, tablet, desktop).
 
 5. **SEO Optimized**:
@@ -33,19 +35,20 @@ Welcome to the Blog Website! This platform allows users to read, create, and sha
 
 ## Live Website
 
-Check out the live website here: [Blog Website](https://www.devblogger.in/)
+Check out the live website here: [Blog Website](https://www.food.devblogger.in/)
 
 ## Installation and Setup
 
 1. Clone the repository:
-  Clone the repository 
+   Clone the repository
 
 2. Install dependencies:
 
-  Open the folder
-   ```
-      npm install
-   ```
+Open the folder
+
+```
+   npm install
+```
 
 3. Set up environment variables:
 

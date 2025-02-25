@@ -376,7 +376,7 @@ const HomePage = ({ posts, users, totalLikes, totalViews, totalBlogs, totalUsers
             {/* Features Section */}
             <section className={`py-16 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
                 <div className="container mx-auto px-6">
-                    <h2 className="text-3xl font-bold mb-12 text-center">Why DevBlogger?</h2>
+                    <h2 className="text-3xl font-bold mb-12 text-center">Why TheFoodBlogger?</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <FeatureCard
                             icon={<PenTool size={48} />}

@@ -30,11 +30,11 @@ const geistMono = localFont({
 });
 
 export async function generateMetadata({
-  title = "DevBlogger - A Blogging Platform for Developers",
+  title = "TheFoodBlogger - A Blogging Platform for Developers",
   description = "Explore a user-friendly blogging platform built with Next.js. Effortlessly create, update, and share blogs on diverse topics with customizable features and an interactive interface.",
   slug = "",
   imageUrl = "/default-thumbnail.png",
-  canonicalUrl = "https://www.devblogger.in",
+  canonicalUrl = "https://www.food.devblogger.in",
 }: {
   title?: string;
   description?: string;
@@ -46,7 +46,7 @@ export async function generateMetadata({
 
   return {
     title,
-    keywords: "blogging, developer, blog, next.js, react, typescript, mongodb, vercel, nextjs, next,js, next-js, next.js blog, next.js blogging, next.js blog website, next.js blog platform, next.js blog app, next.js blog template, next.js blog example, next.js blog post, next.js blog tutorial, next.js blog website template, next.js blog website example, next.js blog website tutorial, next.js blog website project, next.js blog website code, next.js blog website design, next.js blog website development, next.js blog website app, next.js blog website platform, next.js blog website features, next.js blog website interface, next.js blog website user-friendly, next.js blog website customizable, next.js blog website interactive, next.js blog website share, next.js blog website update, next.js blog website create, next.js blog website effortlessly, next.js blog website diverse, next.js blog website topics, next.js blog website built, next.js blog website explore,DevBlogger, Dev Blogger, Developer Blogger, Dev Blog, Developer Blog, Blog for Developers, Blogging",
+    keywords: "blogging, developer, blog, next.js, react, typescript, mongodb, vercel, nextjs, next,js, next-js, next.js blog, next.js blogging, next.js blog website, next.js blog platform, next.js blog app, next.js blog template, next.js blog example, next.js blog post, next.js blog tutorial, next.js blog website template, next.js blog website example, next.js blog website tutorial, next.js blog website project, next.js blog website code, next.js blog website design, next.js blog website development, next.js blog website app, next.js blog website platform, next.js blog website features, next.js blog website interface, next.js blog website user-friendly, next.js blog website customizable, next.js blog website interactive, next.js blog website share, next.js blog website update, next.js blog website create, next.js blog website effortlessly, next.js blog website diverse, next.js blog website topics, next.js blog website built, next.js blog website explore,TheFoodBlogger, Dev Blogger, Developer Blogger, Dev Blog, Developer Blog, Blog for Developers, Blogging",
     description,
     manifest: "/manifest.json?v=1.0.6",
     appleWebApp: {
@@ -90,7 +90,7 @@ export async function generateMetadata({
       ],
       shortcut: ["/icons/ios/152.png"],
     },
-    applicationName: "DevBlogger",
+    applicationName: "TheFoodBlogger",
     formatDetection: {
       telephone: false,
     },
@@ -107,7 +107,7 @@ export async function generateMetadata({
           alt: title,
         },
       ],
-      siteName: "DevBlogger",
+      siteName: "TheFoodBlogger",
     },
     twitter: {
       card: "summary_large_image",
@@ -150,7 +150,7 @@ export default function RootLayout({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "DevBlogger",
+    name: "TheFoodBlogger",
     "alternateName": [
       "Dev Blogger",
       "Developer Blogger",
@@ -159,21 +159,21 @@ export default function RootLayout({
       "Blog for Developers",
       "Blogging",
     ],
-    url: "https://www.devblogger.in",
+    url: "https://www.food.devblogger.in",
     potentialAction: {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: "https://www.devblogger.in/search?q={search_term_string}"
+        urlTemplate: "https://www.food.devblogger.in/search?q={search_term_string}"
       },
       "query-input": "required name=search_term_string"
     },
     publisher: {
       "@type": "Organization",
-      name: "DevBlogger",
+      name: "TheFoodBlogger",
       logo: {
         "@type": "ImageObject",
-        url: "https://www.devblogger.in/icons/android/android-launchericon-192-192.png",
+        url: "https://www.food.devblogger.in/icons/android/android-launchericon-192-192.png",
         width: 192,
         height: 192
       }
@@ -184,9 +184,9 @@ export default function RootLayout({
     ],
     mainEntity: {
       "@type": "Blog",
-      name: "DevBlogger",
+      name: "TheFoodBlogger",
       description: "Explore a user-friendly blogging platform built with Next.js. Effortlessly create, update, and share blogs on diverse topics with customizable features and an interactive interface.",
-      url: "https://www.devblogger.in",
+      url: "https://www.food.devblogger.in",
       inLanguage: "en",
       isAccessibleForFree: "True",
       creator: {
@@ -199,9 +199,9 @@ export default function RootLayout({
   const organizationJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "DevBlogger",
-    url: "https://www.devblogger.in",
-    logo: "https://www.devblogger.in/icons/android/android-launchericon-192-192.png",
+    name: "TheFoodBlogger",
+    url: "https://www.food.devblogger.in",
+    logo: "https://www.food.devblogger.in/icons/android/android-launchericon-192-192.png",
     sameAs: [
       "https://twitter.com/rohit.ayadav",
       // Add other social media links here
@@ -232,7 +232,7 @@ export default function RootLayout({
         <ThemeProvider>
           <SessionWrapper>
             {/* <NavbarComponent /> */}
-            {/* <DevBloggerNavbar /> */}
+            {/* <TheFoodBloggerNavbar /> */}
             <Navbar />
             <main className="flex-grow min-h-[calc(100vh-100px)]">
               {/* <main className="flex-grow min-h-[calc(100vh-100px)] flex items-center justify-center"> */}

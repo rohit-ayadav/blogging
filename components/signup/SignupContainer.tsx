@@ -23,12 +23,12 @@ const SignupContainer: FC = () => {
                                 <div className="w-16 h-16 bg-white rounded-full shadow-md flex items-center justify-center mx-auto mb-4">
                                     <img
                                         src="/logo.png"
-                                        alt="DevBlogger Logo"
+                                        alt="TheFoodBlogger Logo"
                                         className="w-12 h-auto rounded-full"
                                     />
                                 </div>
                                 <h3 className="text-2xl font-bold text-indigo-800 mb-2">
-                                    Welcome to DevBlogger
+                                    Welcome to TheFoodBlogger
                                 </h3>
                                 <p className="text-indigo-600 text-sm">
                                     Your platform for tech insights
