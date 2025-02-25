@@ -3,7 +3,7 @@ import User from "@/models/users.models";
 import Blog from "@/models/blogs.models";
 import { BlogPostType, UserType } from "@/types/blogs-types";
 import { ErrorMessage } from "./blogs/[id]/ErrorMessage";
-import HomePage from "@/components/HomePageComponent";
+import HomePage from "@/components/HomepageComponent/HomePageComponent";
 import serializeDocument from "@/utils/date-formatter";
 
 async function getPostData() {
@@ -18,11 +18,11 @@ async function getPostData() {
     const postForStats = await Blog.find({}).lean();
     const totalLikes = postForStats.reduce((acc, post) => acc + post.likes, 0);
     const totalViews = postForStats.reduce((acc, post) => acc + post.views, 0);
-    
+
     // serialize each post and user
     const serializedPosts = posts.map(post => serializeDocument(post));
     const serializedUsers = users.map(user => serializeDocument(user));
-    
+
     return {
         success: true,
         posts: serializedPosts as BlogPostType[],
