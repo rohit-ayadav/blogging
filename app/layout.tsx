@@ -34,7 +34,7 @@ export async function generateMetadata({
   description = "Explore a user-friendly blogging platform built with Next.js. Effortlessly create, update, and share blogs on diverse topics with customizable features and an interactive interface.",
   slug = "",
   imageUrl = "/default-thumbnail.png",
-  canonicalUrl = "https://blogging-one-omega.vercel.app",
+  canonicalUrl = "https://www.devblogger.in",
 }: {
   title?: string;
   description?: string;
@@ -159,12 +159,12 @@ export default function RootLayout({
       "Blog for Developers",
       "Blogging",
     ],
-    url: "https://blogging-one-omega.vercel.app",
+    url: "https://www.devblogger.in",
     potentialAction: {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: "https://blogging-one-omega.vercel.app/search?q={search_term_string}"
+        urlTemplate: "https://www.devblogger.in/search?q={search_term_string}"
       },
       "query-input": "required name=search_term_string"
     },
@@ -173,7 +173,7 @@ export default function RootLayout({
       name: "DevBlogger",
       logo: {
         "@type": "ImageObject",
-        url: "https://blogging-one-omega.vercel.app/icons/android/android-launchericon-192-192.png",
+        url: "https://www.devblogger.in/icons/android/android-launchericon-192-192.png",
         width: 192,
         height: 192
       }
@@ -186,7 +186,7 @@ export default function RootLayout({
       "@type": "Blog",
       name: "DevBlogger",
       description: "Explore a user-friendly blogging platform built with Next.js. Effortlessly create, update, and share blogs on diverse topics with customizable features and an interactive interface.",
-      url: "https://blogging-one-omega.vercel.app",
+      url: "https://www.devblogger.in",
       inLanguage: "en",
       isAccessibleForFree: "True",
       creator: {
@@ -200,8 +200,8 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "DevBlogger",
-    url: "https://blogging-one-omega.vercel.app",
-    logo: "https://blogging-one-omega.vercel.app/icons/android/android-launchericon-192-192.png",
+    url: "https://www.devblogger.in",
+    logo: "https://www.devblogger.in/icons/android/android-launchericon-192-192.png",
     sameAs: [
       "https://twitter.com/rohit.ayadav",
       // Add other social media links here

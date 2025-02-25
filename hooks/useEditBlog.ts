@@ -74,7 +74,7 @@ const useEditBlog = (state: EditBlogState, setState: React.Dispatch<React.SetSta
         }
         updateState({ isLoading: false });
         toast.success(`${response.message}`);
-        router.push(`/blogs/${state.blogId}`);
+        router.push(`/blogs/${state.slug}`);
 
     };
     return {

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/utils/db";
 import Blog from "@/models/blogs.models";
 
-const BASE_URL = "https://blogging-one-omega.vercel.app";
+const BASE_URL = "https://www.devblogger.in";
 
 export async function GET() {
     await connectDB();

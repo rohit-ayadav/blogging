@@ -114,6 +114,8 @@ export async function updateBlog(Post: UpdatePostType) {
         revalidatePath('/edit');
         revalidatePath(`/blogs/${blog.slug}`);
         revalidatePath(`/edit/${blog.slug}`);
+        revalidatePath(`/blogs/${blog._id.toString()}`);
+        revalidatePath(`/edit/${blog._id}`);
         return {
             message: `Blog post ${isUpdatedByAdmin ? `updated by admin ${session.user.name}` : "updated"} successfully`,
             error: ""

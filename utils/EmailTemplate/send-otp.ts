@@ -16,8 +16,8 @@ const sendOTP = async ({
     userName,
     companyInfo = {
         name: 'DevBlogger',
-        logo: 'https://blogging-one-omega.vercel.app/logo.png',
-        website: 'https://blogging-one-omega.vercel.app',
+        logo: 'https://www.devblogger.in/logo.png',
+        website: 'https://www.devblogger.in',
         supportEmail: 'support@devblogger.com'
     }
 }: SendOTPParams) => {

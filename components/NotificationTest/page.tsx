@@ -22,7 +22,7 @@ const NotificationAdminPanel = () => {
         requireInteraction: true,
         renotify: false,
         silent: false,
-        url: "https://blogging-one-omega.vercel.app/blogs"
+        url: "https://www.devblogger.in/blogs"
     });
 
     const handleInputChange = (

@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://blogging-one-omega.vercel.app
+Host: https://www.devblogger.in
 
 # Sitemaps
-Sitemap: https://blogging-one-omega.vercel.app/sitemap.xml
+Sitemap: https://www.devblogger.in/sitemap.xml

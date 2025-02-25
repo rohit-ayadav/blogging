@@ -1,5 +1,4 @@
 // Api to send push notification
-
 import { NextRequest, NextResponse } from "next/server";
 import Notification from "@/models/notification.models";
 import { connectDB } from "@/utils/db";
@@ -42,8 +41,10 @@ const getSubscriptions = async (subscription?: Subscription) => {
     return [{ subscription }];
   }
 
-  const activeSubscriptions = await Notification.find({ active: true });
-  // const activeSubscriptions = await Notification.find({});
+  // const activeSubscriptions = await Notification.find({ active: true });
+  const activeSubscriptions = await Notification.find({});
+  // delete the subscription having active as false
+  await Notification.deleteMany({ active: false });
   if (!activeSubscriptions.length) {
     throw new Error("No subscriptions found");
   }

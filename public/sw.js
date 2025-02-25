@@ -9,7 +9,7 @@ function isValidUrl(url) {
 }
 
 function convertToAbsoluteUrl(url) {
-    const baseUrl = "https://blogging-one-omega.vercel.app";
+    const baseUrl = "https://www.devblogger.in";
     url = url.trim();
 
     if (/^(?:[a-zA-Z][a-zA-Z\d+\-.]*):/.test(url)) {
@@ -58,7 +58,7 @@ self.addEventListener('notificationclick', event => {
     event.notification.close();
     console.log('Notification clicked:', event.notification.data);
 
-    let url = event.notification.data?.url || 'https://blogging-one-omega.vercel.app/';
+    let url = event.notification.data?.url || 'https://www.devblogger.in/';
 
     if (!isValidUrl(url)) {
         url = convertToAbsoluteUrl(url);
