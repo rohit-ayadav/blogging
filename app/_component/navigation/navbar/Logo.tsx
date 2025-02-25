@@ -22,7 +22,7 @@ const Logo = () => {
                 className="rounded-full"
                 priority
             />
-            <span className="text-white text-xl font-bold">DevBlogger</span>
+            <span className="text-white text-xl font-bold">TheFoodBlogger</span>
         </Link>
     );
 };

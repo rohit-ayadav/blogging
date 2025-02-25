@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         }
 
         const info = await transporter.sendMail({
-            from: '"DevBlogger" <rohitkuyada@gmail.com>',
+            from: '"TheFoodBlogger" <rohitkuyada@gmail.com>',
             to: to,
             subject: subject,
             text: message,

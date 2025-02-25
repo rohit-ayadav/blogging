@@ -24,7 +24,7 @@ const resetPasswordRequest = async (user: any, req: NextRequest) => {
     if (tokenGeneratedAt && (currentTime - tokenGeneratedAt) < TokenExpirationTime) {
 
         resetPasswordToken = user.resetPasswordToken;
-        subject = "Password Reset Request for DevBlogger 01 (Extra Email)";
+        subject = "Password Reset Request for TheFoodBlogger 01 (Extra Email)";
     } else {
         // Generate a random token for password reset
         resetPasswordToken = cryptoRandomString({ length: 32, type: 'url-safe' });
@@ -35,7 +35,7 @@ const resetPasswordRequest = async (user: any, req: NextRequest) => {
         } catch (error) {
             throw new Error("Error while saving the user");
         }
-        subject = "Password Reset Request for DevBlogger";
+        subject = "Password Reset Request for TheFoodBlogger";
     }
 
     // Encrypt the token and email

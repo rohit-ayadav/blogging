@@ -22,7 +22,7 @@ const NotificationAdminPanel = () => {
         requireInteraction: true,
         renotify: false,
         silent: false,
-        url: "https://www.devblogger.in/blogs"
+        url: "https://www.food.devblogger.in/blogs"
     });
 
     const handleInputChange = (

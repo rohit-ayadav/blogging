@@ -26,7 +26,7 @@ const NavLink = ({ href, children, icon: Icon, setIsMobileMenuOpen }: any) => (
   </Link>
 );
 
-const DevBloggerNavbar = () => {
+const TheFoodBloggerNavbar = () => {
   const { data: session } = useSession();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -68,7 +68,7 @@ const DevBloggerNavbar = () => {
               <Code size={24} className="text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900 dark:text-white ">
-              DevBlogger
+              TheFoodBlogger
             </span>
           </Link>
 
@@ -229,7 +229,7 @@ const DevBloggerNavbar = () => {
 export default function Navbar() {
   return (
     // <Suspense fallback={<div>Loading...</div>}>
-      <DevBloggerNavbar />
+    <TheFoodBloggerNavbar />
     // {/* </Suspense> */}
   )
 }
