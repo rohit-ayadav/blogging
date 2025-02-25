@@ -64,7 +64,7 @@ self.addEventListener('notificationclick', event => {
         url = convertToAbsoluteUrl(url);
     }
     
-    // if url contains like "/blog" then parse it to canonical url like "https://example.com/blog"
+    // if url contains like "/blog" then parse it to canonical url.
     if (!url.startsWith('http')) {
         url = `${self.location.origin}${url}`;
     }
