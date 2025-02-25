@@ -156,7 +156,7 @@
     ],
     "shortcuts": [
         {
-            "name": "New Blog Post",
+            "name": "Write a Blog",
             "short_name": "Write",
             "description": "Start writing a new blog post",
             "url": "/create?source=pwa",

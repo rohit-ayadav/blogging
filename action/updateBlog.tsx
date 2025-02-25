@@ -5,6 +5,7 @@ import { isValidObjectId } from "mongoose";
 import { generateSeoSlug, isValidSlug, makeValidSlug } from "@/lib/common-function";
 import { getSessionAtHome } from "@/auth";
 import User from "@/models/users.models";
+import { revalidatePath } from "next/cache";
 
 await connectDB();
 
@@ -110,6 +111,9 @@ export async function updateBlog(Post: UpdatePostType) {
         blog.slug = Post.slug;
 
         await blog.save();
+        revalidatePath('/edit');
+        revalidatePath(`/blogs/${blog.slug}`);
+        revalidatePath(`/edit/${blog.slug}`);
         return {
             message: `Blog post ${isUpdatedByAdmin ? `updated by admin ${session.user.name}` : "updated"} successfully`,
             error: ""
