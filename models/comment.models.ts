@@ -1,3 +1,4 @@
+import { create } from "lodash";
 import mongoose from "mongoose";
 
 const CommentSchema = new mongoose.Schema({
@@ -6,14 +7,7 @@ const CommentSchema = new mongoose.Schema({
     ref: "blogs",
     required: true,
   },
-  name: {
-    type: String,
-    required: true,
-  },
-  image: {
-    type: String,
-  },
-  email: {
+  createdBy: {
     type: String,
     required: true,
   },

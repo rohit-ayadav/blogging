@@ -94,6 +94,7 @@ export async function generateMetadata({
     formatDetection: {
       telephone: false,
     },
+    metadataBase: new URL(canonicalUrl),
     openGraph: {
       title,
       description,

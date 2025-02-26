@@ -7,9 +7,10 @@ import { ErrorBoundary } from 'react-error-boundary';
 import BlogPostHeader from '../BlogPostHeader/page';
 import BlogPostFooter from '../BlogPostFooter/page';
 import { useTheme } from '@/context/ThemeContext';
-import { CommentSection } from '@/app/_component/commentsection';
+// import { CommentSection } from '@/app/_component/commentsection';
 import RenderContent from '@/app/blogs/components/RenderContent';
 import { incrementView } from '@/lib/viewIncrement';
+import CommentSection from '@/app/_component/CommentComponent/Comment';
 
 const SKELETON_COUNT = 3;
 interface BlogPostClientContentProps {
@@ -116,6 +117,7 @@ const BlogPostClientContent: React.FC<BlogPostClientContentProps> = ({
                             onReset={() => window.location.reload()}
                         >
                             <Suspense fallback={<SectionSkeleton />}>
+                                {/* <CommentSection postId={id} /> */}
                                 <CommentSection postId={id} />
                             </Suspense>
                         </ErrorBoundary>

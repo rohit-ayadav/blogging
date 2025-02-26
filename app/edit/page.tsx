@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { Pencil, Trash2 } from 'lucide-react';
 import { BlogPostType } from '@/types/blogs-types';
 
+export const dynamic = "force-dynamic";
+
 // Fetch blogs with error handling
 const fetchUserBlogs = async () => {
   try {

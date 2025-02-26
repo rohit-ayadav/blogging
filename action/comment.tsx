@@ -5,11 +5,22 @@ import { isValidObjectId } from "mongoose";
 import { isValidSlug } from "@/lib/common-function";
 import Comment from "@/models/comment.models";
 import { getSessionAtHome } from "@/auth";
+import User from "@/models/users.models";
+import serializeDocument from "@/utils/date-formatter";
 
 await connectDB();
-
 interface ResponseType {
-    comments: any[];
+    comments: {
+        _id: string;
+        postId: string;
+        createdBy: {
+            name: string;
+            email: string;
+            image: string;
+        }
+        content: string;
+        createdAt: Date;
+    }[]
     error: string;
 }
 
@@ -17,41 +28,79 @@ let response: ResponseType = {
     comments: [],
     error: ""
 };
-async function getComment(id: string) {
-    let post;
-    if (!id) {
-        response.error = "No id provided";
-        return response;
-    }
 
+interface ResponseType {
+    comments: {
+        _id: string;
+        postId: string;
+        createdBy: {
+            name: string;
+            email: string;
+            image: string;
+        };
+        content: string;
+        createdAt: Date;
+    }[];
+    error: string;
+}
+
+async function getComment(id: string): Promise<ResponseType> {
+    let response: ResponseType = { comments: [], error: "" };
     try {
-        if (!isValidObjectId(id)) {
-            if (!isValidSlug(id)) {
-                response.error = "Invalid id";
-                return response;
-            }
+        if (!id) {
+            return { ...response, error: "No id provided" };
         }
+
+        let post;
         if (isValidObjectId(id)) {
             post = await Blog.findById(id);
-        } else {
+        } else if (isValidSlug(id)) {
             post = await Blog.findOne({ slug: id });
+        } else {
+            return { ...response, error: "Invalid id or slug" };
         }
 
         if (!post) {
-            response.error = "Post not found";
-            return response;
+            return { ...response, error: "Post not found" };
         }
-        const comments = await Comment.find({ postId: id });
-        response.comments = comments;
-        return response;
-    } catch (error) {
+
+        // Find comments where postId matches either `_id` or `slug`
+        const postId = post._id.toString();
+        const postSlug = post.slug;
+        const comments = await Comment.find({
+            postId: { $in: [postId, postSlug] }
+        });
+
+        // Extract unique emails from comments
+        const uniqueEmails = [...new Set(comments.map(comment => comment.createdBy))];
+
+        // Fetch users based on extracted emails
+        const users = await User.find({ email: { $in: uniqueEmails } });
+
+        // Create a map for quick email-to-user lookup
+        const userMap = new Map(users.map(user => [user.email, user]));
+
+        // Format comments with user details
+        const formattedComments = comments.map(comment => ({
+            _id: comment._id,
+            postId: comment.postId,
+            createdBy: {
+                email: comment.createdBy,
+                name: userMap.get(comment.createdBy)?.name || "Unknown",
+                image: userMap.get(comment.createdBy)?.image || ""
+            },
+            content: comment.content,
+            createdAt: comment.createdAt
+        }));
+        const serializeResponse = formattedComments.map(comment => serializeDocument(comment));
+        return { comments: serializeResponse, error: "" };
+    } catch (error: any) {
         console.error("Error getting comments:", error);
-        response.error = `Error getting comments: ${error}`;
-        return response;
+        return { comments: [], error: `Error getting comments: ${error.message}` };
     }
 }
 
-async function postComment({ body }: { body: { postId: string, name: string | null | undefined, email: string | null | undefined, content: string } }): Promise<ResponseType> {
+async function postComment({ body }: { body: { postId: string, email: string, content: string } }) {
     const session = await getSessionAtHome();
     response.error = "";
     response.comments = [];
@@ -60,7 +109,7 @@ async function postComment({ body }: { body: { postId: string, name: string | nu
         return response;
     }
 
-    if (!body.postId || !body.name || !body.email || !body.content) {
+    if (!body.postId || !body.email || !body.content) {
         response.error = "All fields are required.";
         return response;
     }
@@ -83,10 +132,24 @@ async function postComment({ body }: { body: { postId: string, name: string | nu
     }
 
     try {
-
-        const newComment = new Comment({ postId: body.postId, name: body.name, email: body.email, content: body.content });
+        const newComment = new Comment({ postId: body.postId, createdBy: body.email, content: body.content });
         await newComment.save();
-        response.comments = [newComment];
+        response.comments = [
+            {
+                _id: newComment._id,
+                postId: newComment.postId,
+                createdBy: {
+                    email: newComment.createdBy,
+                    name: session.user.name,
+                    image: session.user.image
+                },
+                content: newComment.content,
+                createdAt: newComment.createdAt
+            }
+        ]
+        response.error = '';
+        const serializeResponse = serializeDocument(response);
+        response = serializeResponse;
         return response;
     } catch (error) {
         console.error("Error saving comment:", error);
@@ -107,7 +170,8 @@ async function deleteComment(id: string) {
             return response;
         }
         response.comments = [comment];
-        return response;
+        const serializeResponse = serializeDocument(response);
+        return response = serializeResponse;
     } catch (error) {
         console.error("Error deleting comment:", error);
         response.error = `Error deleting comment: ${error}`;
@@ -115,19 +179,24 @@ async function deleteComment(id: string) {
     }
 }
 
-async function updateComment({ body }: { body: { id: string, name: string | null | undefined, email: string | null | undefined, content: string } }) {
+async function updateComment({ body }: { body: { id: string, email: string, content: string } }) {
     if (!body.id) {
         response.error = "No id provided";
         return response;
     }
+    if (!isValidObjectId(body.id)) {
+        response.error = "Invalid id";
+        return response;
+    }
     try {
-        const comment = await Comment.findByIdAndUpdate(body.id, { name: body.name, email: body.email, content: body.content }, { new: true });
+        const comment = await Comment.findByIdAndUpdate(body.id, { createdBy: body.email, content: body.content }, { new: true });
         if (!comment) {
             response.error = "Comment not found";
             return response;
         }
         response.comments = [comment];
-        return response;
+        const serializeResponse = serializeDocument(response);
+        return response = serializeResponse;
     }
     catch (error) {
         console.error("Error updating comment:", error);

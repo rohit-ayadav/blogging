@@ -1,4 +1,3 @@
-"use server";
 import { connectDB } from "@/utils/db";
 import Blog from "@/models/blogs.models";
 import User from "@/models/users.models";
@@ -23,6 +22,8 @@ type SearchParams = {
     limit?: string;
     sort?: string;
 };
+
+export const dynamic = "force-dynamic";
 
 async function getSearchResults(params: SearchParams) {
     try {
