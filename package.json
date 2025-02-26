@@ -8,7 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@auth/core": "^0.34.2",
+    "@auth/core": "^0.37.4",
     "@auth/prisma-adapter": "^2.6.0",
     "@google/generative-ai": "^0.21.0",
     "@hookform/resolvers": "^3.9.1",
@@ -64,7 +64,7 @@
     "mongodb": "^6.10.0",
     "mongoose": "^8.7.0",
     "next": "14.2.14",
-    "next-auth": "^4.24.8",
+    "next-auth": "^4.24.11",
     "next-cloudinary": "^6.14.1",
     "next-sitemap": "^4.2.3",
     "next-themes": "^0.3.0",
