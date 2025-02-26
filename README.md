@@ -35,7 +35,7 @@ Welcome to the Blog Website! This platform allows users to read, create, and sha
 
 ## Live Website
 
-Check out the live website here: [Blog Website](https://www.food.devblogger.in/)
+Check out the live website here: [Blog Website](https://www.devblogger.in/)
 
 ## Installation and Setup
 

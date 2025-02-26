@@ -95,7 +95,7 @@ const Footer = () => {
             {/* Brand Section */}
             <div className="space-y-4">
               <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
-                TheFoodBlogger
+                DevBlogger
               </h3>
               <p className="text-sm leading-relaxed opacity-85">
                 Empowering developers to share knowledge, experiences, and insights with the global tech community.
@@ -221,7 +221,7 @@ const Footer = () => {
           <div className="border-t border-gray-700 pt-6 mt-6">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <p className="text-sm opacity-85">
-                &copy; {currentYear} TheFoodBlogger. All rights reserved.
+                &copy; {currentYear} DevBlogger. All rights reserved.
               </p>
               <div className="flex space-x-6">
                 <Link href="/privacy" className="text-sm hover:text-blue-400 transition-colors duration-200">

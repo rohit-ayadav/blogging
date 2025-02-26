@@ -68,7 +68,7 @@ const TheFoodBloggerNavbar = () => {
               <Code size={24} className="text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900 dark:text-white ">
-              TheFoodBlogger
+              DevBlogger
             </span>
           </Link>
 

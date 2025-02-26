@@ -39,12 +39,12 @@ const ContactPage = () => {
         });
         await sendEmail({
             to: formData.email,
-            subject: `Thank you for contacting us! | TheFoodBlogger`,
+            subject: `Thank you for contacting us! | DevBlogger`,
             message: confirmationToUser(formData.name, formData.email, Date.now().toString()),
         });
         await sendEmail({
             to: 'rohitkuyada@gmail.com',
-            subject: `New Contact Form Submission | TheFoodBlogger`,
+            subject: `New Contact Form Submission | DevBlogger`,
             message: copyToAdmin(formData.name, formData.email, Date.now().toString(), formData.subject, formData.message),
         });
 

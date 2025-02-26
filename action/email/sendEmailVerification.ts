@@ -33,7 +33,7 @@ export async function sendEmailVerification(email: string) {
 
         sendEmail({
             to: user.email,
-            subject: "Email Verification Link - TheFoodBlogger",
+            subject: "Email Verification Link - DevBlogger",
             message: EmailVerificationTemplate(user.name, verifyUrl)
         });
         return { success: true };

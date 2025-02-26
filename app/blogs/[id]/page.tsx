@@ -88,10 +88,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     }
 
     const postData = response.data;
-    const title = postData?.title || 'TheFoodBlogger Blog Post';
+    const title = postData?.title || 'DevBlogger Blog Post';
     const thumbnailUrl = postData?.thumbnail || '/default-thumbnail.png';
     const description = postData?.content.replace(/<[^>]*>?/gm, '').substring(0, 200);
-    const url = `https://www.food.devblogger.in/blogs/${response.data.slug}`;
+    const url = `https://www.devblogger.in/blogs/${response.data.slug}`;
 
     return {
         title,
@@ -172,10 +172,10 @@ export default async function IndividualBlogPost({ params }: { params: { id: str
         },
         publisher: {
             '@type': 'Organization',
-            name: 'TheFoodBlogger',
+            name: 'DevBlogger',
             logo: {
                 '@type': 'ImageObject',
-                url: 'https://www.food.devblogger.in/path/to/logo.png',
+                url: 'https://www.devblogger.in/path/to/logo.png',
             },
         },
     };

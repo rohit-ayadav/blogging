@@ -10,16 +10,16 @@ const AboutPage = () => {
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 items-center">
             <div>
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-                Welcome to <span className="text-blue-600">TheFoodBlogger</span>
+                Welcome to <span className="text-blue-600">DevBlogger</span>
               </h1>
               <p className="mt-6 text-lg leading-8 text-gray-600">
-                TheFoodBlogger is a platform built for developers, by developers. Whether you're a beginner or an experienced coder, TheFoodBlogger helps you share insights, tutorials, and personal experiences with the developer community.
+                DevBlogger is a platform built for developers, by developers. Whether you're a beginner or an experienced coder, DevBlogger helps you share insights, tutorials, and personal experiences with the developer community.
               </p>
             </div>
             <div className="lg:flex lg:justify-end">
               <img
                 src="/logo.png"
-                alt="TheFoodBlogger Logo"
+                alt="DevBlogger Logo"
                 className="rounded-lg shadow-xl w-full h-64 lg:h-80 object-cover object-center"
               />
             </div>
@@ -100,7 +100,7 @@ const AboutPage = () => {
             Join Us Today! 🚀
           </h2>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Join TheFoodBlogger today and start sharing your knowledge with the world!
+            Join DevBlogger today and start sharing your knowledge with the world!
           </p>
           <button className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg">
             Get Started

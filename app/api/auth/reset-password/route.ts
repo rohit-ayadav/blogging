@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
     sendEmail({
         to: user.email,
-        subject: "Password Reset Successfully for TheFoodBlogger",
+        subject: "Password Reset Successfully for DevBlogger",
         message: FPSuccesfullyResetPassword(user.name)
     });
 

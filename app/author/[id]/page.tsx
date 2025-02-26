@@ -43,8 +43,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     const response = await getPostData(params.id);
     if (!response || !response.success || !response.author) {
         return {
-            title: "Author Not Found | TheFoodBlogger",
-            description: "The requested author profile could not be found on TheFoodBlogger.",
+            title: "Author Not Found | DevBlogger",
+            description: "The requested author profile could not be found on DevBlogger.",
             openGraph: {
                 title: "Author Not Found",
                 description: "This author does not exist or has not published any posts.",
@@ -57,10 +57,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
     const { author, data: posts } = response;
     const postTitles = posts.map(post => post.title).slice(0, 3).join(", ");
-    const description = `Discover ${author.name}'s latest blog posts on TheFoodBlogger: ${postTitles}`;
+    const description = `Discover ${author.name}'s latest blog posts on DevBlogger: ${postTitles}`;
 
     return {
-        title: `${author.name}'s Profile | TheFoodBlogger`,
+        title: `${author.name}'s Profile | DevBlogger`,
         description,
         openGraph: {
             title: `${author.name} - Developer Blogs`,
