@@ -19,6 +19,7 @@ import FeaturedAuthors from './FeaturedAuthors';
 import CategoryBrowser from './CategoryBrowser';
 import { NewsletterSection } from './NewsletterSection';
 import RecentActivityFeed from '@/app/author/RecentActivityFeed';
+import ContentToolsSection from './ContentToolsSection';
 
 const FeatureCard = ({ icon, title, description, action, link }: any) => {
     const { isDarkMode } = useTheme();
@@ -403,6 +404,7 @@ const HomePage = ({ posts, users, totalLikes, totalViews, totalBlogs, totalUsers
                 </div>
             </section>
 
+            <ContentToolsSection />
             {/* Newsletter Section */}
             <NewsletterSection />
 

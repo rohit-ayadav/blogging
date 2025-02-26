@@ -1,22 +1,32 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LogOut, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 
 const SignOutPage = () => {
     const { isDarkMode } = useTheme();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const { data, status } = useSession();
+
+    useEffect(() => {
+        if (status === 'unauthenticated') {
+            router.push('/login');
+        }
+    }, [status, router]);
 
     const handleSignOut = async () => {
         setIsLoading(true);
 
         try {
-            await signOut();
+            await signOut({
+                redirect: false,
+                callbackUrl: '/login',
+            });
             router.push('/blogs');
         } catch (error) {
             console.error('Error signing out:', error);
