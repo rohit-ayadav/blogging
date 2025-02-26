@@ -5,22 +5,42 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { PenTool } from 'react-feather';
 import { motion } from 'framer-motion';
+import { useToast } from '@/hooks/use-toast';
 
 export const NewsletterSection = () => {
     const { isDarkMode } = useTheme();
+    const { toast } = useToast();
     const [email, setEmail] = useState('');
     const [isSubscribing, setIsSubscribing] = useState(false);
+    const [isTouched, setIsTouched] = useState(false);
 
-    const handleSubscribe = (e: React.FormEvent) => {
+    const handleSubscribe = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubscribing(true);
-
-        // Simulate API call
-        setTimeout(() => {
-            setIsSubscribing(false);
-            setEmail('');
-            // Add toast notification here
-        }, 1500);
+        const response = await fetch("/api/subscribe", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: email.toLowerCase().trim() }),
+        });
+        if (response.ok) {
+            toast({
+                title: "Success!",
+                description: "Successfully subscribed to newsletter! 🎉",
+                duration: 5000,
+            });
+            setEmail("");
+            setIsTouched(false);
+        } else {
+            const data = await response.json();
+            toast({
+                variant: "destructive",
+                title: "Failed to subscribe",
+                description: data.message || "Please try again later.",
+            });
+        }
+        setIsSubscribing(false);
     };
 
     return (
