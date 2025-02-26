@@ -8,7 +8,7 @@ import Script from "next/script";
 import { Toaster as Toast } from "react-hot-toast";
 import SessionWrapper from "@/app/_component/sessionWrapper";
 import Footer from "./footer/page";
-import Navbar from "./_component/navigation/navbar/navbarComponent";
+import { Navbar } from "./_component/navigation/navbar/navbarComponent";
 declare global {
   interface Window {
     dataLayer: any[];
@@ -231,11 +231,8 @@ export default function RootLayout({
         {/* <Toast /> */}
         <ThemeProvider>
           <SessionWrapper>
-            {/* <NavbarComponent /> */}
-            {/* <TheFoodBloggerNavbar /> */}
             <Navbar />
             <main className="flex-grow min-h-[calc(100vh-100px)]">
-              {/* <main className="flex-grow min-h-[calc(100vh-100px)] flex items-center justify-center"> */}
               {children}
             </main>
             <Footer />

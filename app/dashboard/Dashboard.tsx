@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserType, BlogPostType } from '@/types/blogs-types';
@@ -8,6 +8,7 @@ import Header from './dashcomponent/Header';
 import Overview from './dashcomponent/Overview';
 import Analytics from './dashcomponent/Analytics';
 import BlogPost from './dashcomponent/BlogPost';
+import { fetchAuthorData } from '@/action/personalDashboardData';
 
 interface AuthorDashboardProps {
     user: UserType;
@@ -17,7 +18,7 @@ interface AuthorDashboardProps {
     }[];
 }
 
-export default function AuthorDashboard({ user, blogs, monthlyStats }: AuthorDashboardProps) {
+function AuthorDashboard({ user, blogs, monthlyStats }: AuthorDashboardProps) {
     const [timeframe, setTimeframe] = useState('6months');
     const [sortBlogs, setSortBlogs] = useState('recent');
     const [selectedView, setSelectedView] = useState('overview');
@@ -109,7 +110,7 @@ export default function AuthorDashboard({ user, blogs, monthlyStats }: AuthorDas
                             <TabsTrigger value="analytics">Analytics</TabsTrigger>
                             <TabsTrigger value="blogs">My Blogs</TabsTrigger>
                         </TabsList>
-                        
+
                         <div className="flex gap-2 mt-3 md:mt-0">
                             <Select value={timeframe} onValueChange={setTimeframe}>
                                 <SelectTrigger className="w-[180px]">
@@ -139,3 +140,4 @@ export default function AuthorDashboard({ user, blogs, monthlyStats }: AuthorDas
         </div >
     );
 }
+export default AuthorDashboard;

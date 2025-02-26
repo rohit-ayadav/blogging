@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { Suspense } from "react";
+import LoadingEffect from "@/lib/LoadingEffect";
 
 type SearchSuggestionsProps = {
     suggestions: {
@@ -72,7 +73,7 @@ function Suggestions({ suggestions, currentQuery }: SearchSuggestionsProps) {
 
 export default function SearchSuggestions({ suggestions, currentQuery }: SearchSuggestionsProps) {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingEffect />}>
             <Suggestions suggestions={suggestions} currentQuery={currentQuery} />
         </Suspense>
     )

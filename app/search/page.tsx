@@ -9,6 +9,7 @@ import SearchResults from "./SearchResults";
 import serializeDocument from "@/utils/date-formatter";
 import HeaderSearch from "./SearchHeader";
 import { Suspense } from "react";
+import LoadingEffect from "@/lib/LoadingEffect";
 
 type SearchParams = {
     q?: string;
@@ -237,7 +238,7 @@ async function SearchPage({
 
 export default async function Page({ searchParams }: { searchParams: SearchParams }) {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingEffect />}>
             <SearchPage searchParams={searchParams} />
         </Suspense>
     );

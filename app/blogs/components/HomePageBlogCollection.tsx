@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CATEGORIES, stateType } from '@/types/blogs-types';
 import { BlogPostType } from '@/types/blogs-types';
 import { Toaster } from '@/components/ui/toaster';
-import DashboardGrid from '@/app/_component/dashboardGrid';
+import DashboardGrid from '@/app/_component/dashboard/dashboardGrid';
 import BlogPostGrid from '@/app/_component/BlogPostGrid';
 import { Button } from '@/components/ui/button';
 import { EmptyState, LoadingState, NoMorePosts, themeClasses } from '../themeClass';

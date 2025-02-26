@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import LoadingEffect from '@/lib/LoadingEffect';
 
 function PasswordResetContent() {
     const [password, setPassword] = useState('');
@@ -160,7 +161,7 @@ function PasswordResetContent() {
 
 export default function PasswordReset() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingEffect />}>
             <PasswordResetContent />
         </Suspense>
     );

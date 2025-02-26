@@ -3,7 +3,7 @@ import { connectDB } from "@/utils/db";
 import User from "@/models/users.models";
 import { Metadata } from "next";
 import { getSessionAtHome } from "@/auth";
-import UserProfile from "./component/page";
+import UserProfile from "./component/UserProfile";
 import { ErrorMessage } from "../blogs/[id]/ErrorMessage";
 import serializeDocument from "@/utils/date-formatter";
 

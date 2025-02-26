@@ -115,24 +115,34 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     };
 }
 
+// export async function generateStaticParams() {
+//     await connectDB();
+//     const posts = await Blog.find({}, { slug: 1, _id: 1 });
+//     const paths = [] as { params: { id: string } }[];
+//     posts.forEach(post => {
+//         paths.push({
+//             params: {
+//                 id: post._id.toString(),
+//             }
+//         });
+//         paths.push({
+//             params: {
+//                 id: post.slug,
+//             }
+//         });
+//     })
+
+//     return paths;
+// }
+
 export async function generateStaticParams() {
     await connectDB();
     const posts = await Blog.find({}, { slug: 1, _id: 1 });
-    const paths = [] as { params: { id: string } }[];
-    posts.forEach(post => {
-        paths.push({
-            params: {
-                id: post._id.toString(),
-            }
-        });
-        paths.push({
-            params: {
-                id: post.slug,
-            }
-        });
-    })
 
-    return paths;
+    return posts.flatMap(post => [
+        { id: post._id.toString() },
+        { id: post.slug }
+    ]);
 }
 
 export default async function IndividualBlogPost({ params }: { params: { id: string } }) {

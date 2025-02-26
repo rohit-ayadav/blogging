@@ -26,7 +26,7 @@ const NavLink = ({ href, children, icon: Icon, setIsMobileMenuOpen }: any) => (
   </Link>
 );
 
-const TheFoodBloggerNavbar = () => {
+export const Navbar = () => {
   const { data: session } = useSession();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -226,10 +226,3 @@ const TheFoodBloggerNavbar = () => {
   );
 };
 
-export default function Navbar() {
-  return (
-    // <Suspense fallback={<div>Loading...</div>}>
-    <TheFoodBloggerNavbar />
-    // {/* </Suspense> */}
-  )
-}

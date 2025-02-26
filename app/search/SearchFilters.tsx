@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { Calendar, Filter, SortDesc } from "lucide-react";
+import LoadingEffect from "@/lib/LoadingEffect";
 
 type SearchFiltersProps = {
     currentFilters: {
@@ -167,7 +168,7 @@ function Filters({ currentFilters, suggestions }: SearchFiltersProps) {
 
 export default function SearchFilters({ currentFilters, suggestions }: SearchFiltersProps) {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingEffect />}>
             <Filters currentFilters={currentFilters} suggestions={suggestions} />
         </Suspense>
     );
