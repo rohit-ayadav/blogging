@@ -71,8 +71,7 @@ export const Navbar = () => {
               DevBlogger
             </span>
           </Link>
-
-
+          
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1 flex-1 justify-center max-w-2xl mx-8">
             {navLinks.map((link) => (

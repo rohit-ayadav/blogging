@@ -11,16 +11,10 @@ interface BlogPostProps {
     sortBlogs: string;
     setSortBlogs: (value: string) => void;
 }
-const BlogPost = ({ blogs, monthlyStats, sortedBlogs, sortBlogs, setSortBlogs }: BlogPostProps) => {
 
-    if (blogs.length === 0) {
-        // No blogs to show
-    }
-    if (blogs && sortedBlogs.length === 0) {
-        // Change your filter to get some blogs
-    }
+const BlogPost = ({ blogs, monthlyStats, sortedBlogs, sortBlogs, setSortBlogs }: BlogPostProps) => {
     return (
-        <div>
+        <div className="w-full">
             <Card className="border-0 shadow-lg">
                 <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
                     <div>
@@ -41,21 +35,31 @@ const BlogPost = ({ blogs, monthlyStats, sortedBlogs, sortBlogs, setSortBlogs }:
                     </Select>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {sortedBlogs.map((post: BlogPostType) => {
-                            const postStats = monthlyStats.filter(stat => stat.blog === post._id);
-                            const totalViews = postStats.reduce((sum, stat) => sum + stat.views, 0);
-                            const totalLikes = postStats.reduce((sum, stat) => sum + stat.likes, 0);
+                    {blogs.length === 0 ? (
+                        <div className="text-center py-8">
+                            <p className="text-gray-500 dark:text-gray-400">You haven't published any blog posts yet.</p>
+                        </div>
+                    ) : sortedBlogs.length === 0 ? (
+                        <div className="text-center py-8">
+                            <p className="text-gray-500 dark:text-gray-400">No blogs match your current filter. Try changing your sort option.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                            {sortedBlogs.map((post: BlogPostType) => {
+                                const postStats = monthlyStats.filter(stat => stat.blog === post._id);
+                                const totalViews = postStats.reduce((sum, stat) => sum + stat.views, 0);
+                                const totalLikes = postStats.reduce((sum, stat) => sum + stat.likes, 0);
 
-                            const enhancedPost = {
-                                ...post,
-                                views: totalViews,
-                                likes: totalLikes
-                            };
+                                const enhancedPost = {
+                                    ...post,
+                                    views: totalViews,
+                                    likes: totalLikes
+                                };
 
-                            return <PostCard key={post._id} post={enhancedPost} showStats={true} />;
-                        })}
-                    </div>
+                                return <PostCard key={post._id} post={enhancedPost} showStats={true} />;
+                            })}
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>

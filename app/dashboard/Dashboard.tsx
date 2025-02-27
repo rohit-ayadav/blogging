@@ -9,6 +9,7 @@ import Overview from './dashcomponent/Overview';
 import Analytics from './dashcomponent/Analytics';
 import BlogPost from './dashcomponent/BlogPost';
 import { fetchAuthorData } from '@/action/personalDashboardData';
+import AuthorStats from './AuthorStats';
 
 interface AuthorDashboardProps {
     user: UserType;
@@ -98,46 +99,59 @@ function AuthorDashboard({ user, blogs, monthlyStats }: AuthorDashboardProps) {
     }, [totalStats]);
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="w-full px-2 sm:px-4 py-4 sm:py-8 mx-auto max-w-7xl">
             <Header user={user} />
             <Stats totalStats={totalStats} chartData={chartData} engagementRate={parseFloat(engagementRate.toString())} />
 
-            <div className="space-y-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-">
-                    <Tabs value={selectedView} onValueChange={setSelectedView} className="w-full">
+            <div className="mt-6 sm:mt-8">
+                <Tabs value={selectedView} onValueChange={setSelectedView} className="w-full">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                         <TabsList className="grid grid-cols-3 w-full max-w-md">
                             <TabsTrigger value="overview">Overview</TabsTrigger>
                             <TabsTrigger value="analytics">Analytics</TabsTrigger>
                             <TabsTrigger value="blogs">My Blogs</TabsTrigger>
+                            {/* <TabsTrigger value="author">Author</TabsTrigger> */}
                         </TabsList>
 
-                        <div className="flex gap-2 mt-3 md:mt-0">
-                            <Select value={timeframe} onValueChange={setTimeframe}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder="Timeframe" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="6months">Last 6 Months</SelectItem>
-                                    <SelectItem value="12months">Last 12 Months</SelectItem>
-                                </SelectContent>
-                            </Select>
+                        <Select value={timeframe} onValueChange={setTimeframe}>
+                            <SelectTrigger className="w-full sm:w-[180px] mt-2 sm:mt-0">
+                                <SelectValue placeholder="Timeframe" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="6months">Last 6 Months</SelectItem>
+                                <SelectItem value="12months">Last 12 Months</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <TabsContent value="overview" className="mt-4 space-y-4 sm:space-y-8">
+                        <Overview chartData={chartData} categoryDistribution={categoryDistribution} timeframe={timeframe} />
+                    </TabsContent>
+
+                    <TabsContent value="analytics" className="mt-4 space-y-4 sm:space-y-6">
+                        <Analytics blogs={blogs} monthlyStats={monthlyStats} chartData={chartData} sortedBlogs={sortedBlogs} />
+                    </TabsContent>
+
+                    <TabsContent value="blogs" className="mt-4 space-y-4 sm:space-y-6">
+                        <div className="w-full overflow-x-auto">
+                            <BlogPost
+                                blogs={blogs}
+                                monthlyStats={monthlyStats}
+                                sortedBlogs={sortedBlogs}
+                                sortBlogs={sortBlogs}
+                                setSortBlogs={setSortBlogs}
+                            />
                         </div>
-
-                        <TabsContent value="overview" className="space-y-8">
-                            <Overview chartData={chartData} categoryDistribution={categoryDistribution} timeframe={timeframe} />
-                        </TabsContent>
-
-                        <TabsContent value="analytics" className="space-y-6">
-                            <Analytics blogs={blogs} monthlyStats={monthlyStats} chartData={chartData} sortedBlogs={sortedBlogs} />
-                        </TabsContent>
-
-                        <TabsContent value="blogs" className="space-y-6">
-                            <BlogPost blogs={blogs} monthlyStats={monthlyStats} sortedBlogs={sortedBlogs} sortBlogs={sortBlogs} setSortBlogs={setSortBlogs} />
-                        </TabsContent>
-                    </Tabs>
-                </div>
+                    </TabsContent>
+                    {/* <TabsContent value="author" className="mt-4 space-y-4 sm:space-y-6">
+                        <div className="w-full overflow-x-auto">
+                            <AuthorStats posts={blogs} monthlyStats={monthlyStats} />
+                        </div>
+                    </TabsContent> */}
+                </Tabs>
             </div>
-        </div >
+        </div>
     );
 }
+
 export default AuthorDashboard;
