@@ -72,6 +72,7 @@ export const Navbar = () => {
             </span>
           </Link>
 
+
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1 flex-1 justify-center max-w-2xl mx-8">
             {navLinks.map((link) => (
@@ -131,15 +132,26 @@ export const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden p-2 rounded-md text-gray-700 dark:text-gray-200
+          {/* Mobile View, Night Mode, Notifications*/}
+          <div className='flex lg:hidden items-center space-x-4'>
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 
+                transition-colors duration-200"
+            >
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
+            {/* Mobile Menu Button */}
+            <button
+              className="lg:hidden p-2 rounded-md text-gray-700 dark:text-gray-200
               hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
       </div>
 

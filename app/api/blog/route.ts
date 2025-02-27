@@ -11,6 +11,7 @@ import { getSessionAtHome } from "@/auth";
 import webpush from "web-push";
 import Notification from "@/models/notification.models";
 import { isValidSlug } from "@/lib/common-function";
+import { revalidatePath } from "next/cache";
 
 await connectDB();
 
@@ -97,6 +98,9 @@ export async function POST(request: NextRequest) {
           })
       );
 
+      revalidatePath("/");
+      revalidatePath(`/blogs/${slug}`);
+      revalidatePath(`/blogs`);
 
       await Promise.all(notificationPromises);
       await Notification.deleteMany({ active: false });
