@@ -1,7 +1,6 @@
 "use client";
-
-import React from 'react';
-import { useRouter } from 'next/navigation';
+import React, { Suspense, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from "@/lib/utils";
@@ -12,6 +11,7 @@ import EditorCard from './component/EditorCard';
 import PageHeader from './component/PageHeader';
 import LoadingSpinner from './component/LoadingSpinner';
 import useBlogDraft from '@/hooks/useBlogDraft';
+import LoadingEffect from '@/lib/LoadingEffect';
 
 // Constants
 const DEFAULT_CONTENT = {
@@ -25,7 +25,6 @@ const DRAFT_SAVE_DELAY = 1000; // 1 second
 const DRAFT_SUCCESS_DURATION = 1000;
 const DRAFT_INFO_DELAY = 3000;
 const DRAFT_INFO_DURATION = 1500;
-
 
 // Utility functions
 const sanitizer = {
@@ -49,10 +48,12 @@ const validateBlogPost = (state: BlogState): string | null => {
     return null;
 };
 
-
 // Main component
-export default function CreateBlog() {
+function CreateBlogComponent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const title = searchParams.get('title') || '';
+    // alert(`title: ${title}`);
     const { isDarkMode } = useTheme();
     const [loading, setLoading] = React.useState(false);
 
@@ -60,7 +61,7 @@ export default function CreateBlog() {
         isInitializing: true,
         isLoading: false,
         error: null,
-        title: '',
+        title: title,
         thumbnail: null,
         thumbnailCredit: null,
         htmlContent: DEFAULT_CONTENT.html,
@@ -207,3 +208,13 @@ export default function CreateBlog() {
         </div>
     );
 }
+
+const CreateBlog = () => {
+    return (
+        <Suspense fallback={<LoadingEffect />}>
+            <CreateBlogComponent />
+        </Suspense>
+    )
+}
+
+export default CreateBlog;

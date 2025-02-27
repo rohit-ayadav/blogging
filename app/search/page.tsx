@@ -58,6 +58,7 @@ async function getSearchResults(params: SearchParams) {
                 { name: searchRegex },
                 { username: searchRegex },
                 { bio: searchRegex }
+
             ];
         }
 
@@ -115,6 +116,8 @@ async function getSearchResults(params: SearchParams) {
             const [userResults, userCount] = await Promise.all([
                 User.find(userQuery)
                     .select('-password -emailVerificationToken')
+                    .where('noOfBlogs').gt(0)
+                    .sort({ noOfBlogs: -1 })
                     .skip(skip)
                     .limit(limit),
                 User.countDocuments(userQuery)

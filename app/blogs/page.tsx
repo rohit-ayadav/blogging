@@ -1,10 +1,11 @@
 "use client";
-import React, { use, useCallback, useEffect, useState } from 'react'
+import React, { Suspense, use, useCallback, useEffect, useState } from 'react'
 import { StatsType } from '@/types/blogs-types';
 import { BlogPostType, UserType, stateType } from '@/types/blogs-types';
 import { useInView } from '@react-spring/web';
 import HomePageBlogCollection from './components/HomePageBlogCollection';
-
+import { useSearchParams } from 'next/navigation';
+import LoadingEffect from '@/lib/LoadingEffect';
 interface PostsData {
     success: boolean;
     data: BlogPostType[];
@@ -18,17 +19,22 @@ interface PostsData {
     };
 }
 
-const BlogCollection = () => {
+const BlogCollectionComponent = () => {
     const [ref, inView] = useInView();
+    const searchParams = useSearchParams();
+    const searchTerm = searchParams.get('search') || '';
+    const category = searchParams.get('category') || 'all';
+    const sortBy = searchParams.get('sortBy') || 'newest';
+
     const [state, setState] = useState<stateType>({
         posts: [] as BlogPostType[],
         users: {} as Record<string, UserType>,
         loading: true,
         loadingMore: false,
         error: null as string | null,
-        searchTerm: '',
-        sortBy: 'newest',
-        category: 'all',
+        searchTerm: searchTerm,
+        sortBy: sortBy,
+        category: category,
         page: 1,
         limit: 9,
         stats: {
@@ -63,7 +69,7 @@ const BlogCollection = () => {
     useEffect(() => {
         state.initialized = true;
     }, []);
-    
+
     useEffect(() => {
         if (inView && state.metadata.hasMore && !state.loadingMore && !state.loading && state.initialized) {
             setState(prev => ({ ...prev, loadingMore: true, page: prev.page + 1 }));
@@ -121,6 +127,15 @@ const BlogCollection = () => {
             <div ref={ref} className='h-8' />
         </>
     );
+}
+
+const BlogCollection = () => {
+    return (
+        <Suspense fallback={<LoadingEffect />}>
+            <BlogCollectionComponent />
+        </Suspense>
+    )
+
 }
 
 export default BlogCollection;

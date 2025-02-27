@@ -118,13 +118,13 @@ const ContentCreationGuidePage = () => {
                                     </li>
                                 </ul>
 
-                                <div className="mt-8 text-center">
+                                {/* <div className="mt-8 text-center">
                                     <Link href="/content-calendar">
                                         <span className={`inline-block px-6 py-2 rounded-full ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-blue-100 hover:bg-blue-200 text-blue-800'} transition-colors font-medium`}>
                                             Plan Your Content Calendar →
                                         </span>
                                     </Link>
-                                </div>
+                                </div> */}
                             </CardContent>
                         </Card>
                     </div>
@@ -132,7 +132,7 @@ const ContentCreationGuidePage = () => {
             </section>
 
             {/* Related Tools Section */}
-            <section className={`py-16 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+            {/* <section className={`py-16 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
                 <div className="container mx-auto px-6">
                     <h2 className="text-2xl font-bold mb-8 text-center">Content Creation Tools</h2>
 
@@ -186,7 +186,7 @@ const ContentCreationGuidePage = () => {
                         </Link>
                     </div>
                 </div>
-            </section>
+            </section> */}
         </main>
     );
 };

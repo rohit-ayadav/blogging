@@ -43,7 +43,7 @@ const useBlogDraft = (initialState: BlogState) => {
             }
 
             updateState({
-                title: data.title || '',
+                title: state.title || data.title || '',
                 thumbnail: data.thumbnail || null,
                 thumbnailCredit: data.thumbnailCredit || null,
                 markdownContent: data.markdownContent || DEFAULT_CONTENT.markdown,
