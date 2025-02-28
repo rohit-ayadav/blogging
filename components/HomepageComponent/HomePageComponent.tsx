@@ -20,6 +20,7 @@ import CategoryBrowser from './CategoryBrowser';
 import { NewsletterSection } from './NewsletterSection';
 import RecentActivityFeed from '@/app/author/RecentActivityFeed';
 import ContentToolsSection from './ContentToolsSection';
+import PostCard from '@/app/_component/PostCard';
 
 const FeatureCard = ({ icon, title, description, action, link }: any) => {
     const { isDarkMode } = useTheme();
@@ -361,7 +362,7 @@ const HomePage = ({ posts, users, totalLikes, totalViews, totalBlogs, totalUsers
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                             >
-                                <BlogPostCard
+                                <PostCard
                                     post={post}
                                     user={users.find(user => user.email === post.createdBy) || { email: '', name: '', image: '', bio: '', follower: 0, following: 0, noOfBlogs: 0, createdAt: '', updatedAt: '', theme: '', _id: '', website: '', socialLinks: { linkedin: '', github: '', twitter: '', instagram: '', facebook: '' }, isEmailVerified: false, username: '', role: '' }}
                                 />

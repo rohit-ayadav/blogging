@@ -29,7 +29,7 @@ const Overview = ({ chartData, categoryDistribution, timeframe }: OverviewProps)
                 </CardHeader>
                 <CardContent className="px-2 sm:px-6">
                     <div className="h-64 sm:h-80">
-                        <ResponsiveContainer width="100%" height="100%">
+                        {/* <ResponsiveContainer width="100%" height="100%"> */}
                             <LineChart data={chartData} margin={{ top: 5, right: 10, left: 20, bottom: 20 }}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis
@@ -46,7 +46,7 @@ const Overview = ({ chartData, categoryDistribution, timeframe }: OverviewProps)
                                 <Line type="monotone" dataKey="views" stroke="#0088FE" name="Views" activeDot={{ r: 6 }} strokeWidth={2} />
                                 <Line type="monotone" dataKey="likes" stroke="#00C49F" name="Likes" strokeWidth={2} />
                             </LineChart>
-                        </ResponsiveContainer>
+                        {/* </ResponsiveContainer> */}
                     </div>
                 </CardContent>
             </Card>

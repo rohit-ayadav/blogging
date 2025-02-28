@@ -13,9 +13,18 @@ interface StatsCardProps {
         value: number;
         label: string;
     };
+    compact?: boolean;
 }
 
-export const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, trend, isDarkMode, color }) => {
+export const StatsCard: React.FC<StatsCardProps> = ({
+    title,
+    value,
+    icon,
+    trend,
+    isDarkMode,
+    color,
+    compact = false
+}) => {
     const colorClasses = {
         blue: isDarkMode ? 'text-blue-400 bg-blue-400/10' : 'text-blue-600 bg-blue-100',
         green: isDarkMode ? 'text-green-400 bg-green-400/10' : 'text-green-600 bg-green-100',
@@ -40,6 +49,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, trend,
                     }
                     shadow hover:shadow-lg transition-all duration-300
                     transform hover:-translate-y-1
+                    ${compact ? 'p-2' : ''}
                 `}
             >
                 <div
@@ -49,13 +59,18 @@ export const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, trend,
                     `}
                 />
 
-                <CardHeader className="pb-2 space-y-0">
+                <CardHeader className={`pb-1 space-y-0 ${compact ? 'p-2' : ''}`}>
                     <CardTitle className="flex items-center justify-between">
-                        <span className={`text-sm sm:text-base font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                        <span className={`
+                            ${compact ? 'text-xs' : 'text-sm sm:text-base'} 
+                            font-semibold 
+                            ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}
+                        `}>
                             {title}
                         </span>
                         <span className={`
-                            p-1.5 sm:p-2 rounded-lg text-base sm:text-lg
+                            ${compact ? 'p-1 text-sm' : 'p-1.5 sm:p-2 text-base sm:text-lg'}
+                            rounded-lg
                             ${colorClasses[color]}
                         `}>
                             {icon}
@@ -63,9 +78,12 @@ export const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, trend,
                     </CardTitle>
                 </CardHeader>
 
-                <CardContent className="space-y-2">
+                <CardContent className={`space-y-1 ${compact ? 'p-2 pt-0' : ''}`}>
                     <p className={`
-                        text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight
+                        ${compact
+                            ? 'text-xl font-bold'
+                            : 'text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight'
+                        }
                         ${colorClasses[color].split(' ')[0]}
                     `}>
                         <CountUp
@@ -77,18 +95,25 @@ export const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, trend,
                     </p>
 
                     {trend && (
-                        <div className="flex items-center text-xs sm:text-sm space-x-1.5">
+                        <div className={`
+                            flex items-center space-x-1.5
+                            ${compact ? 'text-xs' : 'text-xs sm:text-sm'}
+                        `}>
                             <span className={`
                                 flex items-center font-medium px-1.5 py-0.5 rounded-full
                                 ${trend.value >= 0
                                     ? (isDarkMode ? 'text-green-400 bg-green-400/10' : 'text-green-600 bg-green-100')
                                     : (isDarkMode ? 'text-red-400 bg-red-400/10' : 'text-red-600 bg-red-100')
                                 }
+                                ${compact ? 'text-xs' : ''}
                             `}>
                                 {trend.value >= 0 ? '↑' : '↓'} {Math.abs(trend.value)}%
                             </span>
-                            <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                {trend.label}
+                            <span className={`
+                                ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}
+                                ${compact ? 'text-xs' : ''}
+                            `}>
+                                {compact ? 'vs. last mo.' : trend.label}
                             </span>
                         </div>
                     )}

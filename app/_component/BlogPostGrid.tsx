@@ -1,6 +1,7 @@
 import React from 'react';
 import { BlogPostCard, SkeletonCard } from './BlogPostCard';
 import { BlogPostType, UserType } from '@/types/blogs-types';
+import PostCard from './PostCard';
 interface BlogPostGridProps {
     loading: boolean;
     filteredPosts: BlogPostType[];
@@ -17,7 +18,7 @@ const BlogPostGrid = ({ loading, filteredPosts, users }: BlogPostGridProps) => {
                         .fill(null)
                         .map((_, index) => <SkeletonCard key={index} />)
                     : filteredPosts.map((post) => (
-                        <BlogPostCard key={post._id} post={post} user={users[post.createdBy]} />
+                        <PostCard key={post._id} post={post} user={users[post.createdBy]} />
                     ))}
             </div>
         </div>
