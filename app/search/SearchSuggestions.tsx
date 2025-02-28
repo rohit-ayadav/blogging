@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { Suspense } from "react";
 import LoadingEffect from "@/lib/LoadingEffect";
+import { useTheme } from "@/context/ThemeContext";
 
 type SearchSuggestionsProps = {
     suggestions: {
@@ -40,6 +41,7 @@ const getSuggestions = ({ suggestions, currentQuery }: SearchSuggestionsProps) =
 function Suggestions({ suggestions, currentQuery }: SearchSuggestionsProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { isDarkMode } = useTheme();
 
     const handleSuggestionClick = (type: string, value: string) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -52,18 +54,25 @@ function Suggestions({ suggestions, currentQuery }: SearchSuggestionsProps) {
     if (searchSuggestions.length === 0) return null;
 
     return (
-        <div className="mb-6">
-            <h2 className="text-sm font-medium text-gray-500 mb-2">
+        <div className="mb-6 w-full">
+            <h2 className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
                 Suggested Searches
             </h2>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 max-w-full">
                 {searchSuggestions.map(suggestion => (
                     <button
                         key={suggestion.text}
                         onClick={() => handleSuggestionClick(suggestion.type, suggestion.value)}
-                        className="text-sm text-gray-600 hover:text-blue-600 transition-colors border border-gray-200 rounded-lg px-3 py-1"
+                        className={`
+                            text-sm px-3 py-1.5 rounded-lg transition-colors
+                            flex items-center gap-1.5 
+                            ${isDarkMode
+                                ? 'bg-gray-800 text-gray-200 border-gray-700 hover:bg-gray-700 hover:text-white'
+                                : 'bg-white text-gray-600 border border-gray-200 hover:text-blue-600 hover:border-blue-300'}
+                        `}
                     >
-                        {suggestion.text}
+                        <Search size={14} />
+                        <span className="truncate">{suggestion.text}</span>
                     </button>
                 ))}
             </div>

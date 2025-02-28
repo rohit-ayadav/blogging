@@ -6,9 +6,10 @@ import SearchFilters from "./SearchFilters";
 import SearchSuggestions from "./SearchSuggestions";
 import SearchResults from "./SearchResults";
 import serializeDocument from "@/utils/date-formatter";
-import HeaderSearch from "./SearchHeader";
 import { Suspense } from "react";
 import LoadingEffect from "@/lib/LoadingEffect";
+import { useTheme } from "@/context/ThemeContext";
+import HeaderSearch from "./PageHeaderSearch";
 
 type SearchParams = {
     q?: string;
@@ -182,15 +183,100 @@ export async function generateMetadata({ searchParams }: {
 }): Promise<Metadata> {
     const query = searchParams.q || 'All content';
     const type = searchParams.type || 'all';
+    const category = searchParams.category ? ` in ${searchParams.category}` : '';
+    const tag = searchParams.tag ? ` with tag ${searchParams.tag}` : '';
 
     return {
-        title: `Search: ${query} - ${type}`,
-        description: `Search results for ${query} in ${type}. Filter by category, tags, and date.`,
+        title: `Search: ${query}${category}${tag} - ${type}`,
+        description: `Search results for ${query} in ${type}${category}${tag}. Filter by category, tags, date and more.`,
         openGraph: {
-            title: `Search: ${query} - ${type}`,
-            description: `Search results for ${query} in ${type}. Filter by category, tags, and date.`,
+            title: `Search: ${query}${category}${tag} - ${type}`,
+            description: `Search results for ${query} in ${type}${category}${tag}. Filter by category, tags, date and more.`,
         },
     };
+}
+
+function SearchPageContent({
+    results,
+    totalCount,
+    totalPages,
+    currentPage,
+    suggestions,
+    searchParams,
+}: {
+    results: any[];
+    totalCount: number;
+    totalPages: number;
+    currentPage: number;
+    suggestions: any;
+    searchParams: SearchParams;
+}) {
+    // const { isDarkMode } = useTheme()
+    const isDarkMode = false;
+
+    return (
+        <main className="container mx-auto px-4 py-6 md:py-8">
+            <div className="mb-6">
+                {/* <HeaderSearch initialQuery={searchParams.q} /> */}
+                <HeaderSearch initialQuery={searchParams.q} placeholder="Search..." />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-8">
+                <div className="lg:col-span-1 order-2 lg:order-1">
+                    <div className="sticky top-4">
+                        <SearchFilters
+                            currentFilters={searchParams}
+                            suggestions={suggestions}
+                        />
+                    </div>
+                </div>
+
+                <div className="lg:col-span-3 order-1 lg:order-2">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
+                        <h1 className="text-2xl md:text-3xl font-bold mb-2 sm:mb-0">
+                            {searchParams.q
+                                ? `Results for "${searchParams.q}"`
+                                : 'All Content'}
+                        </h1>
+                        <p className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
+                            {totalCount} {totalCount === 1 ? 'result' : 'results'} found
+                        </p>
+                    </div>
+
+                    <SearchSuggestions
+                        suggestions={suggestions}
+                        currentQuery={searchParams.q}
+                    />
+
+                    {results.length > 0 ? (
+                        <SearchResults
+                            results={results}
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            searchParams={searchParams}
+                        />
+                    ) : (
+                        <div className={`p-8 text-center border rounded-lg ${isDarkMode
+                            ? 'bg-gray-800 border-gray-700 text-gray-300'
+                            : 'bg-gray-50 border-gray-200 text-gray-600'
+                            }`}>
+                            <h3 className="text-xl font-medium mb-2">No results found</h3>
+                            <p className="mb-4">Try adjusting your search terms or filters to find what you're looking for.</p>
+                            <button
+                                onClick={() => window.location.href = '/search'}
+                                className={`px-4 py-2 rounded-lg transition-colors ${isDarkMode
+                                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                                    : 'bg-white hover:bg-gray-100 text-gray-800 border border-gray-300'
+                                    }`}
+                            >
+                                Clear all filters
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </main>
+    );
 }
 
 async function SearchPage({
@@ -200,43 +286,16 @@ async function SearchPage({
 }) {
     const { results, totalCount, totalPages, currentPage, suggestions } =
         await getSearchResults(searchParams);
-    const { q } = searchParams;
 
     return (
-        <main className="container mx-auto px-4 py-8">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                <div className="lg:col-span-1">
-                    <SearchFilters
-                        currentFilters={searchParams}
-                        suggestions={suggestions}
-                    />
-                </div>
-
-                <div className="lg:col-span-3">
-                    <div className="mb-6">
-                        <HeaderSearch />
-                    </div>
-                    <div className="flex justify-between items-center mb-6">
-                        <h1 className="text-3xl font-bold">
-                            Search Results {searchParams.q ? `for "${searchParams.q}"` : ''}
-                        </h1>
-                        <p className="text-gray-600">{totalCount} results found</p>
-                    </div>
-
-                    <SearchSuggestions
-                        suggestions={suggestions}
-                        currentQuery={searchParams.q}
-                    />
-
-                    <SearchResults
-                        results={results}
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        searchParams={searchParams}
-                    />
-                </div>
-            </div>
-        </main>
+        <SearchPageContent
+            results={results}
+            totalCount={totalCount}
+            totalPages={totalPages}
+            currentPage={currentPage}
+            suggestions={suggestions}
+            searchParams={searchParams}
+        />
     );
 }
 
