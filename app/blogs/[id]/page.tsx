@@ -40,10 +40,10 @@ async function getPostData(id: string): Promise<ApiResponse> {
         }
 
         // Increment views
-        await Blog.findOneAndUpdate(
-            { slug: id },
-            { $inc: { views: 1 } }
-        );
+        // await Blog.findOneAndUpdate(
+        //     { slug: Array.isArray(post) ? post[0]?.slug : post?.slug },
+        //     { $inc: { views: 1 } }
+        // );
 
         // Get author information
         const createdBy = Array.isArray(post) ? post[0]?.createdBy : post?.createdBy;

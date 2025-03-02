@@ -7,6 +7,7 @@ import Comment from "@/models/comment.models";
 import { getSessionAtHome } from "@/auth";
 import User from "@/models/users.models";
 import serializeDocument from "@/utils/date-formatter";
+import { revalidatePath } from "next/cache";
 
 await connectDB();
 interface ResponseType {
@@ -132,7 +133,7 @@ async function postComment({ body }: { body: { postId: string, email: string, co
     }
 
     try {
-        const newComment = new Comment({ postId: body.postId, createdBy: body.email, content: body.content });
+        const newComment: typeof Comment.prototype = new Comment({ postId: body.postId, createdBy: body.email, content: body.content });
         await newComment.save();
         response.comments = [
             {
@@ -147,6 +148,10 @@ async function postComment({ body }: { body: { postId: string, email: string, co
                 createdAt: newComment.createdAt
             }
         ]
+        revalidatePath(`/blogs/${post.slug}`);
+        revalidatePath(`/blogs/${post._id}`);
+        revalidatePath(`/`);
+        revalidatePath(`/blogs`);
         response.error = '';
         const serializeResponse = serializeDocument(response);
         response = serializeResponse;
@@ -169,6 +174,20 @@ async function deleteComment(id: string) {
             response.error = "Comment not found";
             return response;
         }
+
+        let post;
+        if (isValidObjectId(comment.postId)) {
+            post = await Blog.findById(comment.postId);
+        } else if (isValidSlug(comment.postId)) {
+            post = await Blog.findOne({ slug: comment.postId });
+        }
+
+        if (post) {
+            revalidatePath(`/blogs/${post.slug}`);
+            revalidatePath(`/blogs/${post._id}`);
+        }
+        revalidatePath(`/`);
+        revalidatePath(`/blogs`);
         response.comments = [comment];
         const serializeResponse = serializeDocument(response);
         return response = serializeResponse;
@@ -194,6 +213,20 @@ async function updateComment({ body }: { body: { id: string, email: string, cont
             response.error = "Comment not found";
             return response;
         }
+        // Find the post to revalidate
+        let post;
+        if (isValidObjectId(comment.postId)) {
+            post = await Blog.findById(comment.postId);
+        }
+        else {
+            post = await Blog.findOne({ slug: comment.postId });
+        }
+        if (post) {
+            revalidatePath(`/blogs/${post.slug}`);
+            revalidatePath(`/blogs/${post._id}`);
+        }
+        revalidatePath(`/`);
+        revalidatePath(`/blogs`);
         response.comments = [comment];
         const serializeResponse = serializeDocument(response);
         return response = serializeResponse;

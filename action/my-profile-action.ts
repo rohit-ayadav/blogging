@@ -3,6 +3,7 @@
 import { connectDB } from "@/utils/db";
 import User from "@/models/users.models";
 import { ProfileFormData } from "@/app/profile/component/types";
+import { revalidatePath } from "next/cache";
 
 export async function saveEdit(data: ProfileFormData) {
     try {
@@ -38,6 +39,11 @@ export async function saveEdit(data: ProfileFormData) {
         user.website = data.website;
         user.socialLinks = data.socialLinks;
         await user.save();
+        revalidatePath(`/author/${user.username}`);
+        revalidatePath(`/author/${user._id}`);
+        revalidatePath(`/`);
+        revalidatePath(`/author`);
+        revalidatePath(`/profile`);
 
         console.log("Profile updated successfully");
         return { success: true, message: "Profile updated successfully" };

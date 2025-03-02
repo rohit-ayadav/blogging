@@ -5,6 +5,7 @@ import Blog from "@/models/blogs.models";
 import MonthlyStats from "@/models/monthlyStats";
 import { isValidObjectId } from "mongoose";
 import { isValidSlug } from "@/lib/common-function";
+import { revalidatePath } from "next/cache";
 class InteractionError extends Error {
     constructor(message: string) {
         super(message);
@@ -89,6 +90,10 @@ async function likePost(id: string): Promise<InteractionResult> {
             console.warn('Monthly stats update failed for post:', post._id);
         }
 
+        revalidatePath(`/blogs/${post.slug}`);
+        revalidatePath(`/blogs/${post._id}`);
+        revalidatePath(`/`);
+        revalidatePath(`/blogs`);
         return {
             success: true,
             likes: post.likes,
@@ -151,6 +156,12 @@ async function dislikePost(id: string): Promise<InteractionResult> {
         if (!statsUpdated) {
             console.warn('Monthly stats update failed for post:', post._id);
         }
+        // Revalidate the cache for the post and homepage so the updated likes are shown
+        revalidatePath(`/blogs/${post.slug}`);
+        revalidatePath(`/blogs/${post._id}`);
+        revalidatePath(`/`);
+        revalidatePath(`/blogs`);
+
 
         return {
             success: true,
