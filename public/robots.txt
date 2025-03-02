@@ -7,7 +7,6 @@ Disallow: /login/
 Disallow: /signup/
 Disallow: /forgot-password/
 Disallow: /reset-password/
-Disallow: /profile/
 Disallow: /edit/
 Disallow: /api/
 Disallow: /unauthorized/
