@@ -25,7 +25,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 
-  const prompt = `Based on the following blog content, generate relevant, concise, and SEO-friendly tags. Ensure that the tags are descriptive and capture the core topics, themes, and keywords:
+  const prompt = `Based on the following blog content, generate relevant, concise, and 20 SEO-friendly tags for the blog post which can be used for search engine optimization.
+  and will be set as a tags in meta tags of the blog post.
+  Ensure that the tags are descriptive and capture the core topics, themes, and keywords:
 
   "${content}"
   

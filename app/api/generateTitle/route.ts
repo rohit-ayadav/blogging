@@ -26,7 +26,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
   }
 
   const prompt = `Based on the following blog content, generate relevant, concise, and SEO-friendly title. Ensure that the title is catchy, descriptive, and effectively captures the main topics, themes, and keywords: "${content}" 
-  return only one title that best represents the content and keep normal text only (means dont add ## etc.).`;
+  return only one title that best represents the content and keep normal text only (means dont add ## etc.).
+  Title less then 580 pixels will be good for SEO.
+  `;
 
   try {
     const response = await generateResponse(prompt);
