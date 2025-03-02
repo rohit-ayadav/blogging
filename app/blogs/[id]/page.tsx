@@ -12,6 +12,8 @@ import { ErrorMessage } from './ErrorMessage';
 import BlogPostClientContent from '@/components/BlogPostContent/page';
 import { isValidSlug } from '@/lib/common-function';
 import serializeDocument, { formatDate } from '@/utils/date-formatter';
+import { revalidatePath } from 'next/cache';
+import { revalidateBlog } from '@/action/revalidate-post';
 interface ApiResponse {
     success: boolean;
     statusCode: number;
@@ -62,6 +64,8 @@ async function getPostData(id: string): Promise<ApiResponse> {
         const serializedPost = serializeDocument(post);
         const serializedAuthor = serializeDocument(author);
 
+        // revalidate the page
+        await revalidateBlog(serializedPost.slug);
         return {
             success: true,
             data: serializedPost as BlogPostType,
