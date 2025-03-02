@@ -156,8 +156,8 @@
     ],
     "shortcuts": [
         {
-            "name": "Write a Blog",
-            "short_name": "Write",
+            "name": "Create New Post",
+            "short_name": "New Post",
             "description": "Start writing a new blog post",
             "url": "/create?source=pwa",
             "icons": [
@@ -180,9 +180,9 @@
             ]
         },
         {
-            "name": "All Blogs",
-            "short_name": "Blogs",
-            "description": "Browse all blog posts",
+            "name": "Dashboard",
+            "short_name": "Dashboard",
+            "description": "View your dashboard",
             "url": "/blogs?source=pwa",
             "icons": [
                 {
@@ -250,7 +250,10 @@
     "theme_color_adjustment": "lighten",
     "permissions": [
         "clipboard-read",
-        "clipboard-write"
+        "clipboard-write",
+        "geolocation",
+        "notifications",
+        "push"
     ],
     "dark-mode": "media",
     "edge_side_panel": {
