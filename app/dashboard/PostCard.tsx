@@ -27,7 +27,7 @@ export const PostCard = ({ post, showStats = false, author }: PostCardProps) => 
 
         try {
             if (window.confirm('Are you sure you want to delete this post?')) {
-                const response = await fetch(`/api/blogs/${id}`, {
+                const response = await fetch(`/api/blog?id=${id}`, {
                     method: 'DELETE',
                 });
                 const data = await response.json();
@@ -46,7 +46,7 @@ export const PostCard = ({ post, showStats = false, author }: PostCardProps) => 
 
     return (
         <Card className="h-full overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-300 group">
-            <Link href={`/blogs/${post._id}`} className="flex-1 flex flex-col">
+            <Link href={`/blogs/${post.slug}`} className="flex-1 flex flex-col">
                 <div
                     className="h-40 sm:h-48 w-full bg-gradient-to-br from-blue-500 to-indigo-600 group-hover:from-blue-600 group-hover:to-indigo-700 transition-all duration-300"
                     style={{

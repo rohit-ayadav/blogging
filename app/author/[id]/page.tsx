@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     }
 
     const authorName = formatAuthorName(author.name);
-    const description = `Discover expert coding blogs & web development guides by ${author.name} on DevBlogger. 🚀 Learn JavaScript, React, and more from a top developer. Stay ahead in tech!`;
+    const description = `${author.name}'s expert blogs on web development, JavaScript, React and modern tech. Quality coding insights on DevBlogger.`;
     const url = `https://www.devblogger.in/author/${author.username}`;
     const thumbnail = author.image || "/default-thumbnail.jpg";
     const lastUpdated = new Date(author?.updatedAt ?? new Date()).toISOString();
