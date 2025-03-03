@@ -45,25 +45,34 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     if (!response || !response.success || !response.author) {
         return {
             title: "Author Not Found | DevBlogger",
-            description: "The requested author profile could not be found on DevBlogger.",
+            description: "The requested author profile could not be found on DevBlogger. Explore expert developer blogs, coding insights, and web development trends.",
             openGraph: {
                 title: "Author Not Found",
-                description: "This author does not exist or has not published any posts.",
+                description: "This author does not exist or has not published any posts. Discover top programming blogs and tech articles on DevBlogger.",
                 images: [{ url: "/default-thumbnail.jpg", width: 1200, height: 630 }]
             }
         };
     }
 
-    const { author, data: posts } = response;
-    const description = `Explore expert blogs by ${author.name} on DevBlogger. Read in-depth articles on programming, web development, and tech trends. Stay updated with ${author.name}'s latest insights!`;
+    const { author } = response;
+
+    // Function to split name after the second space
+    function formatAuthorName(name: string): string {
+        const words = name.split(" ");
+        return words.length > 2 ? `${words.slice(0, 2).join(" ")}...` : name;
+    }
+
+    const authorName = formatAuthorName(author.name);
+    const description = `Explore expert blogs by ${author.name} on DevBlogger. Read coding tutorials, web development tips, and tech insights.`;
+
     const url = `https://www.devblogger.in/author/${author.username}`;
     const thumbnail = author.image || "/default-thumbnail.jpg";
 
     return {
-        title: `${author.name} - Explore Top Developer Blogs & Insights | DevBlogger`,
+        title: `${authorName} - Dev Blogs, Coding Guides & Tech Insights | DevBlogger`,
         description,
         openGraph: {
-            title: `${author.name} - Expert Developer Blogs & Tech Insights`,
+            title: `${authorName} - Developer Blogs & Coding Tutorials`,
             description,
             url,
             siteName: "DevBlogger",
@@ -75,7 +84,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
             card: "summary_large_image",
             site: "@DevBlogger",
             creator: `@${author.username}`,
-            title: `${author.name} - Expert Dev Blogs & Tech Tutorials`,
+            title: `${authorName} - Dev Blogs & Tech Tutorials`,
             description,
             images: [{ url: thumbnail }]
         },
@@ -86,12 +95,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
             "robots": "index, follow",
             "og:profile:first_name": author.name.split(" ")[0],
             "og:profile:last_name": author.name.split(" ").slice(1).join(" ") || "",
-            "og:profile:username": author.username,
-            "og:profile:gender": "male" // Modify based on actual data
+            "og:profile:username": author.username
         }
     };
 }
-
 
 export async function generateStaticParams() {
     await connectDB();
