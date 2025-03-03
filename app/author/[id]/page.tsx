@@ -41,6 +41,7 @@ async function getPostData(id: string) {
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
     const response = await getPostData(params.id);
+
     if (!response || !response.success || !response.author) {
         return {
             title: "Author Not Found | DevBlogger",
@@ -48,41 +49,49 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
             openGraph: {
                 title: "Author Not Found",
                 description: "This author does not exist or has not published any posts.",
-                images: [
-                    { url: "/default-thumbnail.jpg", width: 1200, height: 630 }
-                ]
+                images: [{ url: "/default-thumbnail.jpg", width: 1200, height: 630 }]
             }
         };
     }
 
     const { author, data: posts } = response;
-    const postTitles = posts.map(post => post.title).slice(0, 3).join(", ");
-    const description = `Discover ${author.name}'s latest blog posts on DevBlogger: ${postTitles}`;
+    const description = `Explore expert blogs by ${author.name} on DevBlogger. Read in-depth articles on programming, web development, and tech trends. Stay updated with ${author.name}'s latest insights!`;
+    const url = `https://www.devblogger.in/author/${author.username}`;
+    const thumbnail = author.image || "/default-thumbnail.jpg";
 
     return {
-        title: `${author.name}'s Profile | DevBlogger`,
+        title: `${author.name} - Explore Top Developer Blogs & Insights | DevBlogger`,
         description,
         openGraph: {
-            title: `${author.name} - Developer Blogs`,
+            title: `${author.name} - Expert Developer Blogs & Tech Insights`,
             description,
-            images: [{ url: author.image || "/default-thumbnail.jpg", width: 1200, height: 630 }],
-            url: `/author/${author.username}`
+            url,
+            siteName: "DevBlogger",
+            type: "profile",
+            images: [{ url: thumbnail, width: 1200, height: 630 }],
+            locale: "en_US"
         },
         twitter: {
             card: "summary_large_image",
-            title: `${author.name} - Developer Blogs`,
+            site: "@DevBlogger",
+            creator: `@${author.username}`,
+            title: `${author.name} - Expert Dev Blogs & Tech Tutorials`,
             description,
-            images: [{ url: author.image || "/default-thumbnail.jpg" }]
+            images: [{ url: thumbnail }]
+        },
+        alternates: {
+            canonical: url
+        },
+        other: {
+            "robots": "index, follow",
+            "og:profile:first_name": author.name.split(" ")[0],
+            "og:profile:last_name": author.name.split(" ").slice(1).join(" ") || "",
+            "og:profile:username": author.username,
+            "og:profile:gender": "male" // Modify based on actual data
         }
     };
 }
 
-// export async function generateStaticParams() {
-//     await connectDB();
-//     const users = await User.find();
-//     return users.map((user) => ({ params: { id: user._id.toString() } }));
-//     // Return an array of objects containing the params which is the id of the user
-// }
 
 export async function generateStaticParams() {
     await connectDB();
