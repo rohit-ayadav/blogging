@@ -373,7 +373,7 @@ const ContentCalendarPage = () => {
                             </Card>
                         </Link>
 
-                        <Link href="/tools/headline-analyzer">
+                        {/* <Link href="/tools/headline-analyzer"> */}
                             <Card className={`h-full border-0 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-100'} transition-all cursor-pointer`}>
                                 <CardContent className="p-6 flex flex-col h-full">
                                     <h3 className="text-lg font-semibold mb-2">Headline Analyzer</h3>
@@ -383,9 +383,9 @@ const ContentCalendarPage = () => {
                                     <span className={`text-sm mt-4 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>Try it →</span>
                                 </CardContent>
                             </Card>
-                        </Link>
+                        {/* </Link> */}
 
-                        <Link href="/tools/seo-optimizer">
+                        {/* <Link href="/tools/seo-optimizer"> */}
                             <Card className={`h-full border-0 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-100'} transition-all cursor-pointer`}>
                                 <CardContent className="p-6 flex flex-col h-full">
                                     <h3 className="text-lg font-semibold mb-2">SEO Content Optimizer</h3>
@@ -395,7 +395,7 @@ const ContentCalendarPage = () => {
                                     <span className={`text-sm mt-4 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>Try it →</span>
                                 </CardContent>
                             </Card>
-                        </Link>
+                        {/* </Link> */}
 
                         <Link href="/tools/reading-time">
                             <Card className={`h-full border-0 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-100'} transition-all cursor-pointer`}>
