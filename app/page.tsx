@@ -36,8 +36,8 @@ async function getPostData() {
 
 export async function generateMetadata() {
     return {
-        title: "DevBlogger - A Blogging Platform for Developers",
-        description: "Explore a user-friendly blogging platform built with Next.js. Effortlessly create, update, and share blogs on diverse topics with customizable features and an interactive interface.",
+        title: "DevBlogger - The Ultimate Blogging Platform for Developers",
+        description: "Write, publish & grow your tech blog with DevBlogger. 🚀 A feature-rich, customizable blogging platform built for developers using Next.js & TypeScript.",
         keywords: "blogging, developer, blog, next.js, react, typescript, mongodb, vercel, nextjs, next,js, next-js, next.js blog, next.js blogging, next.js blog website, next.js blog platform, next.js blog app, next.js blog template, next.js blog example, next.js blog post, next.js blog tutorial, next.js blog website template, next.js blog website example, next.js blog website tutorial, next.js blog website project, next.js blog website code, next.js blog website design, next.js blog website development, next.js blog website app, next.js blog website platform, next.js blog website features, next.js blog website interface, next.js blog website user-friendly, next.js blog website customizable, next.js blog website interactive, next.js blog website share, next.js blog website update, next.js blog website create, next.js blog website effortlessly, next.js blog website diverse, next.js blog website topics, next.js blog website built, next.js blog website explore,DevBlogger, Dev Blogger, Developer Blogger, Dev Blog, Developer Blog, Blog for Developers, Blogging",
         manifest: "/manifest.json?v=1.0.6",
         appleWebApp: {

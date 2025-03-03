@@ -30,9 +30,9 @@ const geistMono = localFont({
 });
 
 export async function generateMetadata({
-  title = "DevBlogger - A Blogging Platform for Developers",
-  description = "Explore a user-friendly blogging platform built with Next.js. Effortlessly create, update, and share blogs on diverse topics with customizable features and an interactive interface.",
-  slug = "",
+  title = "DevBlogger - The Ultimate Blogging Platform for Developers",
+  description = "Write, publish & grow your tech blog with DevBlogger. 🚀 A feature-rich, customizable blogging platform built for developers using Next.js & TypeScript.",
+ slug = "",
   imageUrl = "/default-thumbnail.png",
   canonicalUrl = "https://www.devblogger.in",
 }: {
