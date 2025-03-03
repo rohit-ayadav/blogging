@@ -317,7 +317,7 @@ const ContentCalendarPage = () => {
                                     <li>
                                         <h3 className="text-lg font-semibold mb-1">Generate Content Ideas First</h3>
                                         <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                                            Use our <Link href="/tools/blog-idea-generator" className={`${isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} underline`}>Blog Idea Generator</Link> to create a bank of content ideas before planning your calendar.
+                                            Use our <Link href="/tools/blog-ideas" className={`${isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} underline`}>Blog Idea Generator</Link> to create a bank of content ideas before planning your calendar.
                                         </p>
                                     </li>
 
@@ -361,7 +361,7 @@ const ContentCalendarPage = () => {
                     <h2 className="text-2xl font-bold mb-8 text-center">Complete Your Content Toolkit</h2>
 
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <Link href="/tools/blog-idea-generator">
+                        <Link href="/tools/blog-ideas">
                             <Card className={`h-full border-0 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-100'} transition-all cursor-pointer`}>
                                 <CardContent className="p-6 flex flex-col h-full">
                                     <h3 className="text-lg font-semibold mb-2">Blog Idea Generator</h3>

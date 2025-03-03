@@ -137,7 +137,7 @@ const ContentCreationGuidePage = () => {
                     <h2 className="text-2xl font-bold mb-8 text-center">Content Creation Tools</h2>
 
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <Link href="/tools/blog-idea-generator">
+                        <Link href="/tools/blog-ideas">
                             <Card className={`h-full border-0 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-100'} transition-all cursor-pointer`}>
                                 <CardContent className="p-6 flex flex-col h-full">
                                     <h3 className="text-lg font-semibold mb-2">Blog Idea Generator</h3>
