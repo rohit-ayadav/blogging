@@ -2,7 +2,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { Menu, X, Code, Terminal, Settings, Edit3, Layout, Users, User, Search, Bell, Sun, Moon } from 'lucide-react';
+import { Menu, X, Code, Terminal, Settings, Edit3, Layout, Users, User, Search, Bell, Sun, Moon, CodeXml } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 // import SearchHeader as client component
 const SearchHeader = React.lazy(() => import('@/app/search/SearchHeader'));
@@ -65,7 +65,7 @@ export const Navbar = () => {
             onClick={() => setIsMobileMenuOpen(false)}>
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 
               flex items-center justify-center shadow-lg">
-              <Code size={24} className="text-white" />
+              <CodeXml size={24} className="text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900 dark:text-white ">
               DevBlogger
