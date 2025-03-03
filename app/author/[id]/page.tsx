@@ -50,29 +50,32 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
                 title: "Author Not Found",
                 description: "This author does not exist or has not published any posts. Discover top programming blogs and tech articles on DevBlogger.",
                 images: [{ url: "/default-thumbnail.jpg", width: 1200, height: 630 }]
+            },
+            other: {
+                "robots": "noindex, follow",
+                "keywords": "developer blogs, programming articles, web development, coding tutorials"
             }
         };
     }
 
-    const { author } = response;
+    const { author, data: posts } = response;
 
-    // Function to split name after the second space
     function formatAuthorName(name: string): string {
         const words = name.split(" ");
         return words.length > 2 ? `${words.slice(0, 2).join(" ")}...` : name;
     }
 
     const authorName = formatAuthorName(author.name);
-    const description = `Explore expert blogs by ${author.name} on DevBlogger. Read coding tutorials, web development tips, and tech insights.`;
-
+    const description = `Discover expert coding blogs & web development guides by ${author.name} on DevBlogger. 🚀 Learn JavaScript, React, and more from a top developer. Stay ahead in tech!`;
     const url = `https://www.devblogger.in/author/${author.username}`;
     const thumbnail = author.image || "/default-thumbnail.jpg";
+    const lastUpdated = new Date(author?.updatedAt ?? new Date()).toISOString();
 
     return {
-        title: `${authorName} - Dev Blogs, Coding Guides & Tech Insights | DevBlogger`,
+        title: `${authorName} - Expert Dev Blogs & Coding Tutorials | DevBlogger`,
         description,
         openGraph: {
-            title: `${authorName} - Developer Blogs & Coding Tutorials`,
+            title: `🔥 ${authorName}’s Best Coding Blogs & Developer Tips | DevBlogger`,
             description,
             url,
             siteName: "DevBlogger",
@@ -95,7 +98,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
             "robots": "index, follow",
             "og:profile:first_name": author.name.split(" ")[0],
             "og:profile:last_name": author.name.split(" ").slice(1).join(" ") || "",
-            "og:profile:username": author.username
+            "og:profile:username": author.username,
+            "profile:last_updated": lastUpdated,
+            "article:author": author.name,
+            "profile:tagline": author.bio || "Tech Blogger & Developer"
         }
     };
 }

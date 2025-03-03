@@ -32,6 +32,7 @@ interface Author {
         linkedin?: string;
     };
     createdAt?: string;
+    updatedAt?: string;
     totalViews?: number;
     totalLikes?: number;
 }
