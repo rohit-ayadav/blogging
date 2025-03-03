@@ -33,7 +33,7 @@ const RecentActivityFeed = ({ posts, users }: { posts: BlogPostType[], users: Us
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: index * 0.1 }}
                             >
-                                <Link href={`/blog/${activity.slug}`}>
+                                <Link href={`/blogs/${activity.slug}`}>
                                     <Card className={`transition-all duration-300 
                     ${isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'}`}
                                     >
